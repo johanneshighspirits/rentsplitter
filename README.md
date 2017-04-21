@@ -28,13 +28,13 @@ _How much should each member pay on the 31st of March?_
 
 ---
 
-##Mission:
+## Mission:
 * Calculate how much each member should pay.
 * Keep track of who has paid and who has not.
 * Account for the financial support(s).
 * Send an email to every member in the end of the month, stating the calculated rent to pay.
 
-###Additional details:
+### Additional details:
 * Display all the transactions in a web app that all active members have access to.
 * Use invites to add members.
 * Use `Ruby on rails` as backend
@@ -42,7 +42,7 @@ _How much should each member pay on the 31st of March?_
 
 ---
 
-##Setup
+## Setup
 Clone repo, then install the needed gems
 ```
 $ bundle install --without production
