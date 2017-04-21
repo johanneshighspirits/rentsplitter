@@ -122,7 +122,7 @@ GEM
     rb-fsevent (0.9.8)
     rb-inotify (0.9.8)
       ffi (>= 0.5.0)
-    react-rails (1.11.0)
+    react-rails (2.1.0)
       babel-transpiler (>= 0.7.0)
       connection_pool
       execjs
@@ -181,7 +181,7 @@ DEPENDENCIES
   puma (~> 3.0)
   rails (~> 5.0.2)
   rails-controller-testing
-  react-rails (~> 1.0)
+  react-rails (~> 2.1.0)
   sass-rails (~> 5.0)
   spring
   spring-watcher-listen (~> 2.0.0)
