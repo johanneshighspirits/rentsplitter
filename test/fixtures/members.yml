@@ -6,13 +6,13 @@ admin:
   password_digest: <%= Member.digest('password') %>
   admin: true
   activated: true
-  joined_at: 2017-04-21 22:20:26
-  left_at: 2017-04-21 22:20:26
+  joined_at: 2017-01-01
+  left_at: 2017-01-01
 
 member:
   name: Member Membersson
   email: member_email@example.com
   password_digest: <%= Member.digest('password') %>
   activated: true
-  joined_at: 2017-04-21 22:20:26
-  left_at: 2017-04-21 22:20:26
+  joined_at: 2017-01-01
+  left_at: 2017-01-01

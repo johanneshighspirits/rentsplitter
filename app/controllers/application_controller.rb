@@ -5,7 +5,6 @@ class ApplicationController < ActionController::Base
   def index
     if logged_in?
       puts "Logged in as #{current_member.name}"
-      render 'index'
     else
       render html: 'You need a special invitation to see this page'
     end

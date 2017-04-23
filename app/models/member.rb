@@ -33,9 +33,7 @@ class Member < ApplicationRecord
 
   # Sends invitation email
   def send_invitation_email
-    #TODO Implement sending of invitation email
-    puts "[NOT IMPLEMENTED] Invitation mail will be sent here..."
-#    UserMailer.invitation(self).deliver_now
+    MemberMailer.invitation(self).deliver_now
   end
 
   # Sets the password reset attributes
@@ -46,7 +44,7 @@ class Member < ApplicationRecord
 
   # Sends password reset email
   def send_password_reset_email
-    UserMailer.password_reset(self).deliver_now
+    MemberMailer.password_reset(self).deliver_now
   end
 
   # Remember user

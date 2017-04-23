@@ -1,7 +1,7 @@
-<% if @member.errors.any? %>
-  <p><b>React Errors</b></p>
+<% if !@member.nil? && @member.errors.any? %>
+  <p><b>React Errors:</b></p>
   <%= react_component "ErrorDisplay", errors: @member.errors %>
-  <p><b>Ruby on Rails Errors</b></p>
+  <p><b>Ruby on Rails Errors:</b></p>
   <div id="error_explanation">
     <div class="alert alert-danger">
       The form contains <%= pluralize(@member.errors.count, "error") %>.
