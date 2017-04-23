@@ -1,0 +1,17 @@
+<h1>Invite new member</h1>
+<% random_password = Member.new_token %>
+<%= form_for(@member, url: members_path) do |f| %>
+  <%= f.label :name %>
+  <%= f.text_field :name, class: 'form-control' %>
+
+  <%= f.label :email %>
+  <%= f.email_field :email, class: 'form-control' %>
+
+  <%= f.label :password %>
+  <%= f.password_field :password, value: random_password, class: 'form-control' %>
+
+  <%= f.label :password_confirmation, "Confirm password" %>
+  <%= f.password_field :password_confirmation, value: random_password, class: 'form-control' %>
+
+  <%= f.submit "Invite member", class: "btn btn-primary" %>
+<% end %>

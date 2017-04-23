@@ -1,0 +1,13 @@
+<h1>List all members</h1>
+<ul>
+<% @members.each do |member| %>
+  <li>
+    <p>Name: <%= member.name %><br>
+    Email: <%= member.email %></p>
+    <% if current_member.admin && !member.admin %>
+    <%= link_to "Delete", member, method: :delete, data: { confirm: "Are you absolutely positive you want to delete #{member.name}? This action can not be undone." } %>
+    <% end %>
+  </li>
+<% end %>
+</ul>
+<hr>

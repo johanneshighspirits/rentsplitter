@@ -9,6 +9,10 @@
   </head>
 
   <body>
+    <% unless flash.empty? %>
+    <%= render 'shared/error_messages' %>
+    <% end %>
+
     <%= yield %>
   </body>
 </html>
