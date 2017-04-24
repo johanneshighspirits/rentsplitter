@@ -79,7 +79,7 @@ class Member < ApplicationRecord
     end
 
     def set_join_and_left_dates
-      self.joined_at = Time.zone.now
+      self.joined_at = Date.current.beginning_of_month.to_date
       self.left_at = 20.years.from_now
     end
 

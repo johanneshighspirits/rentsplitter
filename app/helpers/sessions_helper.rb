@@ -16,7 +16,7 @@ module SessionsHelper
     # Check session first
     if (member_id = session[:member_id])
       @current_member ||= Member.find_by(id: member_id)
-    # No session, check cookies
+      # No session, check cookies
     elsif (member_id = cookies.signed[:member_id])
       member = Member.find_by(id: member_id)
       if member && member.authenticated?(:remember, cookies[:remember_token])

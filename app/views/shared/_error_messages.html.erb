@@ -1,6 +1,6 @@
 <% if !@member.nil? && @member.errors.any? %>
   <p><b>React Errors:</b></p>
-  <%= react_component "ErrorDisplay", errors: @member.errors %>
+  <%= react_component "ErrorDisplay", errors: @member.errors.full_messages %>
   <p><b>Ruby on Rails Errors:</b></p>
   <div id="error_explanation">
     <div class="alert alert-danger">

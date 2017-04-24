@@ -1,0 +1,13 @@
+<%= form_for @transaction do |f| %>
+  <%= f.label :date, "Date" %>
+  <%= f.text_field :date, value: Date.current.to_date %>
+
+  <%= f.label :message, "Message" %>
+  <%= f.text_field :message %>
+
+  <%= f.label :amount, "Amount" %>
+  <%= f.number_field :amount %>
+
+  <%= f.submit "Add transaction", :disable_with => 'Adding transaction...' %>
+
+<% end %>

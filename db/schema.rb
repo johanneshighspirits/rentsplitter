@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170423181443) do
+ActiveRecord::Schema.define(version: 20170424124015) do
 
   create_table "members", force: :cascade do |t|
     t.string   "name"
@@ -24,6 +24,14 @@ ActiveRecord::Schema.define(version: 20170423181443) do
     t.string   "invitation_digest"
     t.boolean  "admin",             default: false
     t.string   "remember_digest"
+  end
+
+  create_table "transactions", force: :cascade do |t|
+    t.string   "message"
+    t.decimal  "amount"
+    t.date     "date"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
 end

@@ -21,14 +21,15 @@ class MembersController < ApplicationController
   # Creating a new Member, saves to db and sends invitation email.
   # post /members
   def create
+    # Convert month/year params to date
+    params[:joined_at] = "#{params[:joined_at_y]}-#{params[:joined_at_m]}-1".to_date
+    params[:left_at] = "#{params[:left_at_y]}-#{params[:left_at_m]}-1".to_date.end_of_month
     @member = Member.new(member_params)
     if @member.save
       # Member saved to db
-      puts "Member saved to db"
       @member.send_invitation_email
       flash[:info] = "Invitation email sent to #{@member.email}."
       redirect_to root_path
-      puts "Redirected to root path"
     else
       render 'new'
     end
