@@ -7,10 +7,10 @@ class InvitationsController < ApplicationController
     # Check if someone is logged in already
     # If logged in member differs from the invited member,
     # log out current member and log 
-    if current_member && !current_member?(member) {
+    if current_member && !current_member?(member)
       log_out
       puts "Logging out #{current_member.name}."
-    }
+    end
     if member && member.authenticated?(:invitation, params[:id])
       message = "Welcome #{member.name}!"
       puts "Invitation accepted by '#{member.name}, <#{member.email}>'"
