@@ -3,8 +3,10 @@
 <% @members.each do |member| %>
   <li>
     <h3><%= member.name %></h3>
-    <p>Admin: <%= member.admin ? "ADMIN<br>" : "" %>
-    Email: <%= member.email %><br>
+    <% if member.admin %>
+      <p><b><i>ADMIN</i></b></p>
+    <% end %>
+    <p>Email: <%= member.email %><br>
     Activated: <%= member.activated %></p>
     <% if current_member.admin && !member.admin %>
     <%= link_to "Delete", member, method: :delete, data: { confirm: "Are you absolutely positive you want to delete #{member.name}? This action can not be undone." } %>

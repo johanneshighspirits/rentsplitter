@@ -1,1 +1,5 @@
-<p>Logged in as <b><%= @member.name %></b></p>
+<% if current_member %>
+  <p>Logged in as <b><%= current_member.name %></b></p>
+  <%= link_to "Log out", logout_path, method: :delete %>
+  <hr>
+<% end %>
