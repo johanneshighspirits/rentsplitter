@@ -30,4 +30,9 @@ class ActionDispatch::IntegrationTest
       } 
     }
   end
+
+  def log_out
+    session.delete(:member_id)
+  end
+
 end

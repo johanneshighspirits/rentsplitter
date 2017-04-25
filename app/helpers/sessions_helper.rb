@@ -65,4 +65,21 @@ module SessionsHelper
     session[:forwarding_url] = request.original_url if request.get?
   end
 
+  # Check that member is logged in
+  def logged_in_member
+    unless logged_in?
+      flash[:danger] = "Please log in"
+      redirect_to login_path
+    end
+  end
+
+  # Redirect if member is not admin
+  def must_be_admin
+    unless is_admin?
+      flash[:danger] = "You must log in as Admin to edit members"
+      redirect_to root_path
+    end
+  end
+
+
 end
