@@ -8,6 +8,9 @@
   <%= f.label :amount, "Amount" %>
   <%= f.number_field :amount %>
 
+  <%= f.label :member_id, "Paid by Member" %>
+  <%= select_tag(:member_id, options_for_select(@members.map {|m| [m.name, m.id]})) %>
+
   <%= f.submit "Add transaction", :disable_with => 'Adding transaction...' %>
 
 <% end %>

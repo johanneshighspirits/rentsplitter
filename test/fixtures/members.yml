@@ -5,6 +5,7 @@ admin:
   email: admin_email@example.com
   password_digest: <%= Member.digest('password') %>
   admin: true
+  pattern: admin
   activated: true
   joined_at: 2017-01-01
   left_at: 2017-01-01
@@ -13,6 +14,7 @@ member:
   name: Member Membersson
   email: member_email@example.com
   password_digest: <%= Member.digest('password') %>
+  pattern: member
   activated: true
   joined_at: 2017-01-01
   left_at: 2017-01-01

@@ -2,6 +2,8 @@ class Member < ApplicationRecord
   attr_accessor :remember_token, :invitation_token, :reset_token
   before_create :create_invitation_digest
   before_create :set_join_and_left_dates
+  before_create :create_pattern
+  before_save { email.downcase! }
 
   validates :name, presence: true, length: { maximum: 200 }
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i
@@ -10,9 +12,8 @@ class Member < ApplicationRecord
                     uniqueness: { case_sensitive: false }
   validates :password, presence: true, length: { minimum: 6 }, allow_nil: true
 
-  before_save { email.downcase! }
-
   has_secure_password
+  has_many :transactions
 
   # Returns the hash digest of a given string
   def Member.digest(string)
@@ -81,6 +82,10 @@ class Member < ApplicationRecord
     def set_join_and_left_dates
       self.joined_at = Date.current.beginning_of_month.to_date
       self.left_at = 20.years.from_now
+    end
+
+    def create_pattern
+      self.pattern = pattern.nil? ? name.downcase : pattern
     end
 
 end

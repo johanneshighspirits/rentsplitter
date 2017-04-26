@@ -1,6 +1,7 @@
 class Transaction < ApplicationRecord
   # attr_accessor :amount
 
-  # validates :name, presence: true, length: { maximum: 200 }
+  validates :member_id, :amount, :message, :date, presence: true
+  belongs_to :member
 
 end

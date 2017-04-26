@@ -9,6 +9,7 @@ members = Member.create(
     name: "ADMIN Member",
     email: "email@example.com",
     password_digest: Member.digest("password"),
+    pattern: "admin",
     activated: true,
     admin: true
   )
@@ -18,6 +19,7 @@ members = Member.create(
     name: "Member #{n}",
     email: "email#{n}@example.com",
     password_digest: Member.digest("password"),
+    pattern: "member #{n}",
     activated: true
   )
 end
