@@ -1,7 +1,7 @@
 # RentSplitter
 
 ### Problem:
-A group of people (called `members`) shares a rehearsing room with a monthly rent (`rent`), paid in advance. The number of members can change every month. To complicate things, a monthly financial support (`support`) gets paid out the month after. The amount of this financial support varies each month.
+A group of musicians (called `members`) shares a rehearsing room with a monthly rent (`rent`), paid in advance. The number of members can change every month. To complicate things, a monthly financial support (`support`) gets paid out the month after. The amount of this financial support varies each month.
 
 ---
 __Example:__

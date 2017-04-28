@@ -6,5 +6,8 @@
   <%= f.label :password %>
   <%= f.password_field :password, class: 'form-control' %>
 
+  <%= f.label :remember_me, "Remember me" %>
+  <%= f.check_box :remember_me, checked: true %>
+
   <%= f.submit "Log in", class: "btn btn-primary" %>
 <% end %>

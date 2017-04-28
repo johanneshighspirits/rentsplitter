@@ -32,7 +32,6 @@ module SessionsHelper
   end
 
   def is_admin?
-    puts "Check if member is admin: #{current_member.admin}"
     current_member.admin
   end
 

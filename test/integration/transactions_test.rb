@@ -24,7 +24,6 @@ class TransactionsTest < ActionDispatch::IntegrationTest
     end
   end
 
-
   test "should save multiple transactions at once if admin" do
     # not logged_in
     get new_transaction_path

@@ -9,13 +9,14 @@ class SessionsController < ApplicationController
     if @member && @member.authenticate(params[:session][:password])
       if @member.activated?
         # Log in if activated
-        puts "Logging in"
+        puts "Logging in #{@member.name}"
         log_in @member
+        puts "Remembering #{@member.name}"
         params[:session][:remember_me] == '1' ? remember(@member) : forget(@member)
         # Redirect to admin pages if admin, else root
         if @member.admin
           # Redirect to wanted url if admin, else members
-          puts "Admin. Redirecting to #{session[:forwarding_url]} or #{members_path}"
+          puts "Admin. Redirecting to '#{session[:forwarding_url]}' or #{members_path}"
           redirect_back_or members_path
         else
           puts "Not admin, redirect to root"

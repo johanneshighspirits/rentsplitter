@@ -9,4 +9,13 @@ class MemberTest < ActiveSupport::TestCase
     assert_equal "test", member.reload.pattern
   end
 
+  test "should destroy all member transactions on delete" do
+    @member = Member.new(name: "Will B. Deleted", email: "valid@email.com", password_digest: Member.digest('password'))
+    @member.save
+    @member.transactions.create!(amount: 666, message: "Wills transaction", date: Time.zone.now)
+    assert_difference 'Transaction.count', -1 do
+      @member.destroy
+    end
+  end
+
 end

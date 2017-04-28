@@ -37,18 +37,36 @@ class MembersController < ApplicationController
 
   def edit
     @member = Member.find(params[:id])
+    if params[:first]
+      render 'members/edit_password' and return
+    end
   end
 
   def update
     @member = Member.find(params[:id])
     if @member.update_attributes(member_params)
-      flash[:success] = "Member updated"
-      redirect_to @member
+      if is_admin?
+        flash[:success] = "Member updated"
+        redirect_to @member
+      else
+        flash[:success] = "Password updated"
+        # Activate member if not already activated
+        unless @member.activated?
+          @member.update_attribute(:activated, true)
+          flash[:success] += "Your account has been activated."
+          puts "Account activated for '#{@member.name}, <#{@member.email}>'"
+        end
+        remember @member
+        redirect_to root_path
+      end
     else
       render 'edit'
     end
   end
 
+  # ADMIN ONLY:
+  # Deleting a Member
+  # delete /members/id
   def destroy
   end
 
