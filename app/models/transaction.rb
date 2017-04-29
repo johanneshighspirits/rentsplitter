@@ -4,6 +4,6 @@ class Transaction < ApplicationRecord
   belongs_to :member
   belongs_to :project
   default_scope -> { order(date: :desc) }
-  validates :member_id, :amount, :message, :date, presence: true
+  # validates :member_id, :amount, :message, :date, presence: true
 
 end

@@ -15,20 +15,39 @@ class MembersController < ApplicationController
   # /members/new
   def new
     @member = Member.new
+    @projects = Project.all
   end
 
   # ADMIN ONLY:
-  # Creating a new Member, saves to db and sends invitation email.
+  # Creating a new Member, connects to an existing Project or
+  # creates a new one. Saves member to db and sends invitation email.
   # post /members
   def create
     # Convert month/year params to date
     params[:joined_at] = "#{params[:joined_at_y]}-#{params[:joined_at_m]}-1".to_date
     params[:left_at] = "#{params[:left_at_y]}-#{params[:left_at_m]}-1".to_date.end_of_month
+    project_id = params[:project_id] || nil
+    unless params[:project_name].blank?
+      # Create project
+      project_name = params[:project_name]
+      puts "Will create new Project: '#{project_name}'"
+    end
     @member = Member.new(member_params)
     if @member.save
       # Member saved to db
       @member.send_invitation_email
       flash[:info] = "Invitation email sent to #{@member.email}."
+      # Assign project to member
+      if project_id.nil?
+        # Create project
+        @member.projects.create(name: project_name)
+        puts "Assign project '#{project_name}' to member '#{@member.name}"
+      else
+        # Add member to existing project
+        @member.projects << Project.find(project_id)
+        puts "Assign project with id '#{project_id}' to member '#{@member.name}"
+    end
+
       redirect_to root_path
     else
       render 'new'

@@ -61,8 +61,8 @@ You'll now be able to preview the app in a browser at `http://localhost:3000`
 
 ```ruby
 class Member < ApplicationRecord
-  has_many :transactions
-  has_many :projects, through: :transactions
+  has_many :projects
+  has_many :transactions, through: :projects
 end
  
 class Transaction < ApplicationRecord
@@ -71,8 +71,8 @@ class Transaction < ApplicationRecord
 end
  
 class Project < ApplicationRecord
-  has_many :transactions
-  has_many :members, through: :transactions
+  has_many :members
+  has_many :transactions, through: :members
 end
 ```
 
