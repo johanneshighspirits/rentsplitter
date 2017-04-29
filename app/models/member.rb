@@ -14,6 +14,7 @@ class Member < ApplicationRecord
 
   has_secure_password
   has_many :transactions, dependent: :destroy
+  has_many :projects, through: :transactions
 
   # Returns the hash digest of a given string
   def Member.digest(string)

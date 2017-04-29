@@ -57,3 +57,28 @@ $ rails server
 ```
 You'll now be able to preview the app in a browser at `http://localhost:3000`
 
+## Database Schema
+
+```ruby
+class Member < ApplicationRecord
+  has_many :transactions
+  has_many :projects, through: :transactions
+end
+ 
+class Transaction < ApplicationRecord
+  belongs_to :member
+  belongs_to :project
+end
+ 
+class Project < ApplicationRecord
+  has_many :transactions
+  has_many :members, through: :transactions
+end
+```
+
+
+
+
+
+
+
