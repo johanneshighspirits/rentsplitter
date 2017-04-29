@@ -1,13 +1,13 @@
-<% if !@member.nil? && @member.errors.any? %>
+<% if object.errors.any? %>
   <p><b>React Errors:</b></p>
-  <%= react_component "ErrorDisplay", errors: @member.errors.full_messages %>
+  <%= react_component "ErrorDisplay", errors: object.errors.full_messages %>
   <p><b>Ruby on Rails Errors:</b></p>
   <div id="error_explanation">
     <div class="alert alert-danger">
-      The form contains <%= pluralize(@member.errors.count, "error") %>.
+      The form contains <%= pluralize(object.errors.count, "error") %>.
     </div>
     <ul>
-    <% @member.errors.full_messages.each do |msg| %>
+    <% object.errors.full_messages.each do |msg| %>
       <li><%= msg %></li>
     <% end %>
     </ul>

@@ -68,6 +68,10 @@ class MembersController < ApplicationController
   # Deleting a Member
   # delete /members/id
   def destroy
+    # Maybe this shouldn't be allowed if member has transactions?
+    # Since calculations are based on all transactions from the
+    # beginning of time, deleting a member's transactions would
+    # impact the other members' debts...
   end
 
   private
