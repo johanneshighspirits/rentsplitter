@@ -12,7 +12,12 @@ class MemberTest < ActiveSupport::TestCase
   test "should destroy all member transactions on delete" do
     @member = Member.new(name: "Will B. Deleted", email: "valid@email.com", password_digest: Member.digest('password'))
     @member.save
-    @member.transactions.create!(amount: 666, message: "Wills transaction", date: Time.zone.now)
+    assert_difference 'Project.count', 1 do
+      @member.projects.create!(name: "TestProject")
+    end
+    assert_difference 'Transaction.count', 1 do
+      @member.transactions.create(amount: 123, message: "message", date: Time.zone.now)
+    end
     assert_difference 'Transaction.count', -1 do
       @member.destroy
     end

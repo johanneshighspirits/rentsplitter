@@ -64,25 +64,4 @@ class MembersLoginTest < ActionDispatch::IntegrationTest
     assert_select 'a', 'Delete'
   end
 
-  test "should create new member if admin" do
-    log_in_as @admin
-    get new_member_path
-    random_pass = Member.new_token
-    assert_difference 'Member.count', 1 do
-      #create member
-      post members_path, params: {
-        joined_at_y: 2000,
-        joined_at_m: 1,
-        left_at_y: 2020,
-        left_at_m: 7,
-        member: {
-          name: "Example User",
-          email: "email@example.com",
-          password: random_pass,
-          password_confirmation: random_pass
-        }
-      }
-    end
-  end
-
 end

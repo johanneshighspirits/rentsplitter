@@ -26,29 +26,39 @@ class MembersController < ApplicationController
     # Convert month/year params to date
     params[:joined_at] = "#{params[:joined_at_y]}-#{params[:joined_at_m]}-1".to_date
     params[:left_at] = "#{params[:left_at_y]}-#{params[:left_at_m]}-1".to_date.end_of_month
-    project_id = params[:project_id] || nil
-    unless params[:project_name].blank?
-      # Create project
-      project_name = params[:project_name]
-      puts "Will create new Project: '#{project_name}'"
-    end
+    # Init Member
     @member = Member.new(member_params)
-    if @member.save
+    # if @member.save
       # Member saved to db
+      # Choose an existing project or create a new?
+      if params[:new_or_existing] == "new" && !params[:project_name].blank?
+        # Admin wants to create a new project
+        project_name = params[:project_name]
+        puts "Will create new Project: '#{project_name}'"
+        # Create project
+        puts "Assign project '#{project_name}' to member '#{@member.name}"
+        @member.projects.build(name: project_name)
+      elsif params[:new_or_existing] == "existing" && params[:project_id] != "0"
+        # Add member to existing project
+        puts "Assign project with id '#{params[:project_id]}' to member '#{@member.name}"
+        @member.projects << Project.find(params[:project_id])
+      else
+        flash[:danger] = "Enter a name for a new Project or choose an existing one."
+        puts "Enter a name for a new Project or choose an existing one."
+        @projects = Project.all
+        render 'new' and return
+      end
+
+    # Save member (along with project) to database
+    puts "Saving member #{@member.name} to db"
+    if @member.save
+      # Member saved to db. Send invitiation email.
       @member.send_invitation_email
       flash[:info] = "Invitation email sent to #{@member.email}."
-      # Assign project to member
-      if project_id.nil?
-        # Create project
-        @member.projects.create(name: project_name)
-        puts "Assign project '#{project_name}' to member '#{@member.name}"
-      else
-        # Add member to existing project
-        @member.projects << Project.find(project_id)
-        puts "Assign project with id '#{project_id}' to member '#{@member.name}"
-      end
+
       redirect_to root_path
     else
+      @projects = Project.all
       render 'new'
     end
   end
