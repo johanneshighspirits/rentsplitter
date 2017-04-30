@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170430055611) do
+ActiveRecord::Schema.define(version: 20170430055011) do
 
   create_table "members", force: :cascade do |t|
     t.string   "name"
@@ -25,8 +25,6 @@ ActiveRecord::Schema.define(version: 20170430055611) do
     t.boolean  "admin",             default: false
     t.string   "remember_digest"
     t.string   "pattern"
-    t.integer  "transactions_id"
-    t.index ["transactions_id"], name: "index_members_on_transactions_id"
   end
 
   create_table "memberships", force: :cascade do |t|
@@ -42,18 +40,6 @@ ActiveRecord::Schema.define(version: 20170430055611) do
     t.string   "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-  end
-
-  create_table "transactions", force: :cascade do |t|
-    t.string   "message"
-    t.decimal  "amount"
-    t.date     "date"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.integer  "member_id"
-    t.integer  "project_id"
-    t.index ["member_id"], name: "index_transactions_on_member_id"
-    t.index ["project_id"], name: "index_transactions_on_project_id"
   end
 
 end

@@ -63,7 +63,8 @@ You'll now be able to preview the app in a browser at `http://localhost:3000`
 class Project < ApplicationRecord
   has_many :memberships
   has_many :members, through: :memberships
-  has_many :transactions, through: :members
+  has_many :member_transactions
+  has_many :transactions, through: :member_transactions
 end
 
 class Membership < ApplicationRecord
@@ -74,7 +75,13 @@ end
 class Member < ApplicationRecord
   has_many :memberships
   has_many :projects, through: :memberships
-  has_many :transactions
+  has_many :member_transactions
+  has_many :transactions, through: :member_transactions
+end
+
+class MemberTransactions < ApplicationRecord
+  belongs_to :member
+  belongs_to :project
 end
 
 class Transaction < ApplicationRecord
