@@ -60,21 +60,30 @@ You'll now be able to preview the app in a browser at `http://localhost:3000`
 ## Database Schema
 
 ```ruby
-class Member < ApplicationRecord
-  has_many :projects
-  has_many :transactions, through: :projects
+class Project < ApplicationRecord
+  has_many :memberships
+  has_many :members, through: :memberships
+  has_many :transactions, through: :members
 end
- 
+
+class Membership < ApplicationRecord
+  belongs_to :member
+  belongs_to :project
+end
+
+class Member < ApplicationRecord
+  has_many :memberships
+  has_many :projects, through: :memberships
+  has_many :transactions
+end
+
 class Transaction < ApplicationRecord
   belongs_to :member
   belongs_to :project
 end
- 
-class Project < ApplicationRecord
-  has_many :members
-  has_many :transactions, through: :members
-end
+
 ```
+
 
 
 

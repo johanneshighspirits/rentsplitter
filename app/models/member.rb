@@ -13,8 +13,9 @@ class Member < ApplicationRecord
   validates :password, presence: true, length: { minimum: 6 }, allow_nil: true
 
   has_secure_password
+  has_many :memberships
+  has_many :projects, through: :memberships
   has_many :transactions, dependent: :destroy
-  has_many :projects, through: :transactions
 
   # Returns the hash digest of a given string
   def Member.digest(string)

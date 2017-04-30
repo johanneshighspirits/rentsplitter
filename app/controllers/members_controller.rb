@@ -19,7 +19,7 @@ class MembersController < ApplicationController
   end
 
   # ADMIN ONLY:
-  # Creating a new Member, connects to an existing Project or
+  # Creating a new Member, connects to an existing Project (through Membership) or
   # creates a new one. Saves member to db and sends invitation email.
   # post /members
   def create
@@ -46,8 +46,7 @@ class MembersController < ApplicationController
         # Add member to existing project
         @member.projects << Project.find(project_id)
         puts "Assign project with id '#{project_id}' to member '#{@member.name}"
-    end
-
+      end
       redirect_to root_path
     else
       render 'new'
