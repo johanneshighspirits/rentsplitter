@@ -15,6 +15,7 @@ class Member < ApplicationRecord
   has_secure_password
   has_many :memberships
   has_many :projects, through: :memberships
+  has_many :transfers, through: :memberships
 
   # Returns the hash digest of a given string
   def Member.digest(string)

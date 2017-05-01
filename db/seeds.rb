@@ -13,6 +13,7 @@ members = Member.create(
     activated: true,
     admin: true
   )
+Member.first.projects.create(name: "Project Nr ONE")
 
 5.times do |n|
   member = Member.create(
