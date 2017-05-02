@@ -4,6 +4,7 @@ class Member < ApplicationRecord
   before_create :set_join_and_left_dates
   before_create :create_pattern
   before_save { email.downcase! }
+  after_save :check_current_project_id
 
   validates :name, presence: true, length: { maximum: 200 }
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i
@@ -88,6 +89,15 @@ class Member < ApplicationRecord
 
     def create_pattern
       self.pattern = pattern.nil? ? name.downcase : pattern
+    end
+
+    def check_current_project_id
+      if current_project_id.nil?
+        project_id = projects.empty? ? 0 : projects.first.id
+        update_attribute(:current_project_id, project_id)
+      else
+        puts "WARNING: No project id for member #{self.name}"
+      end
     end
 
 end

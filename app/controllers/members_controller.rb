@@ -31,23 +31,23 @@ class MembersController < ApplicationController
     # if @member.save
       # Member saved to db
       # Choose an existing project or create a new?
-      if params[:new_or_existing] == "new" && !params[:project_name].blank?
-        # Admin wants to create a new project
-        project_name = params[:project_name]
-        puts "Will create new Project: '#{project_name}'"
-        # Create project
-        puts "Assign project '#{project_name}' to member '#{@member.name}"
-        @member.projects.build(name: project_name)
-      elsif params[:new_or_existing] == "existing" && params[:project_id] != "0"
-        # Add member to existing project
-        puts "Assign project with id '#{params[:project_id]}' to member '#{@member.name}"
-        @member.projects << Project.find(params[:project_id])
-      else
-        flash[:danger] = "Enter a name for a new Project or choose an existing one."
-        puts "Enter a name for a new Project or choose an existing one."
-        @projects = Project.all
-        render 'new' and return
-      end
+    if params[:new_or_existing] == "new" && !params[:project_name].blank?
+      # Admin wants to create a new project
+      project_name = params[:project_name]
+      puts "Will create new Project: '#{project_name}'"
+      # Create project
+      puts "Assign project '#{project_name}' to member '#{@member.name}"
+      @member.projects.build(name: project_name)
+    elsif params[:new_or_existing] == "existing" && params[:project_id] != "0"
+      # Add member to existing project
+      puts "Assign project with id '#{params[:project_id]}' to member '#{@member.name}"
+      @member.projects << Project.find(params[:project_id])
+    else
+      flash[:danger] = "Enter a name for a new Project or choose an existing one."
+      puts "Enter a name for a new Project or choose an existing one."
+      @projects = Project.all
+      render 'new' and return
+    end
 
     # Save member (along with project) to database
     puts "Saving member #{@member.name} to db"
@@ -105,7 +105,7 @@ class MembersController < ApplicationController
   private
     # Strong params
     def member_params
-      params.require(:member).permit(:name, :email, :password, :password_confirmation, :joined_at, :left_at)
+      params.require(:member).permit(:name, :email, :password, :password_confirmation, :joined_at, :left_at, :current_project_id)
     end
 
 end

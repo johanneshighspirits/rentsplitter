@@ -3,6 +3,7 @@ module SessionsHelper
   # Log in
   def log_in(member)
     session[:member_id] = member.id
+    session[:project_id] = member.current_project_id
   end
 
   def remember(member)
@@ -24,6 +25,11 @@ module SessionsHelper
         @current_member = member
       end
     end
+  end
+
+  # Returns the current logged-in member's current open Project id
+  def current_project_id
+    session[:project_id]
   end
 
   # Is member logged in?
@@ -50,6 +56,7 @@ module SessionsHelper
   def log_out
     forget(current_member)
     session.delete(:member_id)
+    session.delete(:project_id)
     @current_member = nil
   end
 

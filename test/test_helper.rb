@@ -16,6 +16,7 @@ class ActiveSupport::TestCase
   def log_in_as(member)
     session[:member_id] = member.id
   end
+
 end
 
 class ActionDispatch::IntegrationTest

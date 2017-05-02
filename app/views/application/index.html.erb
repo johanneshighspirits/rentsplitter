@@ -1,3 +1,2 @@
-<h1>RentSplitter</h1>
-<% project_name = "RentSplitter" %>
-<%= react_component "#{project_name}", data: @members %>
+<h1><%= @current_project.name %></h1>
+<%= react_component 'RentSplitter', data: @members %>

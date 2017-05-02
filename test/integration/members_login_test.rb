@@ -26,6 +26,18 @@ class MembersLoginTest < ActionDispatch::IntegrationTest
     assert_select 'h1', 'RentSplitter'
   end
 
+  test "should open project on successful login" do
+    # Log in as member
+    get login_path
+    log_in_as @member
+    assert_equal 820312697, @member.id
+    assert_redirected_to root_url
+    follow_redirect!
+    assert_template 'application/index'
+    assert_equal 1, session[:project_id]
+  end
+
+
   test "should not show new member page to non-admin" do
     get new_member_path
     assert_redirected_to login_path

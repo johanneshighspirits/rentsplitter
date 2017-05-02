@@ -2,32 +2,32 @@
 window.RentSplitter = React.createClass({
   getInitialState: function(){
     return ({
-      transactions: []
+      transfers: []
     });
   },
   componentDidMount: function() {
-    $.get('/transactions.json', function(transactions){
+    $.get('/transfers.json', function(transfers){
       this.setState({
-        transactions: transactions
+        transfers: transfers
       });
     }.bind(this), 'json');
 
 
     
-    // getJSON('/transactions.json').then(function(transactions) {
+    // getJSON('/transfers.json').then(function(transfers) {
     // console.warn(this);
     //   this.RentSplitter.setState({
-    //     transactions: transactions
+    //     transfers: transfers
     //   })
-    //   console.log(transactions);
+    //   console.log(transfers);
     // }).catch(function(err) {
     //   console.error('RentSplitter.componentDidMount: ', err);
     // });
   },
   render: function() {
-    var transactions = [];
-    this.state.transactions.forEach(function(t, i) {
-      transactions.push(
+    var transfers = [];
+    this.state.transfers.forEach(function(t, i) {
+      transfers.push(
         <li key={i}><b>{t.message}</b> <i>{t.amount}</i></li>
       )
     })
@@ -35,7 +35,7 @@ window.RentSplitter = React.createClass({
       <div>
         <p>RentSplitter <i>&mdash; react-js</i></p>
         <ul>
-          {transactions}
+          {transfers}
         </ul>
       </div>
     )

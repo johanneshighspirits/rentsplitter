@@ -27,3 +27,12 @@ member_invited_unactivated:
   activated: false
   joined_at: 2017-01-01
   left_at: 2017-01-01
+
+one: 
+  name: Member One Onesson
+  email: memberOne_email@example.com
+  password_digest: <%= Member.digest('password') %>
+  pattern: memberone
+  activated: true
+  joined_at: 2017-01-01
+  left_at: 2017-01-01
