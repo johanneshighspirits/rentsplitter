@@ -7,6 +7,8 @@ Rails.application.routes.draw do
 
   post    '/transfers/many', to: 'transfers#create_many'
 
+  get     '/members/:id/projects', to: 'projects#for_member'
+
   resources :members
   resources :transfers
   resources :invitations, only: [:edit]

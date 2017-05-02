@@ -1,3 +1,46 @@
+<%= react_component 'Form', 
+authenticity_token: form_authenticity_token, 
+action: transfers_path,
+fields: [
+  {
+    fieldType: "text",
+    attribute: "transfer[transferred_at]",
+    attributeName: "Transfer date",
+    defaultValue: Date.current.to_date
+  },
+  {
+    fieldType: "text",
+    attribute: "transfer[message]",
+    attributeName: "Message",
+    defaultValue: ""
+  },
+  {
+    fieldType: "number",
+    attribute: "transfer[amount]",
+    attributeName: "Amount",
+    defaultValue: ""
+  },
+  {
+    fieldType: "select",
+    attribute: "member_id",
+    attributeName: "Which member made the transfer",
+    options: @members.map {|m| [m.id, m.name]},
+  },
+  {
+    fieldType: "select",
+    attribute: "project_id",
+    attributeName: "Select a project to add the transfer to",
+    options: [],
+  },
+  {
+    fieldType: "submit",
+    objectName: "commit",
+    attribute: "",
+    attributeName: "",
+    defaultValue: "Add transfer"
+  }
+] %>
+<!--
 <%= form_for @transfer do |f| %>
   <%= f.label :transferred_at, "Date" %>
   <%= f.text_field :transferred_at, value: Date.current.to_date %>
@@ -17,3 +60,4 @@
   <%= f.submit "Add transfer", :disable_with => 'Adding transfer...' %>
 
 <% end %>
+-->
