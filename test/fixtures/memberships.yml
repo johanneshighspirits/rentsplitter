@@ -1,8 +1,12 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
-  member: 820312697
-  project: 1
+oneM:
+  member: member
+  project: projectOne
+
+oneA:
+  member: admin
+  project: projectOne
 
 two:
   member: two

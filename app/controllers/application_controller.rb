@@ -8,7 +8,7 @@ class ApplicationController < ActionController::Base
       puts "Logged in as #{current_member.name}"
       if current_project_id == 0
         # Member is not associated with a Project
-        redirect_to open_project_path
+        redirect_to projects_path
       else
         @current_project = Project.find(current_project_id)
         puts "Opening #{current_member.name}'s latest project: '#{@current_project.name}'"

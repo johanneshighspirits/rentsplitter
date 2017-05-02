@@ -16,11 +16,13 @@ members = Member.create(
 Member.first.projects.create(name: "Project Nr ONE")
 
 5.times do |n|
-  member = Member.create(
+  member = Member.new(
     name: "Member #{n}",
     email: "email#{n}@example.com",
     password_digest: Member.digest("password"),
     pattern: "member #{n}",
     activated: true
   )
+  member.projects.build(name: "Project #{n}")
+  member.save
 end

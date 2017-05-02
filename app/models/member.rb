@@ -95,8 +95,6 @@ class Member < ApplicationRecord
       if current_project_id.nil?
         project_id = projects.empty? ? 0 : projects.first.id
         update_attribute(:current_project_id, project_id)
-      else
-        puts "WARNING: No project id for member #{self.name}"
       end
     end
 

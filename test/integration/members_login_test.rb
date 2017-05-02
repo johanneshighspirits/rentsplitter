@@ -23,7 +23,7 @@ class MembersLoginTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_url
     follow_redirect!
     assert_template 'application/index'
-    assert_select 'h1', 'RentSplitter'
+    assert_select 'h1', Project.find(@member.current_project_id).name
   end
 
   test "should open project on successful login" do
@@ -34,7 +34,7 @@ class MembersLoginTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_url
     follow_redirect!
     assert_template 'application/index'
-    assert_equal 1, session[:project_id]
+    assert_equal 839719613, session[:project_id]
   end
 
 

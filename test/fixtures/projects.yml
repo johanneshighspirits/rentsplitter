@@ -1,8 +1,11 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
+projectOne:
   name: Project one
-  id: 1
 
+projectEtt:
+  name: Ett
+  id: 1
+  
 two:
   name: MyString

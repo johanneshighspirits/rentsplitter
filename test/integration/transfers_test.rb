@@ -5,6 +5,7 @@ class TransfersTest < ActionDispatch::IntegrationTest
   def setup
     @admin = members(:admin)
     @member = members(:member)
+    @member.projects.create(name: "An Example Project")
   end
 
   test "should save valid transfer" do
@@ -15,10 +16,11 @@ class TransfersTest < ActionDispatch::IntegrationTest
     assert_difference 'Transfer.count', 1 do
       post transfers_path, params: {
         member_id: @member.id,
+        project_id: @member.projects.first.id,
         transfer: {
           amount: 250.0,
           message: "example0 rent for June",
-          date: Time.zone.now.to_date
+          transferred_at: Time.zone.now.to_date
         }
       }
     end
@@ -45,15 +47,15 @@ class TransfersTest < ActionDispatch::IntegrationTest
       {
         transfer: {
           amount: 250.0,
-          message: "Mr. Administrators pay",
-          date: Time.zone.now.to_date
+          message: "Mr. Member0 pay",
+          transferred_at: Time.zone.now.to_date
         }
       },
       {
         transfer: {
           amount: 123.5,
           message: "Juli mEmBerr",
-          date: Time.zone.now
+          transferred_at: Time.zone.now
         },
       }
     ]

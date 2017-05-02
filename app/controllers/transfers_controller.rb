@@ -6,11 +6,21 @@ class TransfersController < ApplicationController
   def new
     @transfer = Transfer.new
     @members = Member.all
+    # TODO Fetch only members projects, when selected
+    # in dropdown list (transfers/new)
+    @projects = Project.all
   end
 
   def create
     @member = Member.find(params[:member_id])
-    @transfer = @member.transfers.build(transfer_params)
+    project_id = params[:project_id]
+    # Find Membership that hold all transfers
+    membership = @member.memberships.where(project_id: project_id).first
+    p membership
+    puts "Member: #{membership.member_id}"
+    puts "Project: #{membership.project_id}"
+    puts "Transfers: #{membership.transfers}"
+    @transfer = membership.transfers.build(transfer_params)
     if @transfer.save
       flash[:success] = "Transfer successfully saved!"
     else
@@ -28,8 +38,9 @@ class TransfersController < ApplicationController
       if member.nil?
         puts "Couldn't find member matching '#{transfer[:transfer][:message]}'"
       else
-        puts "Found match: #{member.name}"
-        @transfers << member.transfers.build(transfer.require(:transfer).permit(:message, :amount, :date))
+        # Find Membership that hold all transfers
+        membership = member.memberships.where(project_id: member.current_project_id).first
+        @transfers << membership.transfers.build(transfer.require(:transfer).permit(:message, :amount, :transferred_at))
       end
     end
     Transfer.import @transfers
@@ -47,7 +58,7 @@ class TransfersController < ApplicationController
   private
 
     def transfer_params
-      params.require(:transfer).permit(:amount, :message, :date)
+      params.require(:transfer).permit(:amount, :message, :transferred_at)
     end
 
     # Returns the Member whose pattern matches the provided message

@@ -1,0 +1,19 @@
+<%= form_for @transfer do |f| %>
+  <%= f.label :transferred_at, "Date" %>
+  <%= f.text_field :transferred_at, value: Date.current.to_date %>
+
+  <%= f.label :message, "Message" %>
+  <%= f.text_field :message %>
+
+  <%= f.label :amount, "Amount" %>
+  <%= f.number_field :amount %>
+
+  <%= f.label :member_id, "Paid by Member" %>
+  <%= select_tag(:member_id, options_for_select(@members.map {|m| [m.name, m.id]})) %>
+
+  <%= f.label :project_id, "Project" %>
+  <%= select_tag(:project_id, options_for_select(@projects.map {|p| [p.name, p.id]})) %>  
+
+  <%= f.submit "Add transfer", :disable_with => 'Adding transfer...' %>
+
+<% end %>
