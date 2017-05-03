@@ -25,6 +25,9 @@ fields: [
     attribute: "member_id",
     attributeName: "Which member made the transfer",
     options: @members.map {|m| [m.id, m.name]},
+    isControlling: "project_id", # Get member's projects when member is selected
+    controlType: "select",
+    showSubmit: true, # Show submit when projects are fetched
   },
   {
     fieldType: "select",

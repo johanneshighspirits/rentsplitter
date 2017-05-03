@@ -1,38 +1,125 @@
 var Form = React.createClass({
   getInitialState: function(){
+    var controllers = {};
+    var controlValues = {};
+    this.props.fields.forEach(function(item){
+      // Add value to controlValues
+      switch (item.fieldType) {
+        case "select":
+        case "text":
+        case "email":
+        case "password":
+        case "number":
+          controlValues[item.attribute] = item.defaultValue;
+        break;
+        case "radio":
+          controlValues[item.attribute] = "";
+        break;
+        default:
+          console.warn("Ignored: " + item.attribute + ", with " + item.defaultValue);
+      }
+
+      if (item.isControlling !== undefined) {
+        if (controllers[item.attribute] === undefined) {
+          controllers[item.attribute] = [{
+            id: item.attribute,
+            controlType: item.controlType,
+            targetId: item.isControlling,
+            targetAction: item.targetAction,
+            fieldValue: item.defaultValue,
+            showSubmit: item.showSubmit !== undefined
+          }];
+        }else{
+          controllers[item.attribute].push({
+            id: item.attribute,
+            controlType: item.controlType,
+            targetId: item.isControlling,
+            targetAction: item.targetAction,
+            fieldValue: item.defaultValue,
+            showSubmit: item.showSubmit !== undefined
+          });          
+        }
+      }
+      // if (item.isVisibleIfChecked !== undefined) {
+      //   var ids = item.isVisibleIfChecked.split("#");
+      //   controlValues[ids[0]] = "";
+      // }
+    });
     return ({
-      controlleds: {
-        member_id: 0,
-        project_id: 0
-      },
+      controllers: controllers,
+      controlValues: controlValues,
       fields: this.props.fields,
       showSubmit: false
     });
   },
+  pluralize: function(str) {
+    return str.replace("_id", "s");
+  },
   handleSelect: function(e) {
-    switch (e.target.id) {
-      case "member_id":
-        $.get('/members/' + e.target.value + '/projects.json', function(projects){
+    console.log(e.target.name);
+    if (this.state.controlValues[e.target.name] !== undefined) {
+      var controlValues = this.state.controlValues;
+      controlValues[e.target.name] = e.target.value;
+      this.setState({
+        controlValues: controlValues
+      });      
+    }
+
+    if (this.state.controllers[e.target.name] !== undefined) {
+
+      var controller = this.state.controllers[e.target.name];
+      switch (controller[0].controlType) {
+        case "select":
+        // This Select is controlling another one, meaning that when
+        // this value changes, the other value should change too.
+        var url = "/" + this.pluralize(e.target.name) + "/" + e.target.value + "/" + this.pluralize(controller[0].targetId) + ".json";
+        $.get(url, function(results){
           var fields = this.state.fields.map(function(item, i){
-            if (item.attribute == "project_id") {
-              item.options = projects;
+            if (item.attribute == controller[0].targetId) {
+              item.options = results;
             }
             return item;
           });
           this.setState({
             fields: fields,
-            showSubmit: true
+            showSubmit: controller[0].showSubmit
           });
         }.bind(this), 'json');
-      break;
-      default:
-        console.log("Ignore " + e.target.id);
-      break;
+        break;
+        case "visibility":
+        // When selected, show targetId
+        // console.log(e.target.value);
+        // if (controller.length > 1) {
+        //   var controlValues = this.state.controlValues;
+        //   console.log(controlValues);
+        //   controller.forEach(function(input, i){
+        //     console.log(input.id + "_" + input.fieldValue);
+        //     console.log(" ==");
+        //     console.log(e.target.name + "_" + e.target.value);
+        //     if (input.id + "_" + input.fieldValue == e.target.name + "_" + e.target.value) {
+        //       controlValues[input.id][input.fieldValue] = true;
+        //     }else{
+        //       controlValues[input.id][input.fieldValue] = false;
+        //     }
+        //     console.log(controlValues);
+        //   });
+        //   this.setState({
+        //     controlValues: controlValues
+        //   });
+        // }
+        break;
+      }
     }
-
   },
   render: function() {
     var fields = this.state.fields.map(function(item, i){
+      if (item.isVisibleIfChecked !== undefined) {
+        // This item is only rendered if `isVisibleIfChecked` is selected/checked
+        var ids = item.isVisibleIfChecked.split("#");
+        if (this.state.controlValues[ids[0]] != ids[1]) {
+          return null;
+        }
+      }
       switch(item.fieldType) {
         case "select":
           return (<FormSelect
@@ -40,9 +127,23 @@ var Form = React.createClass({
             attribute={item.attribute}
             attributeName={item.attributeName}
             options={item.options}
-            controlleds={this.state.controlleds[item.attribute]}
+            fieldValue={this.state.controllers[item.attribute] !== undefined ? this.state.controllers[item.attribute].fieldValue : this.state.controlValues[item.attribute]}
             handleSelect={this.handleSelect}
           />)
+        break;
+        case "radio":
+          return (<FormRadio 
+            key={i}
+            attribute={item.attribute}
+            attributeName={item.attributeName}
+            options={item.options}
+            fieldValue={item.defaultValue}
+            checked={this.state.controlValues[item.attribute] == item.defaultValue}
+            handleSelect={this.handleSelect}
+          />)
+        break;
+        case "p":
+          return <p key={i}>{item.text}</p>
         break;
         case "submit":
           return (this.state.showSubmit ?
@@ -51,7 +152,8 @@ var Form = React.createClass({
             fieldType={item.fieldType}
             attribute={item.attribute}
             attributeName={item.attributeName}
-            defaultValue={item.defaultValue}
+            handleSelect={this.handleSelect}
+            defaultValue={this.state.controlValues[item.attribute]}
           /> : null)
         break;
         default:
@@ -60,7 +162,8 @@ var Form = React.createClass({
             fieldType={item.fieldType}
             attribute={item.attribute}
             attributeName={item.attributeName}
-            defaultValue={item.defaultValue}
+            handleSelect={this.handleSelect}            
+            defaultValue={this.state.controlValues[item.attribute]}
           />)
         break;
       }
@@ -81,7 +184,7 @@ var FormField = React.createClass({
     return (
       <div>
         <label htmlFor={idName}>{this.props.attributeName}</label>
-        <input type={this.props.fieldType} name={this.props.attribute} id={idName} defaultValue={this.props.defaultValue} />
+        <input type={this.props.fieldType} onChange={this.props.handleSelect} name={this.props.attribute} id={idName} defaultValue={this.props.defaultValue} />
       </div>
     )
   }
@@ -97,7 +200,7 @@ var FormSelect = React.createClass({
       <div>
         <label htmlFor={this.props.attribute}>{this.props.attributeName}</label>
         <select
-          value={this.props.controlleds[this.props.attribute]}
+          value={this.props.fieldValue}
           name={this.props.attribute}
           id={this.props.attribute}
           onChange={this.props.handleSelect}>
@@ -105,6 +208,24 @@ var FormSelect = React.createClass({
         </select>
       </div>
       : null
+    )
+  }
+});
+
+var FormRadio = React.createClass({
+  render: function() {
+    return (
+      <div>
+        <label htmlFor={this.props.attribute}>{this.props.attributeName}</label>
+        <input
+          type="radio"
+          value={this.props.fieldValue}
+          name={this.props.attribute}
+          id={this.props.attribute + "_" + this.props.fieldValue}
+          checked={this.props.checked}
+          onChange={this.props.handleSelect}
+        />
+      </div>
     )
   }
 });

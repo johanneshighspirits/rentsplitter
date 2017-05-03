@@ -8,6 +8,105 @@
  }
 </style>
 <% random_password = Member.new_token %>
+<%= react_component 'Form', 
+authenticity_token: form_authenticity_token, 
+action: transfers_path,
+fields: [
+  {
+    fieldType: "text",
+    attribute: "member[name]",
+    attributeName: "Name",
+  },
+  {
+    fieldType: "email",
+    attribute: "member[email]",
+    attributeName: "Email",
+  },
+  {
+    fieldType: "p",
+    text: "Assign new member to a Project"
+  },
+  {
+    fieldType: "radio",
+    attribute: "new_or_existing",
+    attributeName: "Create new Project",
+    defaultValue: "new",
+  },
+  {
+    fieldType: "radio",
+    attribute: "new_or_existing",
+    attributeName: "Choose existing Project",
+    defaultValue: "existing",
+  },
+  {
+    fieldType: "text",
+    attribute: "project_name",
+    attributeName: "New Project name",
+    isVisibleIfChecked: "new_or_existing#new",
+  },
+  # {
+  #   fieldType: "select",
+  #   attribute: "member_id",
+  #   attributeName: "Which member made the transfer",
+  #   options: [], #@members.map {|m| [m.id, m.name]},
+  #   isControlling: "project_id", # Get member's projects when member is selected
+  #   showSubmit: true, # Show submit when projects are fetched
+  # },
+  {
+    fieldType: "select",
+    attribute: "project_id",
+    attributeName: "Select an existing Project",
+    isVisibleIfChecked: "new_or_existing#existing",
+    defaultValue: 0,
+    options: @projects.map { |p| [p.id, p.name] }.unshift([0, "Choose Project"]),
+  },
+  {
+    fieldType: "select",
+    attribute: "joined_at_m",
+    attributeName: "First month to pay rent for",
+    options: (1..12).map {|m| [m, Date::MONTHNAMES[m]]},
+    defaultValue: Date.current.month
+  },
+  {
+    fieldType: "number",
+    attribute: "joined_at_y",
+    attributeName: "Year",
+    defaultValue: Date.current.year
+  },
+  {
+    fieldType: "select",
+    attribute: "left_at_m",
+    attributeName: "Last month to pay rent for",
+    options: (1..12).map {|m| [m, Date::MONTHNAMES[m]]},
+    defaultValue: Date.current.month
+  },
+  {
+    fieldType: "number",
+    attribute: "left_at_y",
+    attributeName: "Year",
+    defaultValue: 20.years.from_now.year
+  },
+  {
+    fieldType: "password",
+    attribute: "member[password]",
+    attributeName: "Password",
+    defaultValue: random_password
+  },
+  {
+    fieldType: "password",
+    attribute: "member[password_confirmation]",
+    attributeName: "Confirm password",
+    defaultValue: random_password
+  },
+  {
+    fieldType: "submit",
+    objectName: "commit",
+    attribute: "",
+    attributeName: "",
+    defaultValue: "Invite new Member"
+  }
+] %>
+<!--
 <%= form_for(@member, url: members_path) do |f| %>
   <%= render 'shared/error_messages', object: f.object %>
   <%= f.label :name %>
@@ -49,3 +148,4 @@
 
   <%= f.submit "Invite member", class: "btn btn-primary" %>
 <% end %>
+-->
