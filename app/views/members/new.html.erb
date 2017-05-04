@@ -10,7 +10,7 @@
 <% random_password = Member.new_token %>
 <%= react_component 'Form', 
 authenticity_token: form_authenticity_token, 
-action: transfers_path,
+action: members_path,
 fields: [
   {
     fieldType: "text",
@@ -50,7 +50,6 @@ fields: [
   #   attributeName: "Which member made the transfer",
   #   options: [], #@members.map {|m| [m.id, m.name]},
   #   isControlling: "project_id", # Get member's projects when member is selected
-  #   showSubmit: true, # Show submit when projects are fetched
   # },
   {
     fieldType: "select",
@@ -87,6 +86,10 @@ fields: [
     defaultValue: 20.years.from_now.year
   },
   {
+    fieldType: "p",
+    text: "Auto generated password. The member will be prompted to change this when logging in for the first time."
+  },
+  {
     fieldType: "password",
     attribute: "member[password]",
     attributeName: "Password",
@@ -100,10 +103,7 @@ fields: [
   },
   {
     fieldType: "submit",
-    objectName: "commit",
-    attribute: "",
-    attributeName: "",
-    defaultValue: "Invite new Member"
+    attributeName: "Invite new Member"
   }
 ] %>
 <!--

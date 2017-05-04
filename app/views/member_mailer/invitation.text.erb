@@ -1,9 +1,9 @@
 Hej <%= @member.name %>,
 
-<%= @sender[:first_name] %> har bjudit in dig till ett RentSplitter-projekt.
+<%= @sender.name %> har bjudit in dig till RentSplitter-projektet <%= @project_name %>.
 
 För att acceptera, klicka på länken nedan:
 <%= edit_invitation_url(@member.invitation_token, email: @member.email) %>
 
 Hälsningar,
-//<%= "#{@sender[:first_name]} #{@sender[:last_name]}" %>
+//<%= @sender.name %>

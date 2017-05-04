@@ -36,8 +36,8 @@ class Member < ApplicationRecord
   end
 
   # Sends invitation email
-  def send_invitation_email
-    MemberMailer.invitation(self).deliver_now
+  def send_invitation_email(info)
+    MemberMailer.invitation(self, info).deliver_now
   end
 
   # Sets the password reset attributes

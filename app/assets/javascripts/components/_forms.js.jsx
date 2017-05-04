@@ -26,8 +26,7 @@ var Form = React.createClass({
             controlType: item.controlType,
             targetId: item.isControlling,
             targetAction: item.targetAction,
-            fieldValue: item.defaultValue,
-            showSubmit: item.showSubmit !== undefined
+            fieldValue: item.defaultValue
           }];
         }else{
           controllers[item.attribute].push({
@@ -35,8 +34,7 @@ var Form = React.createClass({
             controlType: item.controlType,
             targetId: item.isControlling,
             targetAction: item.targetAction,
-            fieldValue: item.defaultValue,
-            showSubmit: item.showSubmit !== undefined
+            fieldValue: item.defaultValue
           });          
         }
       }
@@ -48,8 +46,7 @@ var Form = React.createClass({
     return ({
       controllers: controllers,
       controlValues: controlValues,
-      fields: this.props.fields,
-      showSubmit: false
+      fields: this.props.fields
     });
   },
   pluralize: function(str) {
@@ -81,8 +78,7 @@ var Form = React.createClass({
             return item;
           });
           this.setState({
-            fields: fields,
-            showSubmit: controller[0].showSubmit
+            fields: fields
           });
         }.bind(this), 'json');
         break;
@@ -146,15 +142,7 @@ var Form = React.createClass({
           return <p key={i}>{item.text}</p>
         break;
         case "submit":
-          return (this.state.showSubmit ?
-          <FormField
-            key={i}
-            fieldType={item.fieldType}
-            attribute={item.attribute}
-            attributeName={item.attributeName}
-            handleSelect={this.handleSelect}
-            defaultValue={this.state.controlValues[item.attribute]}
-          /> : null)
+          return <FormSubmit key={i} attributeName={item.attributeName} />
         break;
         default:
           return (<FormField
@@ -230,36 +218,16 @@ var FormRadio = React.createClass({
   }
 });
 
-/*
-
-<form class="new_transfer" id="new_transfer" action="/transfers" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="✓"><input type="hidden" name="authenticity_token" value="0cdjJ8W70qDszIFQLaicB0gZUtUf1DR+MvSqkxvtgfPJFKgkatItHG8PK97obvC4pZiIkK2543Wr9K1zvI04KQ==">
-  <label for="transfer_transferred_at">Date</label>
-  <input value="2017-05-02" type="text" name="transfer[transferred_at]" id="transfer_transferred_at">
-
-  <label for="transfer_message">Message</label>
-  <input type="text" name="transfer[message]" id="transfer_message">
-
-  <label for="transfer_amount">Amount</label>
-  <input type="number" name="transfer[amount]" id="transfer_amount">
-
-  <label for="transfer_member_id">Paid by Member</label>
-  <select name="member_id" id="member_id"><option value="1">ADMIN Member</option>
-<option value="2">Member 0</option>
-<option value="3">Member 1</option>
-<option value="4">Member 2</option>
-<option value="5">Member 3</option>
-<option value="6">Member 4</option></select>
-
-  <label for="transfer_project_id">Project</label>
-  <select name="project_id" id="project_id"><option value="1">Project Nr ONE</option>
-<option value="2">Project 0</option>
-<option value="3">Project 1</option>
-<option value="4">Project 2</option>
-<option value="5">Project 3</option>
-<option value="6">Project 4</option></select>  
-
-  <input type="submit" name="commit" value="Add transfer" disable_with="Adding transfer..." data-disable-with="Add transfer">
-
-</form>
-
-*/
+var FormSubmit = React.createClass({
+  render: function() {
+    return (
+      <div>
+        <input
+          type="submit"
+          name="commit"
+          value={this.props.attributeName}
+        />
+      </div>
+    )
+  }
+})

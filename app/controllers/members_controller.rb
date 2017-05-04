@@ -41,7 +41,9 @@ class MembersController < ApplicationController
     elsif params[:new_or_existing] == "existing" && params[:project_id] != "0"
       # Add member to existing project
       puts "Assign project with id '#{params[:project_id]}' to member '#{@member.name}"
-      @member.projects << Project.find(params[:project_id])
+      existing_project = Project.find(params[:project_id])
+      project_name = existing_project.name
+      @member.projects << existing_project
     else
       flash[:danger] = "Enter a name for a new Project or choose an existing one."
       puts "Enter a name for a new Project or choose an existing one."
@@ -53,8 +55,8 @@ class MembersController < ApplicationController
     puts "Saving member #{@member.name} to db"
     if @member.save
       # Member saved to db. Send invitiation email.
-      @member.send_invitation_email
-      flash[:info] = "Invitation email sent to #{@member.email}."
+      @member.send_invitation_email sender: current_member, project_name: project_name
+      flash[:info] = "Invitation email sent to #{@member.email} from #{current_member.name}. Invited to project #{project_name}."
 
       redirect_to root_path
     else

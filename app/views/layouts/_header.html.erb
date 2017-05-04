@@ -1,12 +1,17 @@
+<header>
 <% if current_member %>
   <p>Logged in as <b><%= current_member.name %></b><br>
   Project id: <b><%= current_project_id %></b></p>
   <nav>
     <ul>
-      <li><%= link_to "Invite New Member", new_member_path %></li>
-      <li><%= link_to "Add money transfer", new_transfer_path %></li>
-      <li><%= link_to "Log out", logout_path, method: :delete %></li>
+      <% if current_member.admin? %>
+        <li><%= link_to "Invite New Member", new_member_path %></li>
+        <li><%= link_to "Add money transfer", new_transfer_path %></li>
+        <li><%= link_to "Edit Members", members_path %></li>
+      <% end %>
+        <li><%= link_to "Log out", logout_path, method: :delete %></li>
     </ul>
   </nav>
   <hr>
 <% end %>
+</header>

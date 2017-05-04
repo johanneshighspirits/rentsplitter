@@ -5,11 +5,9 @@ class MemberMailer < ApplicationMailer
   #
   #   en.member_mailer.invitation.subject
   #
-  def invitation(member)
-    @sender = {
-      first_name: "Johannes",
-      last_name: "Borgström"
-    }
+  def invitation(member, info)
+    @sender = info[:sender]
+    @project_name = info[:project_name]
     @member = member
     mail to: member.email, subject: "RentSplitter Invitation"
   end
