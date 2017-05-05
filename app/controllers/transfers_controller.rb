@@ -55,6 +55,30 @@ class TransfersController < ApplicationController
     end
   end
 
+  # Returns all of Project's Transfers, grouped on its Members.
+  def for_project
+    transfers_for_project = Project.find(params[:id]).members.map do |m|
+      member = {
+        name: m.name,
+        isMember: m.left_at > Date.current,
+        transfers: m.transfers.order(transferred_at: :desc).map do |t|
+          shortDate = "#{t.transferred_at.day}/#{t.transferred_at.month}"
+          longDate = t.transferred_at.to_s(:iso8601)
+          {
+            message: t.message,
+            amount: t.amount,
+            transferred_at: t.transferred_at,
+            shortDate: shortDate,
+            longDate: longDate,
+            isNotViewedYet: true # TODO: compare members last visit date with t.transferred_at
+          }
+        end
+      }
+    end
+    render json: transfers_for_project
+  end
+
+
   private
 
     def transfer_params

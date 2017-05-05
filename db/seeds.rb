@@ -13,7 +13,10 @@ members = Member.create(
     activated: true,
     admin: true
   )
-Member.first.projects.create(name: "Project Nr ONE")
+Member.first.projects.create(
+  name: "Project Nr ONE",
+  start_date: Date.current.beginning_of_month
+)
 
 5.times do |n|
   member = Member.new(
@@ -23,6 +26,9 @@ Member.first.projects.create(name: "Project Nr ONE")
     pattern: "member #{n}",
     activated: true
   )
-  member.projects.build(name: "Project #{n}")
+  member.projects.build(
+    name: "Project #{n}",
+    start_date: Date.current.beginning_of_month
+  )
   member.save
 end

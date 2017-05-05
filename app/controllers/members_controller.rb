@@ -31,13 +31,13 @@ class MembersController < ApplicationController
     # if @member.save
       # Member saved to db
       # Choose an existing project or create a new?
-    if params[:new_or_existing] == "new" && !params[:project_name].blank?
+    if params[:new_or_existing] == "new" && !params[:project][:name].blank?
       # Admin wants to create a new project
-      project_name = params[:project_name]
+      project_name = params[:project][:name]
       puts "Will create new Project: '#{project_name}'"
       # Create project
       puts "Assign project '#{project_name}' to member '#{@member.name}"
-      @member.projects.build(name: project_name)
+      @member.projects.build(project_params)
     elsif params[:new_or_existing] == "existing" && params[:project_id] != "0"
       # Add member to existing project
       puts "Assign project with id '#{params[:project_id]}' to member '#{@member.name}"
@@ -54,6 +54,7 @@ class MembersController < ApplicationController
     # Save member (along with project) to database
     puts "Saving member #{@member.name} to db"
     if @member.save
+      @member.projects.find_by(name: project_name).rents.create(amount: params[:monthly_rent])
       # Member saved to db. Send invitiation email.
       @member.send_invitation_email sender: current_member, project_name: project_name
       flash[:info] = "Invitation email sent to #{@member.email} from #{current_member.name}. Invited to project #{project_name}."
@@ -108,6 +109,10 @@ class MembersController < ApplicationController
     # Strong params
     def member_params
       params.require(:member).permit(:name, :email, :password, :password_confirmation, :joined_at, :left_at, :current_project_id)
+    end
+
+    def project_params
+      params.require(:project).permit(:name, :start_date)
     end
 
 end

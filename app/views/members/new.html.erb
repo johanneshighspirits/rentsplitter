@@ -40,8 +40,22 @@ fields: [
   },
   {
     fieldType: "text",
-    attribute: "project_name",
+    attribute: "project[name]",
     attributeName: "New Project name",
+    isVisibleIfChecked: "new_or_existing#new",
+  },
+  {
+    fieldType: "text",
+    attribute: "project[start_date]",
+    attributeName: "Project start date",
+    defaultValue: Date.current.beginning_of_month.next_month.to_s,
+    isVisibleIfChecked: "new_or_existing#new",
+  },
+  {
+    fieldType: "number",
+    attribute: "monthly_rent",
+    attributeName: "Monthly rent",
+    defaultValue: 0,
     isVisibleIfChecked: "new_or_existing#new",
   },
   # {

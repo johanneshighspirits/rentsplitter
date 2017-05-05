@@ -32,3 +32,8 @@ function get(url) {
 function getJSON(url) {
   return get(url).then(JSON.parse);
 }
+
+Date.prototype.getMonthName = function(lang) {
+  lang = lang || 'se-SV';
+  return this.toLocaleString(lang, {month: 'long'});
+};

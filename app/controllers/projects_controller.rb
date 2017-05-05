@@ -5,7 +5,7 @@ class ProjectsController < ApplicationController
 
   def index
     if logged_in?
-      render html: "Choose a project from #{current_member.projects}"
+      render html: "Choose a project from your projects: #{current_member.projects.map { |p| p.name }}"
     else
       redirect_to root_path
     end

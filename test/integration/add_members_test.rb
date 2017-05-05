@@ -62,12 +62,12 @@ class AddMembersTest < ActionDispatch::IntegrationTest
     assert_difference ['Member.count', 'Project.count'], 0 do
       post members_path, params: {
         new_or_existing: "new",
-        project_name: "",
         joined_at_y: 2000,
         joined_at_m: 1,
         left_at_y: 2020,
         left_at_m: 7,
-        member: @valid_new_member
+        member: @valid_new_member,
+        project: { name: "" },
       }
     end
     assert_template "members/new"
@@ -79,7 +79,7 @@ class AddMembersTest < ActionDispatch::IntegrationTest
     assert_difference 'Member.count', 1 do
       post members_path, params: {
         new_or_existing: "existing",
-        project_name: "",
+        project: { name: "" },
         project_id: "1",
         joined_at_y: 2000,
         joined_at_m: 1,
@@ -97,10 +97,13 @@ class AddMembersTest < ActionDispatch::IntegrationTest
     # properly enterend and selected. 
     get new_member_path
     assert_response :success
-    assert_difference ['Member.count', 'Project.count'], 1 do
+    assert_difference ['Member.count', 'Project.count', 'Rent.count'], 1 do
       post members_path, params: {
         new_or_existing: "new",
-        project_name: "New Project Name",
+        project: {
+          name: "New Project Name",
+          start_date: Date.current.beginning_of_month.next_month
+        },
         project_id: "",
         joined_at_y: 2000,
         joined_at_m: 1,
