@@ -10,7 +10,9 @@ class MembersLoginTest < ActionDispatch::IntegrationTest
   test "only show index page to logged in members" do
     # try when logged out first
     get root_path
-    assert_select 'p', /You need a special invitation to see this page/
+    assert_redirected_to login_path
+    follow_redirect!
+    assert_select 'h1', /Log in/
     # Log in as member
     get login_path
     assert_template 'sessions/new'

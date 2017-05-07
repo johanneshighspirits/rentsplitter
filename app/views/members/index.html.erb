@@ -4,10 +4,17 @@
   <li>
     <h3><%= member.name %></h3>
     <% if member.admin %>
-      <p><b><i>ADMIN</i></b></p>
+      <p><b><i>SITE ADMIN</i></b></p>
     <% end %>
     <p>Email: <%= member.email %><br>
-    Activated: <%= member.activated %></p>
+    Activated: <%= member.activated %><br>
+    pattern: <%= member.pattern %><br>
+    current_project_id: <%= member.current_project_id %><br>
+    projects: <ol><% member.projects.each do |p| %>
+      <li><b><%= p.name %></b></li>
+    <% end %></ol>
+    transfers: <%= member.transfers.count %><br>
+    </p>
     <% if current_member.admin && !member.admin %>
     <%= link_to "Delete", member, method: :delete, data: { confirm: "Are you absolutely positive you want to delete #{member.name}? This action can not be undone." } %>
     <% end %>

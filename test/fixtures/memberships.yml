@@ -1,13 +1,39 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-oneM:
-  member: member
-  project: projectOne
-
-oneA:
+adminOne:
   member: admin
-  project: projectOne
+  project_id: 839719613
 
-two:
-  member: two
-  project: two
+adminTwo:
+  member: member
+  project_id: 839719613
+
+# memberOne:
+#   member: member
+#   project: projectOne
+#   created_at: <%= Date.current %>
+#   updated_at: <%= Date.current %>
+
+# memberTwo:
+#   member: member
+#   project: projectTwo
+#   created_at: <%= Date.current %>
+#   updated_at: <%= Date.current %>
+
+# memberThree:
+#   member: member
+#   project: projectThree
+#   created_at: <%= Date.current %>
+#   updated_at: <%= Date.current %>
+
+# member_invited_unactivatedOne:
+#   member: member_invited_unactivated
+#   project: projectOne
+#   created_at: <%= Date.current %>
+#   updated_at: <%= Date.current %>
+
+# member_activatedOne:
+#   member: member_activated
+#   project: projectOne
+#   created_at: <%= Date.current %>
+#   updated_at: <%= Date.current %>

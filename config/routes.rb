@@ -10,7 +10,7 @@ Rails.application.routes.draw do
   post    '/transfers/many', to: 'transfers#create_many'
 
   resources :members
-  resources :projects, only: [:index]
+  resources :projects
   resources :transfers
   resources :invitations, only: [:edit]
 

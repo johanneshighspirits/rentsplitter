@@ -1,11 +1,10 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 projectOne:
-  name: Project one
+  name: Project One
 
-projectEtt:
-  name: Ett
-  id: 1
-  
-two:
-  name: MyString
+projectTwo:
+  name: Project Two
+
+projectThree:
+  name: Project Three

@@ -1,5 +1,8 @@
 class MembersController < ApplicationController
 
+  include ProjectsHelper
+  include SessionsHelper
+
   before_action :logged_in_member
   before_action :must_be_admin, only: [:new, :index, :create, :destroy]
 
@@ -54,13 +57,16 @@ class MembersController < ApplicationController
     # Save member (along with project) to database
     puts "Saving member #{@member.name} to db"
     if @member.save
-      @member.projects.find_by(name: project_name).rents.create(amount: params[:monthly_rent])
+      project = @member.projects.find_by(name: project_name)
+      project.rents.create(amount: params[:monthly_rent])
+
       # Member saved to db. Send invitiation email.
       @member.send_invitation_email sender: current_member, project_name: project_name
       flash[:info] = "Invitation email sent to #{@member.email} from #{current_member.name}. Invited to project #{project_name}."
-
+      set_current_project_id Project.find_by(name: project_name).id
       redirect_to root_path
     else
+      flash[:danger] = "#{@member.name} could not be saved."
       @projects = Project.all
       render 'new'
     end
@@ -109,10 +115,6 @@ class MembersController < ApplicationController
     # Strong params
     def member_params
       params.require(:member).permit(:name, :email, :password, :password_confirmation, :joined_at, :left_at, :current_project_id)
-    end
-
-    def project_params
-      params.require(:project).permit(:name, :start_date)
     end
 
 end

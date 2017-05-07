@@ -30,7 +30,7 @@ class InvitationsTest < ActionDispatch::IntegrationTest
   end
 
   test "valid invitation should log activated member in, and redirect to root" do
-    member = members(:member)
+    member = members(:member_activated)
     assert member.activated?
     member.invitation_token = Member.new_token
     member.invitation_digest = Member.digest(member.invitation_token)

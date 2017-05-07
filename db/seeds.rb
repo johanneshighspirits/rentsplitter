@@ -5,7 +5,7 @@
 #
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
-members = Member.create(
+admin = Member.new(
     name: "ADMIN Member",
     email: "email@example.com",
     password_digest: Member.digest("password"),
@@ -13,10 +13,11 @@ members = Member.create(
     activated: true,
     admin: true
   )
-Member.first.projects.create(
-  name: "Project Nr ONE",
-  start_date: Date.current.beginning_of_month
-)
+# admin.projects.build(
+#   name: "Project Nr ONE",
+#   start_date: Date.current.beginning_of_month
+# )
+admin.save
 
 5.times do |n|
   member = Member.new(
@@ -26,9 +27,9 @@ Member.first.projects.create(
     pattern: "member #{n}",
     activated: true
   )
-  member.projects.build(
-    name: "Project #{n}",
-    start_date: Date.current.beginning_of_month
-  )
+  # member.projects.build(
+  #   name: "Project #{n}",
+  #   start_date: Date.current.beginning_of_month
+  # )
   member.save
 end

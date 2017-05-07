@@ -5,6 +5,7 @@ admin:
   email: admin_email@example.com
   password_digest: <%= Member.digest('password') %>
   admin: true
+  # projects: projectOne, projectTwo
   current_project_id: 839719613
   pattern: admin
   activated: true
@@ -15,6 +16,7 @@ member:
   name: Member Membersson
   email: member_email@example.com
   password_digest: <%= Member.digest('password') %>
+  # projects: projectOne, projectTwo, projectThree
   current_project_id: 839719613
   pattern: member
   activated: true
@@ -25,17 +27,19 @@ member_invited_unactivated:
   name: Invited Member Not Activated
   email: member_email2@example.com
   password_digest: <%= Member.digest('password') %>
-  current_project_id: 1
+  # projects: projectOne
+  current_project_id: 839719613
   pattern: invited
   activated: false
   joined_at: 2017-01-01
   left_at: 2017-01-01
 
-one: 
+member_activated: 
   name: Member One Onesson
   email: memberOne_email@example.com
   password_digest: <%= Member.digest('password') %>
-  current_project_id: 1
+  # projects: projectOne
+  current_project_id: 839719613
   pattern: memberone
   activated: true
   joined_at: 2017-01-01

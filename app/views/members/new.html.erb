@@ -1,12 +1,4 @@
 <h1>Invite new member</h1>
-<style type="text/css" media="screen">
- .visible {
-  background-color: #aff;
- }
- .invisible {
-  background-color: #faa;
- }
-</style>
 <% random_password = Member.new_token %>
 <%= react_component 'Form', 
 authenticity_token: form_authenticity_token, 
@@ -39,16 +31,21 @@ fields: [
     defaultValue: "existing",
   },
   {
+    fieldType: "p",
+    text: "Choose a name and a start date for the new Project.",
+    isVisibleIfChecked: "new_or_existing#new",
+  },
+  {
     fieldType: "text",
     attribute: "project[name]",
     attributeName: "New Project name",
     isVisibleIfChecked: "new_or_existing#new",
   },
   {
-    fieldType: "text",
+    fieldType: "date",
     attribute: "project[start_date]",
     attributeName: "Project start date",
-    defaultValue: Date.current.beginning_of_month.next_month.to_s,
+    defaultValue: Date.current.beginning_of_month.next_month,
     isVisibleIfChecked: "new_or_existing#new",
   },
   {
@@ -74,30 +71,40 @@ fields: [
     options: @projects.map { |p| [p.id, p.name] }.unshift([0, "Choose Project"]),
   },
   {
+    fieldType: "p",
+    text: "Select which month the new member joins the Project."
+  },
+  {
     fieldType: "select",
     attribute: "joined_at_m",
     attributeName: "First month to pay rent for",
     options: (1..12).map {|m| [m, Date::MONTHNAMES[m]]},
-    defaultValue: Date.current.month
+    defaultValue: Date.current.next_month.month
   },
   {
-    fieldType: "number",
+    fieldType: "select",
     attribute: "joined_at_y",
-    attributeName: "Year",
+    attributeName: "",
+    options: (2000..20.years.from_now.year).map {|y| [y, y]},
     defaultValue: Date.current.year
+  },
+  {
+    fieldType: "p",
+    text: "If the new member will only join for a limited time, select the last month to pay rent for as well, otherwise just leave it as it is."
   },
   {
     fieldType: "select",
     attribute: "left_at_m",
     attributeName: "Last month to pay rent for",
     options: (1..12).map {|m| [m, Date::MONTHNAMES[m]]},
-    defaultValue: Date.current.month
+    defaultValue: Date.current.next_month.month
   },
   {
-    fieldType: "number",
+    fieldType: "select",
     attribute: "left_at_y",
-    attributeName: "Year",
-    defaultValue: 20.years.from_now.year
+    attributeName: "",
+    options: (2000..100.years.from_now.year).map {|y| [y, y]},
+    defaultValue: 100.years.from_now.year
   },
   {
     fieldType: "p",

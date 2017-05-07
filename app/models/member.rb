@@ -14,7 +14,7 @@ class Member < ApplicationRecord
   validates :password, presence: true, length: { minimum: 6 }, allow_nil: true
 
   has_secure_password
-  has_many :memberships
+  has_many :memberships #, dependent: :destroy
   has_many :projects, through: :memberships
   has_many :transfers, through: :memberships
 
@@ -73,6 +73,11 @@ class Member < ApplicationRecord
 
   def password_reset_expired?
     reset_sent_at < 2.hours.ago
+  end
+
+  # Open Project
+  def open_project(p_id)
+    update_attribute(:current_project_id, p_id)
   end
 
   private

@@ -80,7 +80,7 @@ class AddMembersTest < ActionDispatch::IntegrationTest
       post members_path, params: {
         new_or_existing: "existing",
         project: { name: "" },
-        project_id: "1",
+        project_id: 839719613,
         joined_at_y: 2000,
         joined_at_m: 1,
         left_at_y: 2020,
@@ -93,16 +93,17 @@ class AddMembersTest < ActionDispatch::IntegrationTest
     follow_redirect!
     assert_match /Invitation email sent to/, response.body
 
-    # Check that member AND project IS created when new project is
-    # properly enterend and selected. 
+    # Check that member AND rent AND project IS created when new project is
+    # properly entered and selected. 
+    project_name = "New Project Name"
     get new_member_path
     assert_response :success
     assert_difference ['Member.count', 'Project.count', 'Rent.count'], 1 do
       post members_path, params: {
         new_or_existing: "new",
         project: {
-          name: "New Project Name",
-          start_date: Date.current.beginning_of_month.next_month
+          name: project_name,
+          start_date: 5.years.ago.beginning_of_month
         },
         project_id: "",
         joined_at_y: 2000,
@@ -115,7 +116,13 @@ class AddMembersTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
     follow_redirect!
     assert_match /Invitation email sent to/, response.body
-
+    # Is project valid?
+    new_project = Project.find_by(name: project_name)
+    new_member = Member.find_by(name: @valid_new_member2[:name])
+    assert_equal 5.years.ago.beginning_of_month, new_project.start_date
+    assert_equal project_name, new_project.name
+    # Make sure admin_id was set
+    assert_equal new_member.id, new_project.admin_id
   end
 
 

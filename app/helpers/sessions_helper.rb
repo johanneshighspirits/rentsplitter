@@ -3,7 +3,8 @@ module SessionsHelper
   # Log in
   def log_in(member)
     session[:member_id] = member.id
-    session[:project_id] = member.current_project_id
+    set_current_project_id member.current_project_id
+    puts "Logging #{member.name} in, with current_project_id: #{current_project_id}"
   end
 
   def remember(member)
@@ -30,6 +31,10 @@ module SessionsHelper
   # Returns the current logged-in member's current open Project id
   def current_project_id
     session[:project_id]
+  end
+
+  def set_current_project_id(p_id)
+    session[:project_id] = p_id
   end
 
   # Is member logged in?

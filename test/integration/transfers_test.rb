@@ -47,7 +47,7 @@ class TransfersTest < ActionDispatch::IntegrationTest
       {
         transfer: {
           amount: 250.0,
-          message: "Mr. Member0 pay",
+          message: "Mr. Member pay",
           transferred_at: Time.zone.now.to_date
         }
       },

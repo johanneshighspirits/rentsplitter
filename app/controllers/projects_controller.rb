@@ -5,15 +5,31 @@ class ProjectsController < ApplicationController
 
   def index
     if logged_in?
-      render html: "Choose a project from your projects: #{current_member.projects.map { |p| p.name }}"
+      @projects = current_member.projects
     else
       redirect_to root_path
     end
+  end
+
+  def new
+    @project = Project.new
+  end
+
+  def create
+    @project = Project.new(project_params)
+  end
+
+  def edit
+  end
+
+  def show
+    current_member.open_project params[:id]
   end
 
   def for_member
     projects_for_member = Member.find(params[:id]).projects.map { |p| [p.id, p.name] }
     render json: projects_for_member
   end
+
 
 end

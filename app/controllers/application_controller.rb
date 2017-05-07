@@ -6,16 +6,16 @@ class ApplicationController < ActionController::Base
     if logged_in?
       @members = Member.all
       puts "Logged in as #{current_member.name}"
+      set_current_project_id current_member.current_project_id
       if current_project_id == 0
         # Member is not associated with a Project
         redirect_to projects_path
       else
         @current_project = Project.find(current_project_id)
-        puts "Opening #{current_member.name}'s latest project: '#{@current_project.name}'"
+        puts "Opening #{current_member.name}'s latest project: '#{@current_project.name}', because p_id: #{current_project_id}"
       end
     else
-      puts "Not logged_in"
-      render html: 'You need a special invitation to see this page'
+      redirect_to login_path
     end
   end
 

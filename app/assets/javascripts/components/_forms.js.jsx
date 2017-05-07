@@ -10,6 +10,7 @@ var Form = React.createClass({
         case "email":
         case "password":
         case "number":
+        case "date":
           controlValues[item.attribute] = item.defaultValue;
         break;
         case "radio":
