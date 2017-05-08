@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  amount: 9.99
+  message: MyString
+  transferred_at: 2017-05-08
+  project: one
+
+two:
+  amount: 9.99
+  message: MyString
+  transferred_at: 2017-05-08
+  project: two

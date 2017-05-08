@@ -31,37 +31,50 @@ class MembersController < ApplicationController
     params[:left_at] = "#{params[:left_at_y]}-#{params[:left_at_m]}-1".to_date.end_of_month
     # Init Member
     @member = Member.new(member_params)
-    # if @member.save
-      # Member saved to db
-      # Choose an existing project or create a new?
-    if params[:new_or_existing] == "new" && !params[:project][:name].blank?
-      # Admin wants to create a new project
-      project_name = params[:project][:name]
-      puts "Will create new Project: '#{project_name}'"
-      # Create project
-      puts "Assign project '#{project_name}' to member '#{@member.name}"
-      @member.projects.build(project_params)
-    elsif params[:new_or_existing] == "existing" && params[:project_id] != "0"
-      # Add member to existing project
-      puts "Assign project with id '#{params[:project_id]}' to member '#{@member.name}"
-      existing_project = Project.find(params[:project_id])
-      project_name = existing_project.name
-      @member.projects << existing_project
-    else
-      flash[:danger] = "Enter a name for a new Project or choose an existing one."
-      puts "Enter a name for a new Project or choose an existing one."
-      @projects = Project.all
-      render 'new' and return
-    end
-
-    # Save member (along with project) to database
-    puts "Saving member #{@member.name} to db"
     if @member.save
+      # Saved member (along with project) to database
+      puts "Saved member #{@member.name} to db."
+      # Choose an existing project or create a new?
+      if params[:new_or_existing] == "new" && !params[:project][:name].blank?
+        # Admin wants to create a new project
+        project_name = params[:project][:name]
+        params[:project][:admin_id] = current_member.id
+        if @member.projects.where("admin_id = ? AND name = ?", current_member.id, project_name).empty?
+          # Member is not the admin of a project with this name
+          puts "Will create new Project: '#{project_name}'"
+          # Create project
+          puts "Assign project '#{project_name}' to member '#{@member.name}"
+          @member.projects.build(project_params)
+        else
+          flash[:danger] = "A project named '#{project_name}' already exists. Choose another name."
+          puts "A project named '#{project_name}' already exists. Choose another name."
+          @projects = Project.all
+          @member.destroy
+          puts "Destroyed member #{@member.name}."
+          render 'new' and return
+        end
+      elsif params[:new_or_existing] == "existing" && params[:project_id] != "0"
+        # Add member to existing project
+        puts "Assign project with id '#{params[:project_id]}' to member '#{@member.name}"
+        existing_project = Project.find(params[:project_id])
+        project_name = existing_project.name
+        @member.projects << existing_project
+      else
+        flash[:danger] = "Enter a name for a new Project or choose an existing one."
+        puts "Enter a name for a new Project or choose an existing one."
+        @projects = Project.all
+        @member.destroy
+        puts "Destroyed member #{@member.name}."
+        render 'new' and return
+      end
+
+      @member.save
+
       project = @member.projects.find_by(name: project_name)
-      if project.rents.empty?
+      if !project.nil? && project.rents.empty?
         project.rents.create(amount: params[:monthly_rent], due_date: project.start_date.change(day: 25))
       end
-      
+
       # Member saved to db. Send invitiation email.
       @member.send_invitation_email sender: current_member, project_name: project_name
       flash[:info] = "Invitation email sent to #{@member.email} from #{current_member.name}. Invited to project #{project_name}."

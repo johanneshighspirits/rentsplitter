@@ -1,0 +1,2 @@
+class RentDiscountsController < ApplicationController
+end

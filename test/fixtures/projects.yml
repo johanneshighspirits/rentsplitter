@@ -3,9 +3,14 @@
 projectOne:
   name: Project One
   start_date: 2017-01-01
+  admin_id: members(:admin).id
+
 projectTwo:
   name: Project Two
   start_date: 2017-01-01
+  admin_id: members(:admin).id
+
 projectThree:
   name: Project Three
   start_date: 2017-01-01
+  admin_id: members(:admin).id

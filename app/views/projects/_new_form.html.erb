@@ -1,0 +1,30 @@
+<%= react_component 'Form', 
+authenticity_token: form_authenticity_token, 
+action: projects_path,
+fields: [
+  {
+    fieldType: "p",
+    text: "Choose a name and a start date for the new Project.",
+  },
+  {
+    fieldType: "text",
+    attribute: "project[name]",
+    attributeName: "New Project name",
+  },
+  {
+    fieldType: "date",
+    attribute: "project[start_date]",
+    attributeName: "Project start date",
+    defaultValue: Date.current.beginning_of_month.next_month,
+  },
+  {
+    fieldType: "number",
+    attribute: "monthly_rent",
+    attributeName: "Monthly rent",
+    defaultValue: 0,
+  },
+  {
+    fieldType: "submit",
+    attributeName: "Create Project"
+  }
+] %>

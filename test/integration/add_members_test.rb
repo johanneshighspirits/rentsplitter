@@ -52,7 +52,12 @@ class AddMembersTest < ActionDispatch::IntegrationTest
         left_at_y: 2020,
         left_at_m: 7,
         monthly_rent: 1,
-        member: @valid_new_member
+        member: @valid_new_member,
+        project: {
+          name: "",
+          start_date: "",
+          admin_id: "",
+        },
       }
     end
     assert_template "members/new"
@@ -68,7 +73,11 @@ class AddMembersTest < ActionDispatch::IntegrationTest
         left_at_y: 2020,
         left_at_m: 7,
         member: @valid_new_member,
-        project: { name: "" },
+        project: {
+          name: "",
+          start_date: "",
+          admin_id: "",
+        },
         monthly_rent: 2,
       }
     end
@@ -81,7 +90,11 @@ class AddMembersTest < ActionDispatch::IntegrationTest
     assert_difference 'Member.count', 1 do
       post members_path, params: {
         new_or_existing: "existing",
-        project: { name: "" },
+        project: {
+          name: "",
+          start_date: "",
+          admin_id: "",
+        },
         monthly_rent: 3,
         project_id: 839719613,
         joined_at_y: 2000,
@@ -98,7 +111,7 @@ class AddMembersTest < ActionDispatch::IntegrationTest
 
     # Check that member AND rent AND project IS created when new project is
     # properly entered and selected. 
-    project_name = "New Project Name"
+    project_name = "New Project Name VALID"
     get new_member_path
     assert_response :success
     assert_difference ['Member.count', 'Project.count', 'Rent.count'], 1 do
@@ -106,7 +119,8 @@ class AddMembersTest < ActionDispatch::IntegrationTest
         new_or_existing: "new",
         project: {
           name: project_name,
-          start_date: 5.years.ago.beginning_of_month
+          start_date: 5.years.ago.beginning_of_month,
+          admin_id: @admin.id
         },
         monthly_rent: 9450,
         project_id: "",
@@ -128,7 +142,6 @@ class AddMembersTest < ActionDispatch::IntegrationTest
     # Make sure admin_id was set
     assert_equal new_member.id, new_project.admin_id
   end
-
 
   test "valid member should be saved to database" do
   end

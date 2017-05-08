@@ -1,0 +1,2 @@
+module RentDiscountsHelper
+end

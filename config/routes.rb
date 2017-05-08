@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :rent_discounts
   root 'application#index'
 
   get     '/login',   to: 'sessions#new'
