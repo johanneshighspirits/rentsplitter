@@ -1,2 +1,6 @@
-<h1><%= @current_project.name %></h1>
-<%= react_component 'RentSplitter', projectId: @current_project.id %>
+<%= react_component 'RentSplitter',
+project: {
+  name: @current_project.name,
+  id: @current_project.id
+}
+%>

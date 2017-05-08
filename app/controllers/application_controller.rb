@@ -4,7 +4,6 @@ class ApplicationController < ActionController::Base
 
   def index
     if logged_in?
-      @members = Member.all
       puts "Logged in as #{current_member.name}"
       set_current_project_id current_member.current_project_id
       if current_project_id == 0
@@ -12,7 +11,6 @@ class ApplicationController < ActionController::Base
         redirect_to projects_path
       else
         @current_project = Project.find(current_project_id)
-        puts "Opening #{current_member.name}'s latest project: '#{@current_project.name}', because p_id: #{current_project_id}"
       end
     else
       redirect_to login_path

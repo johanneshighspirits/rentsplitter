@@ -58,8 +58,10 @@ class MembersController < ApplicationController
     puts "Saving member #{@member.name} to db"
     if @member.save
       project = @member.projects.find_by(name: project_name)
-      project.rents.create(amount: params[:monthly_rent])
-
+      if project.rents.empty?
+        project.rents.create(amount: params[:monthly_rent], due_date: project.start_date.change(day: 25))
+      end
+      
       # Member saved to db. Send invitiation email.
       @member.send_invitation_email sender: current_member, project_name: project_name
       flash[:info] = "Invitation email sent to #{@member.email} from #{current_member.name}. Invited to project #{project_name}."

@@ -8,6 +8,10 @@ class Project < ApplicationRecord
 
   validates :name, uniqueness: { scope: :admin_id }
 
+  def total_rent
+    rents.sum(:amount)
+  end
+
   def check_start_date
     self.start_date = Date.current.beginning_of_month.next_month if start_date.nil?
   end

@@ -51,6 +51,7 @@ class AddMembersTest < ActionDispatch::IntegrationTest
         joined_at_m: 1,
         left_at_y: 2020,
         left_at_m: 7,
+        monthly_rent: 1,
         member: @valid_new_member
       }
     end
@@ -68,6 +69,7 @@ class AddMembersTest < ActionDispatch::IntegrationTest
         left_at_m: 7,
         member: @valid_new_member,
         project: { name: "" },
+        monthly_rent: 2,
       }
     end
     assert_template "members/new"
@@ -80,6 +82,7 @@ class AddMembersTest < ActionDispatch::IntegrationTest
       post members_path, params: {
         new_or_existing: "existing",
         project: { name: "" },
+        monthly_rent: 3,
         project_id: 839719613,
         joined_at_y: 2000,
         joined_at_m: 1,
@@ -105,6 +108,7 @@ class AddMembersTest < ActionDispatch::IntegrationTest
           name: project_name,
           start_date: 5.years.ago.beginning_of_month
         },
+        monthly_rent: 9450,
         project_id: "",
         joined_at_y: 2000,
         joined_at_m: 1,

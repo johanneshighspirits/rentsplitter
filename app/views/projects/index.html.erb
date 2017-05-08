@@ -1,3 +1,12 @@
-<% @projects.each do |project| %>
-<%= link_to project.name, project %>
-<% end %>
+<h1>Projects</h1>
+<ol>
+  <% @projects.each do |project| %>
+  <li>
+    <%= link_to "Open #{project.name}", project %><br>id: <%= project.id %><br>members:<ul>
+    <% project.members.each do |member| %>
+      <li><i><%= member.name %></i></li>
+    <% end %>
+    </ul>
+  </li>
+  <% end %>
+</ol>

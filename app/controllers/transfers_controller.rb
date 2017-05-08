@@ -6,8 +6,6 @@ class TransfersController < ApplicationController
   def new
     @transfer = Transfer.new
     @members = Member.all
-    # TODO Fetch only members projects, when selected
-    # in dropdown list (transfers/new)
     @projects = Project.all
   end
 
@@ -57,7 +55,9 @@ class TransfersController < ApplicationController
 
   # Returns all of Project's Transfers, grouped on its Members.
   def for_project
-    transfers_for_project = Project.find(params[:id]).members.map do |m|
+    p = Project.find(params[:id])
+    total_rent = p.total_rent
+    member_transfers_for_project = p.members.map do |m|
       member = {
         name: m.name,
         isMember: m.left_at > Date.current,
@@ -75,7 +75,7 @@ class TransfersController < ApplicationController
         end
       }
     end
-    render json: transfers_for_project
+    render json: { memberTransfers: member_transfers_for_project, totalRent: total_rent }
   end
 
 

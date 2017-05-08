@@ -3,13 +3,15 @@
 window.RentSplitter = React.createClass({
   getInitialState: function(){
     return ({
+      totalRent: 0,
       members: []
     });
   },
   componentDidMount: function() {
-    $.get('/projects/' + this.props.projectId + '/transfers.json', function(members){
+    $.get('/projects/' + this.props.project.id + '/transfers.json', function(projectInfo){
       this.setState({
-        members: members
+        totalRent: projectInfo.totalRent,
+        members: projectInfo.memberTransfers
       });
     }.bind(this), 'json');
   },
@@ -22,15 +24,16 @@ window.RentSplitter = React.createClass({
           key={m}
           member={member}
           thisMonth={thisMonth}
-          totalRentToPay={10000}
+          totalRentToPay={this.state.totalRent}
         />
       )
-    });
+    }, this);
     return (
       <section>
         <article>
-          <h2>RentSplitter <i>&mdash; react-js</i></h2>
+          <h2>{this.props.project.name}<i>&mdash; react-js</i></h2>
           <p>main info here</p>
+          <p>Total rent for entire project: <b>{this.state.totalRent}</b></p>
         </article>
         <article>
           <ul>

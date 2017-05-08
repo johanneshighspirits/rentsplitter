@@ -25,7 +25,8 @@ class MembersLoginTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_url
     follow_redirect!
     assert_template 'application/index'
-    assert_select 'h1', Project.find(@member.current_project_id).name
+
+    assert_select 'header b', @member.name
   end
 
   test "should open project on successful login" do

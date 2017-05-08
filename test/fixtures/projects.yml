@@ -2,9 +2,10 @@
 
 projectOne:
   name: Project One
-
+  start_date: 2017-01-01
 projectTwo:
   name: Project Two
-
+  start_date: 2017-01-01
 projectThree:
   name: Project Three
+  start_date: 2017-01-01
