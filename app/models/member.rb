@@ -1,7 +1,7 @@
 class Member < ApplicationRecord
   attr_accessor :remember_token, :invitation_token, :reset_token
   before_create :create_invitation_digest
-  before_create :set_join_and_left_dates
+  # before_create :set_join_and_left_dates
   before_create :create_pattern
   before_save { email.downcase! }
   after_save :check_current_project_id
@@ -17,7 +17,8 @@ class Member < ApplicationRecord
   has_many :memberships #, dependent: :destroy
   has_many :projects, through: :memberships
   has_many :transfers, through: :memberships
-
+  accepts_nested_attributes_for :memberships
+  
   # Returns the hash digest of a given string
   def Member.digest(string)
     cost = ActiveModel::SecurePassword.min_cost ? BCrypt::Engine::MIN_COST :
@@ -87,10 +88,10 @@ class Member < ApplicationRecord
       self.invitation_digest = Member.digest(invitation_token)
     end
 
-    def set_join_and_left_dates
-      self.joined_at = Date.current.beginning_of_month.to_date
-      self.left_at = 20.years.from_now
-    end
+    # def set_join_and_left_dates
+    #   self.joined_at = Date.current.beginning_of_month.to_date
+    #   self.left_at = 20.years.from_now
+    # end
 
     def create_pattern
       self.pattern = pattern.nil? ? name.downcase : pattern

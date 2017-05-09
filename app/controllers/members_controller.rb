@@ -71,8 +71,14 @@ class MembersController < ApplicationController
       @member.save
 
       project = @member.projects.find_by(name: project_name)
-      if !project.nil? && project.rents.empty?
-        project.rents.create(amount: params[:monthly_rent], due_date: project.start_date.change(day: 25))
+      if !project.nil?
+        membership = @member.memberships.where("project_id = ?", project.id)
+        membership.update(joined_at: params[:joined_at], left_at: params[:left_at])
+        @member.save
+        
+        if project.rents.empty?
+          project.rents.create(amount: params[:monthly_rent], due_date: project.start_date.change(day: 25))
+        end
       end
 
       # Member saved to db. Send invitiation email.
@@ -129,7 +135,7 @@ class MembersController < ApplicationController
   private
     # Strong params
     def member_params
-      params.require(:member).permit(:name, :email, :password, :password_confirmation, :joined_at, :left_at, :current_project_id)
+      params.require(:member).permit(:name, :email, :password, :password_confirmation, :current_project_id)
     end
 
 end

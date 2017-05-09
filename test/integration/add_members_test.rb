@@ -109,7 +109,7 @@ class AddMembersTest < ActionDispatch::IntegrationTest
     follow_redirect!
     assert_match /Invitation email sent to/, response.body
 
-    # Check that member AND rent AND project IS created when new project is
+    # Check that member AND rent AND project is created when new project is
     # properly entered and selected. 
     project_name = "New Project Name VALID"
     get new_member_path
@@ -139,6 +139,40 @@ class AddMembersTest < ActionDispatch::IntegrationTest
     new_member = Member.find_by(name: @valid_new_member2[:name])
     assert_equal 5.years.ago.beginning_of_month, new_project.start_date
     assert_equal project_name, new_project.name
+    # Make sure admin_id was set
+    assert_equal new_member.id, new_project.admin_id
+  end
+
+  test "membership should have valid join and left dates" do
+    log_in_as @admin
+    get new_member_path
+    assert_response :success
+    project_name = "New Join and Left Project"
+    assert_difference ['Member.count', 'Project.count', 'Rent.count', 'Membership.count'], 1 do
+      post members_path, params: {
+        new_or_existing: "new",
+        project: {
+          name: project_name,
+          start_date: 5.years.ago.beginning_of_month,
+          admin_id: @admin.id
+        },
+        monthly_rent: 9450,
+        project_id: "",
+        joined_at_y: 2000,
+        joined_at_m: 1,
+        left_at_y: 2020,
+        left_at_m: 7,
+        member: @valid_new_member2
+      }
+    end
+    assert_redirected_to root_path
+    follow_redirect!
+    assert_match /Invitation email sent to/, response.body
+    # Is project valid?
+    new_project = Project.find_by(name: project_name)
+    new_member = Member.find_by(name: @valid_new_member2[:name])
+    membership = Membership.where("project_id = ? AND member_id = ?", new_project.id, new_member.id)
+    assert_equal Date.new(2000, 1, 1), membership.first.joined_at
     # Make sure admin_id was set
     assert_equal new_member.id, new_project.admin_id
   end

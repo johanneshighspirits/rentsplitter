@@ -1,5 +1,4 @@
 class Membership < ApplicationRecord
-
   after_create :assign_admin
 
   belongs_to :member

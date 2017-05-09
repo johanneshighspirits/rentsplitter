@@ -56,7 +56,7 @@ class TransfersController < ApplicationController
   # Returns all of Project's Transfers, grouped on its Members.
   def for_project
     # Find project
-    p = Project.find(params[:id])
+    p = Project.includes(:members, :memberships).references(:members).find(params[:id])
     # Calculate total rent to pay (from project start)
     total_rent = p.total_rent
     # Find all RentDiscounts 
@@ -69,10 +69,11 @@ class TransfersController < ApplicationController
         to: d.transferred_at.beginning_of_month.midnight - 1.seconds, 
       }
     end
-    member_transfers_for_project = p.members.map do |m|
+
+    member_and_transfers = p.members.includes(:memberships).map do |m|
       member = {
         name: m.name,
-        isMember: m.left_at > Date.current,
+        isMember: m.memberships.first.left_at > Date.current,
         transfers: m.transfers.order(transferred_at: :desc).map do |t|
           shortDate = "#{t.transferred_at.day}/#{t.transferred_at.month}"
           longDate = t.transferred_at.to_s(:iso8601)
@@ -88,7 +89,7 @@ class TransfersController < ApplicationController
       }
     end
     render json: {
-      memberTransfers: member_transfers_for_project,
+      memberTransfers: member_and_transfers,
       totalRent: total_rent,
       rentDiscounts: rent_discounts,
     }

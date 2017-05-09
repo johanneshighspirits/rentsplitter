@@ -3,10 +3,14 @@
 adminOne:
   member: admin
   project_id: 839719613
+  joined_at: <%= Date.current %>
+  left_at: <%= Date.current %>
 
 adminTwo:
   member: member
   project_id: 839719613
+  joined_at: <%= Date.current %>
+  left_at: <%= Date.current %>
 
 # memberOne:
 #   member: member

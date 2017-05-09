@@ -9,8 +9,6 @@ admin:
   current_project_id: 839719613
   pattern: admin
   activated: true
-  joined_at: 2017-01-01
-  left_at: 2017-01-01
 
 member:
   name: Member Membersson
@@ -20,8 +18,6 @@ member:
   current_project_id: 839719613
   pattern: member
   activated: true
-  joined_at: 2017-01-01
-  left_at: 2017-01-01
 
 member_invited_unactivated:
   name: Invited Member Not Activated
@@ -31,8 +27,6 @@ member_invited_unactivated:
   current_project_id: 839719613
   pattern: invited
   activated: false
-  joined_at: 2017-01-01
-  left_at: 2017-01-01
 
 member_activated: 
   name: Member One Onesson
@@ -42,5 +36,3 @@ member_activated:
   current_project_id: 839719613
   pattern: memberone
   activated: true
-  joined_at: 2017-01-01
-  left_at: 2017-01-01
