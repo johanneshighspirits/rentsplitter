@@ -3,29 +3,54 @@ class MembersController < ApplicationController
   include ProjectsHelper
   include SessionsHelper
 
-  before_action :logged_in_member
-  before_action :must_be_admin, only: [:new, :index, :create, :destroy]
+  before_action :logged_in_member, except: [:new, :create, :activate]
+  before_action :must_be_site_admin, only: [:index, :destroy]
 
-  # ADMIN ONLY:
+  # SITE ADMIN ONLY:
   # List all members. Edit or Delete.
   # /members
   def index
     @members = Member.all
   end
 
-  # ADMIN ONLY:
-  # Create new member
-  # /members/new
+  # Sign up:
+  # /signup
   def new
     @member = Member.new
-    @projects = Project.all
   end
 
-  # ADMIN ONLY:
+  # Add Member to database
+  # post /signup
+  def create
+    # Init Member
+    @member = Member.new(member_params)
+    if @member.save
+      flash[:info] = "Registration successful!"
+      @member.send_activation_email
+      render 'activate'
+    else
+      render 'new'
+    end
+  end
+
+  def activate
+    redirect_to params[:activation_link]
+  end
+
+  # MEMBER ONLY:
+  # Invite someone else:
+  # /invite
+  def invite
+    @member = Member.new
+    @projects = current_member.projects.where(admin_id: current_member.id)
+  end
+
+  # MEMBER ONLY:
   # Creating a new Member, connects to an existing Project (through Membership) or
   # creates a new one. Saves member to db and sends invitation email.
-  # post /members
-  def create
+  # post /invite
+  def create_and_invite
+    puts "create_and_invite"
     # Convert month/year params to date
     params[:joined_at] = "#{params[:joined_at_y]}-#{params[:joined_at_m]}-1".to_date
     params[:left_at] = "#{params[:left_at_y]}-#{params[:left_at_m]}-1".to_date.end_of_month
@@ -36,11 +61,11 @@ class MembersController < ApplicationController
       puts "Saved member #{@member.name} to db."
       # Choose an existing project or create a new?
       if params[:new_or_existing] == "new" && !params[:project][:name].blank?
-        # Admin wants to create a new project
+        # Logged in member wants to create a new project
         project_name = params[:project][:name]
         params[:project][:admin_id] = current_member.id
         if @member.projects.where("admin_id = ? AND name = ?", current_member.id, project_name).empty?
-          # Member is not the admin of a project with this name
+          # Member is not the admin of a project with this name, create it
           puts "Will create new Project: '#{project_name}'"
           # Create project
           puts "Assign project '#{project_name}' to member '#{@member.name}"
@@ -48,24 +73,27 @@ class MembersController < ApplicationController
         else
           flash[:danger] = "A project named '#{project_name}' already exists. Choose another name."
           puts "A project named '#{project_name}' already exists. Choose another name."
-          @projects = Project.all
-          @member.destroy
-          puts "Destroyed member #{@member.name}."
-          render 'new' and return
+          cancel_invite "PROJECT ALREADY EXISTS"
+          return false
         end
       elsif params[:new_or_existing] == "existing" && params[:project_id] != "0"
         # Add member to existing project
-        puts "Assign project with id '#{params[:project_id]}' to member '#{@member.name}"
         existing_project = Project.find(params[:project_id])
+        p existing_project
+        puts "Assign project '#{existing_project.name}' (#{params[:project_id]}) with admin #{existing_project.admin_id}, to member '#{@member.name}'."
         project_name = existing_project.name
-        @member.projects << existing_project
+        if existing_project.admin_id == current_member.id
+          # Make sure that current member is admin of the project.
+          @member.projects << existing_project
+        else
+          cancel_invite "NOT PROJECT ADMIN. Member #{current_member.id} is not #{existing_project.admin_id}."
+          return false
+        end
       else
         flash[:danger] = "Enter a name for a new Project or choose an existing one."
         puts "Enter a name for a new Project or choose an existing one."
-        @projects = Project.all
-        @member.destroy
-        puts "Destroyed member #{@member.name}."
-        render 'new' and return
+        cancel_invite "NO NEW PROJECT NAME or NO PROJECT SELECTED"
+        return false
       end
 
       @member.save
@@ -88,22 +116,24 @@ class MembersController < ApplicationController
       redirect_to root_path
     else
       flash[:danger] = "#{@member.name} could not be saved."
-      @projects = Project.all
-      render 'new'
+      @projects = current_member.projects.where(admin_id: current_member.id)
+      render 'invite'
     end
   end
 
   def edit
     @member = Member.find(params[:id])
-    if params[:first]
-      render 'members/edit_password' and return
+    if params[:set_password]
+      render 'members/edit_password'
+    else
+      render 'members/welcome'
     end
   end
 
   def update
     @member = Member.find(params[:id])
     if @member.update_attributes(member_params)
-      if is_admin?
+      if is_site_admin?
         flash[:success] = "Member updated"
         redirect_to @member
       else
@@ -136,6 +166,15 @@ class MembersController < ApplicationController
     # Strong params
     def member_params
       params.require(:member).permit(:name, :email, :password, :password_confirmation, :current_project_id)
+    end
+
+    # If member invitation goes wrong, rollback and rerender
+    def cancel_invite(error)
+      @projects = current_member.projects.where(admin_id: current_member.id)
+      @member.destroy
+      puts "Destroyed member #{@member.name}, #{error}"
+      render 'invite'
+      return false
     end
 
 end

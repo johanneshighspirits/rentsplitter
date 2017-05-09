@@ -13,15 +13,8 @@ class SessionsController < ApplicationController
         log_in @member
         puts "Remembering #{@member.name}"
         params[:session][:remember_me] == '1' ? remember(@member) : forget(@member)
-        # Redirect to admin pages if admin, else root
-        if @member.admin
-          # Redirect to wanted url if admin, else members
-          puts "Admin. Redirecting to '#{session[:forwarding_url]}' or #{members_path}"
-          redirect_back_or members_path
-        else
-          puts "Not admin, redirect to root"
-          redirect_to root_path
-        end
+        # Redirect to root
+        redirect_to root_path
       else
         message = "Account not activated. "
         message += "Check your email for the activation link."

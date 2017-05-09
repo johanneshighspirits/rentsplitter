@@ -41,8 +41,8 @@ class MembersLoginTest < ActionDispatch::IntegrationTest
   end
 
 
-  test "should not show new member page to non-admin" do
-    get new_member_path
+  test "should not show new members page to non-site-admin" do
+    get members_path
     assert_redirected_to login_path
     follow_redirect!
     assert_template 'sessions/new'
@@ -54,18 +54,11 @@ class MembersLoginTest < ActionDispatch::IntegrationTest
       }
     }
     assert_redirected_to root_path
-    get new_member_path
+    get members_path
     assert_redirected_to root_path
-    
   end
 
-  test "show members page to logged in admin" do
-    # try when logged out first
-    get members_path
-    assert_redirected_to login_path
-    follow_redirect!
-    assert_template 'sessions/new'
-    assert_select 'h1', /Log in/
+  test "show members page to logged in site admin" do
     # Log in as admin
     post login_path, params: {
       session: {
@@ -73,8 +66,10 @@ class MembersLoginTest < ActionDispatch::IntegrationTest
         password: 'password'
       }
     }
-    assert_redirected_to members_path
+    assert_redirected_to root_path
     follow_redirect!
+    get members_path
+    assert_response :success
     assert_template 'members/index'
     assert_select 'a', 'Delete'
   end

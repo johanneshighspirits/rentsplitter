@@ -11,6 +11,7 @@ var Form = React.createClass({
         case "password":
         case "number":
         case "date":
+        case "hidden":
           controlValues[item.attribute] = item.defaultValue;
         break;
         case "radio":

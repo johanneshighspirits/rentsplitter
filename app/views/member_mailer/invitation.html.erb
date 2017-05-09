@@ -2,7 +2,7 @@
 
 <p><b><%= @sender.name %></b> har bjudit in dig till RentSplitter-projektet <i><%= @project_name %></i>.</p>
 <p>För att acceptera, klicka på länken nedan:</p>
-<%= link_to "Acceptera inbjudan", edit_invitation_url(@member.invitation_token, email: @member.email) %>
+<%= link_to "Acceptera inbjudan", edit_invitation_url(@member.invitation_token, email: @member.email, set_password: true) %>
 
 <p><i>Hälsningar,<br>
 //<%= @sender.name %></i></p>

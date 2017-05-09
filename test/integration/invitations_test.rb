@@ -12,7 +12,7 @@ class InvitationsTest < ActionDispatch::IntegrationTest
     # Member follows email invitation link
     get edit_invitation_url(member.invitation_token, email: member.email)
     
-    assert_redirected_to edit_member_path(member, first: true)
+    assert_redirected_to edit_member_path(member)
     follow_redirect!
     assert_response :success
     assert current_member?(member), "Member should be logged in"

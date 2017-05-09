@@ -1,7 +1,7 @@
 class TransfersController < ApplicationController
 
   before_action :logged_in_member
-  before_action :must_be_admin, only: [:new, :create, :create_many, :destroy]
+  before_action :must_be_site_admin, only: [:new, :create, :create_many, :destroy]
 
   def new
     @transfer = Transfer.new

@@ -1,0 +1,22 @@
+<h1>Welcome <%= @member.name %>!</h1>
+<p><b>You have been successfully registered.</b></p>
+
+<p>To start using your account, you need to activate it. You should have received an email with an activation link.</p>
+<p><i>Check your spam folder if you can't find the activation email.</i></p>
+
+<p>If the link is not clickable, you can copy and paste it here.</p>
+
+<%= react_component 'Form', 
+authenticity_token: form_authenticity_token, 
+action: activate_path,
+fields: [
+  {
+    fieldType: "text",
+    attribute: "activation_link",
+    attributeName: "Paste link here",
+  },
+  {
+    fieldType: "submit",
+    attributeName: "Activate your account"
+  }
+] %>

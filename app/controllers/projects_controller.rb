@@ -1,5 +1,8 @@
 class ProjectsController < ApplicationController
 
+  include SessionsHelper
+  include ProjectsHelper
+
   before_action :logged_in_member
   before_action :must_be_admin, only: [:for_member]
 
@@ -17,6 +20,13 @@ class ProjectsController < ApplicationController
 
   def create
     @project = Project.new(project_params)
+    if @project.save!
+      flash[:success] = "'#{@project.name}' successfully created. Let's add some members..."
+      # Open new Project
+      set_current_project_id @project.id
+      # Invite/add members
+      redirect_to invite_path
+    end
   end
 
   def edit

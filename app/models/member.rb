@@ -18,7 +18,7 @@ class Member < ApplicationRecord
   has_many :projects, through: :memberships
   has_many :transfers, through: :memberships
   accepts_nested_attributes_for :memberships
-  
+
   # Returns the hash digest of a given string
   def Member.digest(string)
     cost = ActiveModel::SecurePassword.min_cost ? BCrypt::Engine::MIN_COST :
@@ -39,6 +39,10 @@ class Member < ApplicationRecord
   # Sends invitation email
   def send_invitation_email(info)
     MemberMailer.invitation(self, info).deliver_now
+  end
+
+  def send_activation_email
+    MemberMailer.activation(self).deliver_now
   end
 
   # Sets the password reset attributes

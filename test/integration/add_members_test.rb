@@ -5,6 +5,7 @@ class AddMembersTest < ActionDispatch::IntegrationTest
   def setup
     @admin = members(:admin)
     @member = members(:member)
+    @projectOne = projects(:projectOne)
     random_pass = Member.new_token
     @valid_new_member = {
       name: "MemberWithoutProjectName",
@@ -20,33 +21,40 @@ class AddMembersTest < ActionDispatch::IntegrationTest
     }
   end
 
-  test "only admin can add members" do
-    get new_member_path
+  test "only project admin can add members to project" do
+    get invite_path
     assert_redirected_to login_path
     follow_redirect!
     assert_response :success
 
     log_in_as @member
-    get new_member_path
-    assert_redirected_to root_path
-    follow_redirect!
+    get invite_path
     assert_response :success
-    log_out
-
-    log_in_as @admin
-    get new_member_path
-    assert_response :success
-    assert_template 'members/new'
+    # Try to add @valid_new_member
+    assert_difference ['Member.count', 'Project.count', 'Rent.count'], 0 do
+      post invite_path, params: {
+        new_or_existing: "existing",
+        monthly_rent: 9450,
+        project_id: @projectOne.id,
+        joined_at_y: 2000,
+        joined_at_m: 1,
+        left_at_y: 2020,
+        left_at_m: 7,
+        member: @valid_new_member2
+      }
+    end
+    assert_template 'members/invite'
+    assert_select 'h1', "Invite new member"
   end
 
   test "must assign project to new member" do
     log_in_as @admin
-    get new_member_path
+    get invite_path
 
     # Check that no member or project is created when no project is
     # selected and no new name is entered
     assert_difference ['Member.count', 'Project.count'], 0 do
-      post members_path, params: {
+      post invite_path, params: {
         joined_at_y: 2000,
         joined_at_m: 1,
         left_at_y: 2020,
@@ -60,13 +68,13 @@ class AddMembersTest < ActionDispatch::IntegrationTest
         },
       }
     end
-    assert_template "members/new"
+    assert_template "members/invite"
     assert_match /Enter a name for a new Project or choose an existing one/, response.body
 
     # Check that no member or project is created when new project is
     # selected but no name entered
     assert_difference ['Member.count', 'Project.count'], 0 do
-      post members_path, params: {
+      post invite_path, params: {
         new_or_existing: "new",
         joined_at_y: 2000,
         joined_at_m: 1,
@@ -81,14 +89,18 @@ class AddMembersTest < ActionDispatch::IntegrationTest
         monthly_rent: 2,
       }
     end
-    assert_template "members/new"
+    assert_template "members/invite"
     assert_match /Enter a name for a new Project or choose an existing one/, response.body
 
     # Check that member IS created when existing project is
     # selected. Project.count should not change  
+    # For some reason, admin_id is always zero (0),
+    # set this to @admin.id, so @admin is admin of the project
+    projects(:projectOne).admin_id = @admin.id
+    projects(:projectOne).save
     project_count = Project.count
     assert_difference 'Member.count', 1 do
-      post members_path, params: {
+      post invite_path, params: {
         new_or_existing: "existing",
         project: {
           name: "",
@@ -96,7 +108,7 @@ class AddMembersTest < ActionDispatch::IntegrationTest
           admin_id: "",
         },
         monthly_rent: 3,
-        project_id: 839719613,
+        project_id: projects(:projectOne).id,
         joined_at_y: 2000,
         joined_at_m: 1,
         left_at_y: 2020,
@@ -115,7 +127,7 @@ class AddMembersTest < ActionDispatch::IntegrationTest
     get new_member_path
     assert_response :success
     assert_difference ['Member.count', 'Project.count', 'Rent.count'], 1 do
-      post members_path, params: {
+      post invite_path, params: {
         new_or_existing: "new",
         project: {
           name: project_name,
@@ -149,7 +161,7 @@ class AddMembersTest < ActionDispatch::IntegrationTest
     assert_response :success
     project_name = "New Join and Left Project"
     assert_difference ['Member.count', 'Project.count', 'Rent.count', 'Membership.count'], 1 do
-      post members_path, params: {
+      post invite_path, params: {
         new_or_existing: "new",
         project: {
           name: project_name,

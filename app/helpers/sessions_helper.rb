@@ -35,6 +35,7 @@ module SessionsHelper
 
   def set_current_project_id(p_id)
     session[:project_id] = p_id
+    current_member.open_project p_id
   end
 
   # Is member logged in?
@@ -42,7 +43,7 @@ module SessionsHelper
     !current_member.nil?
   end
 
-  def is_admin?
+  def is_site_admin?
     current_member.admin
   end
 
@@ -78,6 +79,7 @@ module SessionsHelper
 
   # Check that member is logged in
   def logged_in_member
+    puts "logged_in_member #{logged_in?}"
     unless logged_in?
       flash[:danger] = "Please log in"
       redirect_to login_path
@@ -85,8 +87,8 @@ module SessionsHelper
   end
 
   # Redirect if member is not admin
-  def must_be_admin
-    unless is_admin?
+  def must_be_site_admin
+    unless is_site_admin?
       flash[:danger] = "You must log in as Admin to edit members"
       redirect_to root_path
     end

@@ -1,0 +1,13 @@
+Hej <%= @member.name %>,
+
+Du är snart redo att börja använda RentSplitter. Klicka på aktiveringslänken nedan för att komma igång.
+
+<%= edit_invitation_url(@member.invitation_token, email: @member.email) %>
+
+Om du inte har använt denna epostadress för att skapa ett konto hos RentSplitter kan du bortse från detta mail.
+
+Hälsningar,
+//Johannes
+
+RentSplitter
+rentsplitter.herokuapp.com

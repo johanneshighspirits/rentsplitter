@@ -7,10 +7,10 @@ projectOne:
 
 projectTwo:
   name: Project Two
-  start_date: 2017-01-01
-  admin_id: members(:admin).id
+  start_date: 2017-02-01
+  admin_id: members(:member).id
 
 projectThree:
   name: Project Three
-  start_date: 2017-01-01
+  start_date: 2017-03-01
   admin_id: members(:admin).id

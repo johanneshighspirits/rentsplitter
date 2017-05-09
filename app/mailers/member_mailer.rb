@@ -11,4 +11,10 @@ class MemberMailer < ApplicationMailer
     @member = member
     mail to: member.email, subject: "RentSplitter Invitation"
   end
+
+  def activation(member)
+    @member = member
+    mail to: member.email, subject: "RentSplitter Activation"
+  end
+  
 end

@@ -24,6 +24,11 @@ fields: [
     defaultValue: 0,
   },
   {
+    fieldType: "hidden",
+    attribute: "project[admin_id]",
+    defaultValue: current_member.id,
+  },
+  {
     fieldType: "submit",
     attributeName: "Create Project"
   }
