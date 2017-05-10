@@ -40,10 +40,6 @@ var Form = React.createClass({
           });          
         }
       }
-      // if (item.isVisibleIfChecked !== undefined) {
-      //   var ids = item.isVisibleIfChecked.split("#");
-      //   controlValues[ids[0]] = "";
-      // }
     });
     return ({
       controllers: controllers,
@@ -83,28 +79,6 @@ var Form = React.createClass({
             fields: fields
           });
         }.bind(this), 'json');
-        break;
-        case "visibility":
-        // When selected, show targetId
-        // console.log(e.target.value);
-        // if (controller.length > 1) {
-        //   var controlValues = this.state.controlValues;
-        //   console.log(controlValues);
-        //   controller.forEach(function(input, i){
-        //     console.log(input.id + "_" + input.fieldValue);
-        //     console.log(" ==");
-        //     console.log(e.target.name + "_" + e.target.value);
-        //     if (input.id + "_" + input.fieldValue == e.target.name + "_" + e.target.value) {
-        //       controlValues[input.id][input.fieldValue] = true;
-        //     }else{
-        //       controlValues[input.id][input.fieldValue] = false;
-        //     }
-        //     console.log(controlValues);
-        //   });
-        //   this.setState({
-        //     controlValues: controlValues
-        //   });
-        // }
         break;
       }
     }

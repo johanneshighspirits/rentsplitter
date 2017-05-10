@@ -38,6 +38,13 @@ module SessionsHelper
     current_member.open_project p_id
   end
 
+  # Is current logged in member the admin of the currently open project
+  def project_admin?
+    member_projects = current_member.projects.where(id: current_project_id)
+    return false if member_projects.empty?
+    current_member.id == member_projects.first.admin_id
+  end
+
   # Is member logged in?
   def logged_in?
     !current_member.nil?
