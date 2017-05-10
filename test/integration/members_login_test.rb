@@ -7,12 +7,14 @@ class MembersLoginTest < ActionDispatch::IntegrationTest
     @member = members(:member)
   end
 
-  test "only show index page to logged in members" do
-    # try when logged out first
+  test "show login screen if not logged in" do
     get root_path
     assert_redirected_to login_path
     follow_redirect!
     assert_select 'h1', /Log in/
+  end
+
+  test "show 'Logged in as member.name' if logged in" do
     # Log in as member
     get login_path
     assert_template 'sessions/new'
@@ -25,11 +27,10 @@ class MembersLoginTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_url
     follow_redirect!
     assert_template 'application/index'
-
-    assert_select 'header b', @member.name
+    assert_select 'p', "Logged in as #{@member.name}"
   end
 
-  test "should open project on successful login" do
+  test "should open latest project on successful login" do
     # Log in as member
     get login_path
     log_in_as @member

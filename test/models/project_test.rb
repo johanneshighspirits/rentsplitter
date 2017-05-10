@@ -23,4 +23,9 @@ class ProjectTest < ActiveSupport::TestCase
 
     p @member.projects
   end
+
+  test "project must be associated with a membership" do
+    
+  end
+  
 end

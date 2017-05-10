@@ -71,6 +71,7 @@ class TransfersController < ApplicationController
     end
 
     member_and_transfers = p.members.includes(:memberships).map do |m|
+      p m
       member = {
         name: m.name,
         isMember: m.memberships.first.left_at > Date.current,

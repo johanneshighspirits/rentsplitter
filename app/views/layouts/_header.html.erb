@@ -1,7 +1,6 @@
 <header>
 <% if current_member %>
-  <p>Logged in as <b><%= current_member.name %></b>, <%= current_member.id %><br>
-  Project id: <b><%= current_project_id %></b></p>
+  <p>Logged in as <b><%= current_member.name %></b></p>
   <nav>
     <ul>
         <li><%= link_to "Home", root_path %></li>

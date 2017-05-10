@@ -1,0 +1,193 @@
+/*
+ * This is a manifest file that'll be compiled into application.css, which will include all the files
+ * listed below.
+ *
+ * Any CSS and SCSS file within this directory, lib/assets/stylesheets, vendor/assets/stylesheets,
+ * or any plugin's vendor/assets/stylesheets directory can be referenced here using a relative path.
+ *
+ * You're free to add application-wide styles to this file and they'll appear at the bottom of the
+ * compiled file so the styles you add here take precedence over styles defined in any other CSS/SCSS
+ * files in this directory. Styles in this file should be added after the last require_* statement.
+ * It is generally better to create a new file per style scope.
+ *
+ *= require_tree .
+ *= require_self
+ */
+/* --- Colors --- */
+$bg-color: #e3e6e6;
+$text-color: #494949;
+$green: #499260;
+$green-darker: #286B70;
+$red: #d05959;
+$red-darker: #BA3446;
+/* --- Global --- */
+body {
+  font-family: 'Lato', HelveticaNeue, Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  color: $text-color;
+  background: $bg-color;
+  font-weight: 400;
+}
+h1 {
+  font-size: 2.5em;
+}
+b {
+  font-weight: bold;
+}
+.centered {
+  text-align: center;
+}
+.hidden {
+  display: none;
+}
+
+/* --- MemberInfo --- */
+.memberInfo {
+  display: inline-block;
+  text-align: left;
+  width: 96%;
+  margin: 0.5% 0.5% 1.5em;
+  padding: 1.5em 0 0 0;
+  background-color: #fff;
+  box-shadow: 0 0 0 1px #ddd;
+  border-radius: 10px;
+  overflow: hidden;
+  vertical-align: top;
+  animation: fade-in 400ms ease-out;
+  h3 {
+    text-align: center;
+    margin: 0.5em 0 1.5em 0;
+    font-size: 20px;
+  }
+
+  p.noLongerMember {
+    display: none;    
+  }
+  .displayNumbers {
+    font-family: 'Lobster', Lobster, sans-serif;
+    font-weight: 100;
+    display: block;
+    font-size: 4em;
+  }
+
+  span.green, span.red {
+    display: block;
+  }
+  .green, .red {
+    padding: 1.25em 20px 0.5em;
+    color: #FFF;
+    margin: 0;
+  }
+  .green {
+    background: $green;
+    background: -moz-linear-gradient(339deg, $green 0%, $green 38%, $green-darker 100%) !important; /* ff3.6+ */
+    background: -webkit-gradient(linear, left top, right top, color-stop(0%, $green), color-stop(38%, $green), color-stop(100%, $green-darker)) !important; /* safari4+,chrome */
+    background: -webkit-linear-gradient(339deg, $green 0%, $green 38%, $green-darker 100%) !important; /* safari5.1+,chrome10+ */
+    background: -o-linear-gradient(339deg, $green 0%, $green 38%, $green-darker 100%) !important; /* opera 11.10+ */
+    background: -ms-linear-gradient(339deg, $green 0%, $green 38%, $green-darker 100%) !important; /* ie10+ */
+    background: linear-gradient(111deg, $green 0%, $green 38%, $green-darker 100%) !important; /* w3c */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='$green', endColorstr='$green-darker',GradientType=1 ) !important; /* ie6-9 */
+  }
+  .red {
+    background: $red;
+    background: -moz-linear-gradient(339deg, $red 0%, $red 38%, $red-darker 100%) !important; /* ff3.6+ */
+    background: -webkit-gradient(linear, left top, right top, color-stop(0%, $red), color-stop(38%, $red), color-stop(100%, $red-darker)) !important; /* safari4+,chrome */
+    background: -webkit-linear-gradient(339deg, $red 0%, $red 38%, $red-darker 100%) !important; /* safari5.1+,chrome10+ */
+    background: -o-linear-gradient(339deg, $red 0%, $red 38%, $red-darker 100%) !important; /* opera 11.10+ */
+    background: -ms-linear-gradient(339deg, $red 0%, $red 38%, $red-darker 100%) !important; /* ie10+ */
+    background: linear-gradient(111deg, $red 0%, $red 38%, $red-darker 100%) !important; /* w3c */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='$red', endColorstr='$red-darker',GradientType=1 ); /* ie6-9 */
+  }
+  .noLongerMember {
+    color: #AAA;
+
+    p.noLongerMember {
+      display: block;
+      font-style: italic;
+      font-weight: bold;
+      color: #A00;
+      text-align: center;
+      padding: 0 15px;
+    }
+
+    .green, .red, .totalRentTable {
+      display: none;
+    }
+  }
+}
+
+table {
+  margin: 0;
+  width: 100%;
+  padding: 1.5em 15px;
+  background: #f7f7f7;
+}
+td {
+  padding-right: 1em;
+}
+.right {
+  text-align: right;
+  padding-right: 0;
+}
+
+.shortDate {
+  display: none;
+}
+.infoTextLeft {
+  width: 83%;
+}
+.amountRight {
+  width: 17%;
+}
+
+.transactionTable {
+  margin: 0 auto;
+  width: 100%;
+  max-width: 600px;
+  border-radius: 10px;
+}
+.transactionTable td, .lined {
+  border-top: 1px solid #e7e7e7;
+  padding-top: 0.3em;
+  padding-bottom: 0.3em;
+}
+.newTransaction td {
+  color: #000;
+  font-weight: bold;
+  background: #FFF;
+  box-shadow: 0 0 10px 5px #FFF;
+}
+
+/* --- Media queries --- */
+@media screen and (min-width: 600px) {
+  .memberInfo {
+    width: 32%;
+    margin: 0.5%;
+  }
+  .shortDate {
+    display: table-cell;
+  }
+  .longDate {
+    display: none;
+  }
+  .infoTextLeft, .amountRight {
+    display: block;
+    width: 100%;
+  }
+}
+@media screen and (min-width: 800px) {
+  .infoTextLeft, .amountRight {
+    display: table-cell;
+  }
+  .infoTextLeft {
+    width: 83%;
+  }
+  .amountRight {
+    width: 17%;
+  }
+}
+@media screen and (min-width: 1000px) {
+  .memberInfo {
+    width: 24%;
+  }
+}

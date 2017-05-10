@@ -7,7 +7,7 @@ class Project < ApplicationRecord
   has_many :members, through: :memberships
   has_many :transfers, through: :memberships
 
-  validates :admin_id, presence: true
+  # validates :admin_id, presence: true
   validates :name, uniqueness: { scope: :admin_id }
 
   def total_rent

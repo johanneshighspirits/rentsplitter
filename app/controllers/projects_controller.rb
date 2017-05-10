@@ -7,11 +7,7 @@ class ProjectsController < ApplicationController
   before_action :must_be_admin, only: [:for_member]
 
   def index
-    if logged_in?
-      @projects = current_member.projects
-    else
-      redirect_to root_path
-    end
+    @projects = current_member.projects
   end
 
   def new
@@ -34,7 +30,6 @@ class ProjectsController < ApplicationController
 
   def show
     current_member.open_project params[:id]
-    redirect_to root_path
   end
 
   def for_member
