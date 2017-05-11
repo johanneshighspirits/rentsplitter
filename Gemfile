@@ -44,6 +44,11 @@ group :development, :test do
   gem 'byebug', platform: :mri
   # Testing 
   gem 'rails-controller-testing'
+  gem 'rspec-rails', '~> 3.6.0'
+end
+
+group :test do
+  gem 'capybara', '~> 2.3.0'
 end
 
 group :development do
