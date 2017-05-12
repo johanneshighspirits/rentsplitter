@@ -13,7 +13,8 @@
 
   <body>
     <%= render 'layouts/header' %>
-    <% puts "---" # react_component 'ErrorDisplay', errors: flash %>
+    <h2><%= yield :page_title %></h2>
+    <%= react_component 'ErrorDisplay', errors: flash %>
     <%= yield %>
   </body>
 </html>

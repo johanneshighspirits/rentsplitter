@@ -45,10 +45,12 @@ group :development, :test do
   # Testing 
   gem 'rails-controller-testing'
   gem 'rspec-rails', '~> 3.6.0'
+  gem 'factory_girl_rails'
 end
 
 group :test do
-  gem 'capybara', '~> 2.3.0'
+  gem 'capybara', '~> 2.14.0'
+  gem 'selenium-webdriver', '~> 3.4.0'
 end
 
 group :development do

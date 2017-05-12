@@ -12,6 +12,7 @@ var Form = React.createClass({
         case "number":
         case "date":
         case "hidden":
+        case "checkbox":
           controlValues[item.attribute] = item.defaultValue;
         break;
         case "radio":
@@ -51,10 +52,16 @@ var Form = React.createClass({
     return str.replace("_id", "s");
   },
   handleSelect: function(e) {
-    console.log(e.target.name);
     if (this.state.controlValues[e.target.name] !== undefined) {
       var controlValues = this.state.controlValues;
-      controlValues[e.target.name] = e.target.value;
+      switch (e.target.type) {
+        case "checkbox":
+          controlValues[e.target.name] = !controlValues[e.target.name];
+        break;
+        default:
+          controlValues[e.target.name] = e.target.value;
+        break;
+      }
       this.setState({
         controlValues: controlValues
       });      
@@ -103,6 +110,14 @@ var Form = React.createClass({
             handleSelect={this.handleSelect}
           />)
         break;
+        case "checkbox":
+          return (<FormCheckbox 
+            key={i}
+            attribute={item.attribute}
+            attributeName={item.attributeName}
+            checked={this.state.controlValues[item.attribute]}
+            handleSelect={this.handleSelect}          
+          />)
         case "radio":
           return (<FormRadio 
             key={i}
@@ -132,9 +147,13 @@ var Form = React.createClass({
         break;
       }
     }, this)
+    var flash = this.props.flash !== undefined ? this.props.flash.map(function(error, i) {
+      return <span key={i} className={"alert alert-" + error[0]}>{error[1]}</span>
+    }) : null;
     return (
       <form acceptCharset="UTF-8" action={this.props.action} method="post">
         <input type="hidden" name="authenticity_token" defaultValue={this.props.authenticity_token} />
+        {flash}
         {fields}
       </form>
     )
@@ -194,6 +213,23 @@ var FormRadio = React.createClass({
   }
 });
 
+var FormCheckbox = React.createClass({
+  render: function() {
+    return (
+      <div>
+        <label htmlFor={this.props.attribute}>{this.props.attributeName}</label>
+        <input
+          type="checkbox"
+          value={this.props.fieldValue}
+          name={this.props.attribute}
+          id={this.props.attribute + "_" + this.props.fieldValue}
+          checked={this.props.checked}
+          onChange={this.props.handleSelect}
+        />
+      </div>
+    )
+  }
+});
 var FormSubmit = React.createClass({
   render: function() {
     return (

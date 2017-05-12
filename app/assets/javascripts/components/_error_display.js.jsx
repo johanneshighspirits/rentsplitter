@@ -1,6 +1,7 @@
 var ErrorDisplay = React.createClass({
   render: function() {
-    if (this.props.errors === undefined) { return null }
+    console.log(this.props.errors);
+    if (this.props.errors.length == 0) { return <p>NO ERRORS</p> }
     var errors = this.props.errors.map(function(error, i) {
       if (Array.isArray(error)) {
         return <li className="alert alert-danger" key={i}>{error}</li>

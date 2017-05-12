@@ -75,4 +75,7 @@ RSpec.configure do |config|
     mocks.verify_partial_doubles = true
   end
 =end
+  # config.after :all do
+  #   ActiveRecord::Base.subclasses.each(&:delete_all)
+  # end
 end

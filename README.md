@@ -57,6 +57,16 @@ $ rails server
 ```
 You'll now be able to preview the app in a browser at `http://localhost:3000`
 
+## Tests
+Rails tests
+```
+$ rails test
+```
+UX tests
+```
+$ rake
+```
+
 ## Database Schema
 
 ```ruby

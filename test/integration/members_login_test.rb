@@ -11,7 +11,7 @@ class MembersLoginTest < ActionDispatch::IntegrationTest
     get root_path
     assert_redirected_to login_path
     follow_redirect!
-    assert_select 'h1', /Log in/
+    assert_select 'h2', /Log in/
   end
 
   test "show 'Logged in as member.name' if logged in" do
@@ -28,6 +28,20 @@ class MembersLoginTest < ActionDispatch::IntegrationTest
     follow_redirect!
     assert_template 'application/index'
     assert_select 'p', "Logged in as #{@member.name}"
+  end
+
+  test "should be redirected to wanted page when logging in" do
+    get projects_path
+    assert_redirected_to login_path
+    post login_path, params: {
+      session: {
+        email: @member.email,
+        password: 'password'
+      }
+    }
+    assert_redirected_to projects_path
+    follow_redirect!
+    assert_template 'projects/index'
   end
 
   test "should open latest project on successful login" do
@@ -54,7 +68,10 @@ class MembersLoginTest < ActionDispatch::IntegrationTest
         password: 'password'
       }
     }
+    assert_redirected_to members_path
+    follow_redirect!
     assert_redirected_to root_path
+    follow_redirect!
     get members_path
     assert_redirected_to root_path
   end

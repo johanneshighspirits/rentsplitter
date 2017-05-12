@@ -1,14 +1,29 @@
-<h1>Log in</h1>
-<%= form_for(:session, url: login_path) do |f| %>
-  <%= f.label :email %>
-  <%= f.email_field :email, class: 'form-control' %>
-
-  <%= f.label :password %>
-  <%= f.password_field :password, class: 'form-control' %>
-
-  <%= f.label :remember_me, "Remember me" %>
-  <%= f.check_box :remember_me, checked: true %>
-
-  <%= f.submit "Log in", class: "btn btn-primary" %>
-<% end %>
+<% provide :page_title, "Log in" %>
+<%= react_component 'Form', 
+authenticity_token: form_authenticity_token, 
+action: login_path,
+fields: [
+  {
+    fieldType: "email",
+    attribute: "session[email]",
+    attributeName: "Email",
+  },
+  {
+    fieldType: "password",
+    attribute: "session[password]",
+    attributeName: "Password",
+  },
+  {
+    fieldType: "checkbox",
+    attribute: "session[remember_me]",
+    attributeName: "Remember me",
+    defaultValue: true,
+  },
+  {
+    fieldType: "submit",
+    attributeName: "Log in"
+  }
+],
+flash: flash
+ %>
 <p>Don't have an account? <%= link_to "Sign up here", signup_path %></p>

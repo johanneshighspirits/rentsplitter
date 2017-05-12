@@ -14,17 +14,18 @@ class SessionsController < ApplicationController
         puts "Remembering #{@member.name}"
         params[:session][:remember_me] == '1' ? remember(@member) : forget(@member)
         # Redirect to root
-        redirect_to root_path
+        redirect_back_or root_path
       else
         message = "Account not activated. "
         message += "Check your email for the activation link."
         flash[:warning] = message
         puts message
-        redirect_to root_url
+        redirect_back_or root_url
       end
     else
       # Error when logging in
       flash.now[:danger] = "Invalid email or password"
+      puts "Invalid email or password"
       render 'new'
     end
   end

@@ -89,6 +89,7 @@ module SessionsHelper
     puts "logged_in_member #{logged_in?}"
     unless logged_in?
       flash[:danger] = "Please log in"
+      store_location
       redirect_to login_path
     end
   end
@@ -96,7 +97,7 @@ module SessionsHelper
   # Redirect if member is not admin
   def must_be_site_admin
     unless is_site_admin?
-      flash[:danger] = "You must log in as Admin to edit members"
+      flash[:danger] = "This page is restricted to Site Admin."
       redirect_to root_path
     end
   end
