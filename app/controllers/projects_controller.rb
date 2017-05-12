@@ -30,6 +30,7 @@ class ProjectsController < ApplicationController
 
   def show
     current_member.open_project params[:id]
+    redirect_to root_path
   end
 
   def for_member

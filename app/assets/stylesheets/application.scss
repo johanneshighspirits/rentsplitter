@@ -116,6 +116,7 @@ b {
   }
 }
 
+/* TransactionTables */
 table {
   margin: 0;
   width: 100%;
@@ -157,6 +158,13 @@ td {
   background: #FFF;
   box-shadow: 0 0 10px 5px #FFF;
 }
+.rent td {
+  text-shadow: 0 0 1px rgba(146, 34, 34, 0.4);
+}
+.discount td {
+  text-shadow: 0 0 1px rgba(34, 146, 110, 0.5);
+}
+
 
 /* --- Media queries --- */
 @media screen and (min-width: 600px) {

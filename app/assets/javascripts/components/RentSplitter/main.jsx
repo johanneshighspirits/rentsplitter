@@ -3,14 +3,16 @@
 window.RentSplitter = React.createClass({
   getInitialState: function(){
     return ({
-      totalRent: 0,
+      rents: [],
+      rentDiscounts: [],
       members: []
     });
   },
   componentDidMount: function() {
     $.get('/projects/' + this.props.project.id + '/transfers.json', function(projectInfo){
       this.setState({
-        totalRent: projectInfo.totalRent,
+        rents: projectInfo.rentAndDiscounts.rents,
+        rentDiscounts: projectInfo.rentAndDiscounts.discounts,
         members: projectInfo.memberTransfers
       });
     }.bind(this), 'json');
@@ -24,7 +26,8 @@ window.RentSplitter = React.createClass({
           key={m}
           member={member}
           thisMonth={thisMonth}
-          totalRentToPay={this.state.totalRent}
+          rents={this.state.rents}
+          rentDiscounts={this.state.rentDiscounts}
         />
       )
     }, this);
@@ -33,7 +36,6 @@ window.RentSplitter = React.createClass({
         <article>
           <h2>{this.props.project.name}<i>&mdash; react-js</i></h2>
           <p>main info here</p>
-          <p>Total rent for entire project: <b>{this.state.totalRent}</b></p>
         </article>
         <article>
           <ul>
@@ -77,32 +79,75 @@ var MemberInfo = React.createClass({
     var isMember = this.props.member.isMember;
     // The total amount to pay
     // ((rent - support) / nr of members)
-    var amountToPay = this.props.totalRentToPay;
-    var transfers = this.props.member.transfers.map(function(transfer, t){
-      if (transfer.amount == null) {
-        transfer.amount = 0;
+    // var amountToPay = this.props.totalRentToPay;
+    // var transfers = this.props.member.transfers.map(function(transfer, t){
+    //   if (transfer.amount == null) {
+    //     console.warn("WARNING: Amount is NULL: ", transfer);
+    //     transfer.amount = 0;
+    //   }
+    //   amountToPay -= parseInt(transfer.amount);
+    //   return (
+    //     <tr key={t} className={transfer.isNotViewedYet ? "newTransaction" : null}>
+    //       <td width="33%" className="lined shortDate">{transfer.shortDate}</td>
+    //       <td width="33%" className="lined longDate">{transfer.longDate}</td>
+    //       <td width="50%" className="lined"><i>{transfer.message}</i></td>
+    //       <td width="17%" className="lined right">{transfer.amount}:-</td>
+    //     </tr>
+    //   )
+    // });
+
+    /* transactionHistory is a list of all transactions that concerns this member.
+    It is sorted on dates. */
+    var transactionHistory = [];
+    var totalAmountToPay = 0;
+    // Add rent amount to be paid.
+    this.props.rents.forEach(function(rent, i) {
+      if (rent.from >= this.props.member.joinedAt && rent.to <= this.props.member.leftAt) {
+        // Member had membership when this rent is due
+        totalAmountToPay += parseInt(rent.sharedAmount || 0);
+        transactionHistory.push(
+          <Transaction
+            key={"rent" + i}
+            type="rent"
+            date={Date.parse(rent.longDate)}
+            transaction={rent}
+          />
+        )
       }
-      amountToPay -= parseInt(transfer.amount);
-      return (
-        <tr key={t} className={transfer.isNotViewedYet ? "newTransaction" : null}>
-          <td width="33%" className="lined shortDate">{transfer.shortDate}</td>
-          <td width="33%" className="lined longDate">{transfer.longDate}</td>
-          <td width="50%" className="lined"><i>{transfer.message}</i></td>
-          <td width="17%" className="lined right">{transfer.amount}:-</td>
-        </tr>
-      )
-    });
+    }, this);
+    // Add rentDiscounts (a discount is transferred the month after, so discounts
+    // added in March should be applied to member rent if member was participating
+    // in Feburary)
+    this.props.rentDiscounts.forEach(function(discount, i) {
+      if (discount.from >= this.props.member.joinedAt && discount.to <= this.props.member.leftAt) {
+        totalAmountToPay -= parseInt(discount.sharedAmount || 0);
+        transactionHistory.push(
+          <Transaction
+            key={"discount" + i}
+            type="discount"
+            date={Date.parse(discount.longDate)}
+            transaction={discount}
+          />
+        )
+      }else{
+        console.log("Ignored discount " + discount.longDate + "since member joined " + this.props.member.joinedAt);
+      }
+    }, this);
+    // Add transfers (every payment this member has ever made)
+
+    // Sort transactionHistory on dates.
+    transactionHistory.sort(function(a,b){a<b})
     return (
       <div className={isMember ? "memberInfo noLongerMember" : "memberInfo"}>
         <h3>{this.props.member.name}</h3>
-        {!isMember ? <p className="noLongerMember">{this.props.member.name} är inte medlem i<br/>Årsta Frukt & Musik AB längre.<br/>{amountToPay > 0 ? "KVARSTÅENDE SKULD: " + (amountToPay * -1) + ":-" : "Alla skulder betalda."}</p> : null }
-        {amountToPay > 0 ?
+        {!isMember ? <p className="noLongerMember">{this.props.member.name} är inte medlem i<br/>Årsta Frukt & Musik AB längre.<br/>{totalAmountToPay > 0 ? "KVARSTÅENDE SKULD: " + (totalAmountToPay * -1) + ":-" : "Alla skulder betalda."}</p> : null }
+        {totalAmountToPay > 0 ?
         <span className="red" style={{background: "#d05959", color: "#FFF"}}>Att betala senast sista {this.props.thisMonth}:
-          <span className="displayNumbers right counter" data-amount={amountToPay}>{amountToPay}:-</span>
+          <span className="displayNumbers right counter" data-amount={totalAmountToPay}>{totalAmountToPay}:-</span>
         </span>
           :
         <span className="green" style={{background: "#499260", color: "#FFF"}}>Till godo:
-          <span className="displayNumbers right counter" data-amount={amountToPay * -1}>{amountToPay * -1}:-</span>
+          <span className="displayNumbers right counter" data-amount={totalAmountToPay * -1}>{totalAmountToPay * -1}:-</span>
         </span>
         }
         <table>
@@ -117,10 +162,24 @@ var MemberInfo = React.createClass({
             </tr>
           </thead>
           <tbody>
-            {transfers}
+            {/* transfers */}
+            {transactionHistory}
           </tbody>
         </table>
       </div>
     )
   }
 });
+
+var Transaction = React.createClass({
+  render: function() {
+    return (
+      <tr className={this.props.transaction.isNotViewedYet ? this.props.type + " newTransaction" : this.props.type}>
+        <td width="33%" className="lined shortDate">{this.props.transaction.shortDate}</td>
+        <td width="33%" className="lined longDate">{this.props.transaction.longDate}</td>
+        <td width="50%" className="lined"><i>{this.props.transaction.message}</i></td>
+        <td width="17%" className="lined right">{this.props.transaction.sharedAmount || this.props.transaction.amount}:-</td>
+      </tr>
+    )
+  }
+})
