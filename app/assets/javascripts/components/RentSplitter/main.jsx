@@ -130,7 +130,7 @@ var MemberInfo = React.createClass({
           />
         )
       }else{
-        console.log("Ignored discount " + discount.longDate + "since member joined " + this.props.member.joinedAt);
+        console.log("Ignored discount " + discount.from + "-" + discount.to + " since member joined " + this.props.member.joinedAt);
       }
     }, this);
     // Add transfers (every payment this member has ever made)
@@ -181,5 +181,118 @@ var Transaction = React.createClass({
         <td width="17%" className="lined right">{this.props.transaction.sharedAmount || this.props.transaction.amount}:-</td>
       </tr>
     )
+  }
+})
+
+var ExcelParser = React.createClass({
+    parseExcelFile: function(e){
+    var file = e.target.files[0];
+    var reader = new FileReader();
+    // Closure to capture the file information.
+    reader.onload = (function(theFile) {
+      return function(e) {
+        // Array to hold transactions
+        var transactions = [];
+//        var displayDates = {};
+        var lastUpdated;
+        var rents = this.state.rents;
+
+        var rawHtml = e.target.result;
+        rawHtml = rawHtml.replace(/ BGCOLOR="#[A-F0-9]*"/gi, "");
+        var rows = rawHtml.split('<TR>');
+        for (var i = 0; i < rows.length; i++){
+          var row = rows[i];
+          if(row.indexOf("<TD height") != -1){
+            row = row.replace(/<[^<>]*>/gi, "#");
+            var elements = row.split('#');
+            for (var k = 0; k < elements.length; k++){
+              var element = elements[k];
+              if(/(&nbsp;|\n|^$)/.test(element) == false){
+                transactions.push(element);
+              }
+            }
+          }else{
+            var period = /Period: (\d{4}-\d{2}-\d{2}) till (\d{4}-\d{2}-\d{2})/.exec(row);
+            if(period != null){
+              lastUpdated = new Date(period[2]);
+              // displayDates = {
+              //   from: new Date(period[1]),
+              //   to: new Date(period[2]),
+              // }
+              // for (var month = displayDates.from.getMonth(); month <= displayDates.to.getMonth(); month++) {
+              //   var d = new Date();
+              //   d.setFullYear(2016, (month + 1), 0);
+              //   rents.push({
+              //     due: d,
+              //     amount: 9000,
+              //   });
+              // }
+            }
+          }
+        }
+
+        var abfs = this.state.abfs;
+        var amountsPaid = this.state.amountsPaid;
+        for (var m = 0; m < transactions.length; m+=5){
+          var message = transactions[m + 2];
+          if(/\d{3}:\d{4}:\d/gi.test(message)){
+            // 123:1234:1 tyu
+            // This is a abf bidrag
+            var md5 = this.md5(transactions[m] + message);
+            var abf = {
+              "date": new Date(transactions[m]),
+              "name": "ABF-bidrag",
+              "message": message,
+              "amount": parseInt(transactions[m + 3].replace(" ", "")),
+              "md5": md5
+            };
+            if (!hashedObjectIsInArray(abf, abfs)){
+              abfs.push(abf);
+              nrOfAbfsAdded++;
+              console.log("ABF: " + abf.amount);
+            }
+          }else{
+            // This is a rent transaction
+            var name = this.guessPayer(message).name;
+            var md5 = this.md5(transactions[m] + name + message + transactions[m + 3]);
+            var amountPaid = {
+              "date": new Date(transactions[m]),
+              "paidBy": name,
+              "message": message,
+              "amount": parseInt(transactions[m + 3].replace(" ", "")),
+              "md5": md5
+          };
+            if(name == "UNKNOWN"){
+              if(!this.ignore(message)){
+                this.state.unknownTransactions.push(amountPaid);
+              }
+            }else if(!hashedObjectIsInArray(amountPaid, amountsPaid)){
+              amountsPaid.push(amountPaid);
+              console.log(name + ": " + amountPaid.amount);
+            }
+          }
+        }
+        console.log(rents);
+        console.log("Ignored " + nrOfIgnores + " transactions");
+        console.log("Added " + nrOfAbfsAdded + " abf's");
+        console.log("Subtract " + (nrOfAbfsAdded + nrOfIgnores) + " from number of transactions");
+        this.setState({
+//          displayDates: displayDates,
+          lastUpdated: lastUpdated,
+          amountsPaid: amountsPaid,
+          rents: rents,
+          abfs: abfs,
+          dataLoaded: true
+        }, function(){
+          this.saveToBackend();
+        });
+      };
+    })(file).bind(this);
+
+    // Read in the excel file as text.
+    reader.readAsText(file);
+  },
+  render: function() {
+    return <div>ExcelParser</div>
   }
 })

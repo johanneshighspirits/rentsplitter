@@ -4,7 +4,6 @@ class ProjectsController < ApplicationController
   include ProjectsHelper
 
   before_action :logged_in_member
-  before_action :must_be_admin, only: [:for_member]
 
   def index
     @projects = current_member.projects

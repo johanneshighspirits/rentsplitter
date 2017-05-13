@@ -5,19 +5,41 @@ class TransfersController < ApplicationController
 
   def new
     @transfer = Transfer.new
-    @members = Member.all
-    @projects = Project.all
+    @members = Project.find(current_project_id).members
   end
 
   def create
+    @project = Project.find(current_project_id)
+    @members = @project.members.includes(:memberships)
+    @transfers = []
+    params[:transfers].each do |key, transfer|
+      # Find member
+#      member = member_for transfer[:message]
+      member = @members.find(transfer[:member_id])
+      if member.nil?
+        puts "Couldn't find member matching '#{transfer[:message]}'"
+      else
+        puts "Found member match: '#{transfer[:message]}' == #{member.name}"
+        # Find Membership that hold all transfers
+        membership = member.memberships.where(project_id: current_project_id).first
+        @transfers << membership.transfers.build(transfer.permit(:message, :amount, :transferred_at))
+      end
+    end
+    Transfer.import @transfers, ignore: true
+    @rent_discounts = []
+    params[:rent_discounts].each do |key, discount|
+      @rent_discounts << @project.rent_discounts.build(discount.permit(:message, :amount, :transferred_at))
+    end
+
+    RentDiscount.import @rent_discounts, ignore: true
+    flash[:success] = "Transfers added successfully"
+    redirect_to new_transfer_path and return
+
+
     @member = Member.find(params[:member_id])
     project_id = params[:project_id]
     # Find Membership that hold all transfers
     membership = @member.memberships.where(project_id: project_id).first
-    p membership
-    puts "Member: #{membership.member_id}"
-    puts "Project: #{membership.project_id}"
-    puts "Transfers: #{membership.transfers}"
     @transfer = membership.transfers.build(transfer_params)
     if @transfer.save
       flash[:success] = "Transfer successfully saved!"
@@ -25,23 +47,6 @@ class TransfersController < ApplicationController
       flash[:danger] = "The transfer could not be saved. Check your input."
     end
     redirect_to new_transfer_path
-  end
-
-  def create_many
-    @members = Member.all
-    @transfers = []
-    params[:transfers].each do |transfer|
-      # Find member
-      member = member_for transfer[:transfer][:message]
-      if member.nil?
-        puts "Couldn't find member matching '#{transfer[:transfer][:message]}'"
-      else
-        # Find Membership that hold all transfers
-        membership = member.memberships.where(project_id: member.current_project_id).first
-        @transfers << membership.transfers.build(transfer.require(:transfer).permit(:message, :amount, :transferred_at))
-      end
-    end
-    Transfer.import @transfers
   end
 
   def index

@@ -1,4 +1,4 @@
-/* https://developers.google.com/web/fundamentals/getting-started/primers/promises#promisifying_xmlhttprequest */
+  /* https://developers.google.com/web/fundamentals/getting-started/primers/promises#promisifying_xmlhttprequest */
 function get(url) {
   // Return a new promise.
   return new Promise(function(resolve, reject) {
