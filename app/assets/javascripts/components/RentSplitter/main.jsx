@@ -26,6 +26,7 @@ window.RentSplitter = React.createClass({
           key={m}
           member={member}
           thisMonth={thisMonth}
+          transfers={member.transfers}
           rents={this.state.rents}
           rentDiscounts={this.state.rentDiscounts}
         />
@@ -63,7 +64,6 @@ function counter(element, startNr, endNr) {
         element.innerHTML = s + ":-";
       }, time);
     })(i);
-
     time = easeInQuad(i, minTime, maxTime, diff);
   }
 }
@@ -77,25 +77,6 @@ var MemberInfo = React.createClass({
   },
   render: function() {
     var isMember = this.props.member.isMember;
-    // The total amount to pay
-    // ((rent - support) / nr of members)
-    // var amountToPay = this.props.totalRentToPay;
-    // var transfers = this.props.member.transfers.map(function(transfer, t){
-    //   if (transfer.amount == null) {
-    //     console.warn("WARNING: Amount is NULL: ", transfer);
-    //     transfer.amount = 0;
-    //   }
-    //   amountToPay -= parseInt(transfer.amount);
-    //   return (
-    //     <tr key={t} className={transfer.isNotViewedYet ? "newTransaction" : null}>
-    //       <td width="33%" className="lined shortDate">{transfer.shortDate}</td>
-    //       <td width="33%" className="lined longDate">{transfer.longDate}</td>
-    //       <td width="50%" className="lined"><i>{transfer.message}</i></td>
-    //       <td width="17%" className="lined right">{transfer.amount}:-</td>
-    //     </tr>
-    //   )
-    // });
-
     /* transactionHistory is a list of all transactions that concerns this member.
     It is sorted on dates. */
     var transactionHistory = [];
@@ -105,6 +86,9 @@ var MemberInfo = React.createClass({
       if (rent.from >= this.props.member.joinedAt && rent.to <= this.props.member.leftAt) {
         // Member had membership when this rent is due
         totalAmountToPay += parseInt(rent.sharedAmount || 0);
+        // Convert amount to negative numbers for display purposes
+        rent.amount = rent.amount * -1;
+        rent.sharedAmount = rent.sharedAmount * -1;
         transactionHistory.push(
           <Transaction
             key={"rent" + i}
@@ -134,9 +118,19 @@ var MemberInfo = React.createClass({
       }
     }, this);
     // Add transfers (every payment this member has ever made)
-
+    this.props.transfers.forEach(function(transfer, i) {
+      totalAmountToPay -= parseInt(transfer.amount);
+      transactionHistory.push(
+        <Transaction
+          key={"transfer" + i}
+          type="transfer"
+          date={Date.parse(transfer.longDate)}
+          transaction={transfer}
+        />
+      )
+    }, this);
     // Sort transactionHistory on dates.
-    transactionHistory.sort(function(a,b){a<b})
+    transactionHistory.sort(function(a,b){ a.props.date < b.props.date })
     return (
       <div className={isMember ? "memberInfo noLongerMember" : "memberInfo"}>
         <h3>{this.props.member.name}</h3>
@@ -153,7 +147,7 @@ var MemberInfo = React.createClass({
         <table>
           <thead>
             <tr>
-              <th colSpan="3" style={{paddingBottom: "0.7em", fontSize: "1.2em"}}>Tidigare inbetalningar</th>
+              <th colSpan="3" style={{paddingBottom: "0.7em", fontSize: "1.2em"}}>Alla transaktioner</th>
             </tr>
             <tr>
               <th>Datum</th>
