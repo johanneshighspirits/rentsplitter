@@ -1,4 +1,4 @@
-<h1>Welcome <%= @member.name %>!</h1>
+<% provide :page_title, "Welcome #{@member.name}" %>
 <p><b>Your account has been successfully activated.</b></p>
 
 <p>Start by creating a new Project.</p>
