@@ -1,9 +1,10 @@
 class Project < ApplicationRecord
   before_create :check_start_date
 
-  has_many :memberships #, dependent: :destroy
-  has_many :rents
-  has_many :rent_discounts
+  has_many :memberships,      dependent: :destroy
+  has_many :rents,            dependent: :destroy
+  has_many :rent_discounts,   dependent: :destroy
+  
   has_many :members, through: :memberships
   has_many :transfers, through: :memberships
 

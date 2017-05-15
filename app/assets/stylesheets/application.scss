@@ -20,6 +20,7 @@ $green: #499260;
 $green-darker: #286B70;
 $red: #d05959;
 $red-darker: #BA3446;
+$red-bright: #FEE;
 /* --- Global --- */
 body {
   font-family: 'Lato', HelveticaNeue, Helvetica, Arial, sans-serif;
@@ -39,6 +40,18 @@ b {
 }
 .hidden {
   display: none;
+}
+
+/* Alerts */
+.alert {
+  display: block;
+  padding: 1em 3em;
+  border-radius: 8px;
+  border: 1px solid;
+  .danger{
+    background-color: $red-bright;
+    border-color: $red;
+  }
 }
 
 /* --- MemberInfo --- */

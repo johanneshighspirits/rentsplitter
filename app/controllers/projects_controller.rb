@@ -32,6 +32,17 @@ class ProjectsController < ApplicationController
     redirect_to root_path
   end
 
+  def destroy
+    @project = Project.find(params[:id])
+    if is_admin_for_project? @project
+      flash[:success] = "#{@project.name} deleted"
+      @project.destroy
+    else
+      flash[:danger] = "Only members with admin privileges can delete projects."
+    end
+      redirect_to projects_path
+  end
+
   def for_member
     projects_for_member = Member.find(params[:id]).projects.map { |p| [p.id, p.name] }
     render json: projects_for_member
