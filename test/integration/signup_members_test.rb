@@ -15,7 +15,7 @@ class SignupMembersTest < ActionDispatch::IntegrationTest
     }
     assert_template 'members/activate'
     assert_response :success
-    assert_select "h1", "Welcome Bertil!"
+    assert_select "h2", "Welcome Bertil!"
     # Paste valid activation link and submit form
     member = Member.find_by(email: "bertil@bertil.com")
     member.invitation_token = Member.new_token
@@ -34,7 +34,7 @@ class SignupMembersTest < ActionDispatch::IntegrationTest
     assert_redirected_to edit_member_path member
     follow_redirect!
     assert_template 'members/welcome'
-    assert_select "h1", "Welcome Bertil!"
+    assert_select "h2", "Welcome Bertil!"
   end
 
   test "valid signup should log out current member and log in new" do
@@ -51,7 +51,7 @@ class SignupMembersTest < ActionDispatch::IntegrationTest
     }
     assert_template 'members/activate'
     assert_response :success
-    assert_select "h1", "Welcome Bertil2!"
+    assert_select "h2", "Welcome Bertil2!"
     # Paste valid activation link and submit form
     member = Member.find_by(email: "bertil2@bertil.com")
     member.invitation_token = Member.new_token
@@ -65,7 +65,7 @@ class SignupMembersTest < ActionDispatch::IntegrationTest
     assert_redirected_to edit_member_path member
     follow_redirect!
     assert_template 'members/welcome'
-    assert_select "h1", "Welcome Bertil2!"
+    assert_select "h2", "Welcome Bertil2!"
   end
 
   

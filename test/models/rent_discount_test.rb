@@ -29,6 +29,8 @@ class RentDiscountTest < ActiveSupport::TestCase
       @project.save
     end
     assert @project.rent_discounts.count == 1
+    @project.rent_discounts.destroy_all
+    @project.save
   end
 
   test "transfer date must be after project start" do

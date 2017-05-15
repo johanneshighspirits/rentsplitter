@@ -44,7 +44,7 @@ class AddMembersTest < ActionDispatch::IntegrationTest
       }
     end
     assert_template 'members/invite'
-    assert_select 'h1', "Invite new member"
+    assert_select 'h2', "Invite new member"
   end
 
   test "must assign project to new member" do

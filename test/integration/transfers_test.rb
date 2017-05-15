@@ -15,12 +15,14 @@ class TransfersTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_difference 'Transfer.count', 1 do
       post transfers_path, params: {
-        member_id: @member.id,
         project_id: @member.projects.first.id,
-        transfer: {
-          amount: 250.0,
-          message: "example0 rent for June",
-          transferred_at: Time.zone.now.to_date
+        transfers: {
+          transfer: {
+            member_id: @member.id,
+            amount: 250.0,
+            message: "example0 rent for June",
+            transferred_at: Time.zone.now.to_date
+          }
         }
       }
     end
@@ -43,24 +45,26 @@ class TransfersTest < ActionDispatch::IntegrationTest
     log_in_as @admin
     get new_transfer_path
     assert_response :success
-    transfers = [
-      {
-        transfer: {
-          amount: 250.0,
-          message: "Mr. Member pay",
-          transferred_at: Time.zone.now.to_date
-        }
-      },
-      {
-        transfer: {
-          amount: 123.5,
-          message: "Juli mEmBerr",
-          transferred_at: Time.zone.now
-        },
-      }
-    ]
+    transfers = 
+      
     assert_difference 'Transfer.count', 2 do
-      post transfers_many_path, params: { transfers: transfers }
+      post transfers_path, params: {
+        project_id: @admin.projects.first.id,
+        transfers: {
+          t0: {
+            member_id: @member.id,
+            amount: 250.0,
+            message: "Mr. Member pay",
+            transferred_at: Time.zone.now.to_date
+          },
+          t1: {
+            member_id: @member.id,
+            amount: 123.5,
+            message: "Juli mEmBerr",
+            transferred_at: Time.zone.now
+          }
+        }
+      }
     end
   end
 

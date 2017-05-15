@@ -11,41 +11,35 @@ class TransfersController < ApplicationController
   def create
     @project = Project.find(current_project_id)
     @members = @project.members.includes(:memberships)
-    @transfers = []
-    params[:transfers].each do |key, transfer|
-      # Find member
-#      member = member_for transfer[:message]
-      member = @members.find(transfer[:member_id])
-      if member.nil?
-        puts "Couldn't find member matching '#{transfer[:message]}'"
-      else
-        puts "Found member match: '#{transfer[:message]}' == #{member.name}"
-        # Find Membership that hold all transfers
-        membership = member.memberships.where(project_id: current_project_id).first
-        @transfers << membership.transfers.build(transfer.permit(:message, :amount, :transferred_at))
+
+    unless params[:transfers].nil?
+      @transfers = []
+      params[:transfers].each do |key, transfer|
+        # Find member
+  #      member = member_for transfer[:message]
+        member = @members.find(transfer[:member_id])
+        if member.nil?
+          puts "Couldn't find member matching '#{transfer[:message]}'"
+        else
+          puts "Found member match: '#{transfer[:message]}' == #{member.name}"
+          # Find Membership that hold all transfers
+          membership = member.memberships.where(project_id: current_project_id).first
+          @transfers << membership.transfers.build(transfer.permit(:message, :amount, :transferred_at))
+        end
       end
-    end
-    Transfer.import @transfers, ignore: true
-    @rent_discounts = []
-    params[:rent_discounts].each do |key, discount|
-      @rent_discounts << @project.rent_discounts.build(discount.permit(:message, :amount, :transferred_at))
+      Transfer.import @transfers, ignore: true
     end
 
-    RentDiscount.import @rent_discounts, ignore: true
-    flash[:success] = "Transfers added successfully"
-    redirect_to new_transfer_path and return
+    unless params[:rent_discounts].nil?
+      @rent_discounts = []
+      params[:rent_discounts].each do |key, discount|
+        @rent_discounts << @project.rent_discounts.build(discount.permit(:message, :amount, :transferred_at))
+      end
 
-
-    @member = Member.find(params[:member_id])
-    project_id = params[:project_id]
-    # Find Membership that hold all transfers
-    membership = @member.memberships.where(project_id: project_id).first
-    @transfer = membership.transfers.build(transfer_params)
-    if @transfer.save
-      flash[:success] = "Transfer successfully saved!"
-    else
-      flash[:danger] = "The transfer could not be saved. Check your input."
+      RentDiscount.import @rent_discounts, ignore: true
     end
+
+    flash[:success] = "Transactions added successfully"
     redirect_to new_transfer_path
   end
 

@@ -2,7 +2,7 @@
 
 one:
   amount: 9.99
-  message: MyString
+  message: MyString 2
   transferred_at: 2017-05-08
   project: one
 
