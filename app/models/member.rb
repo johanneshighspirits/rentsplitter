@@ -33,7 +33,7 @@ class Member < ApplicationRecord
 
   # Activate an account
   def activate
-    update_columns(activated: true, activated_at: Time.zone.now)
+    update_columns(activated: true)
   end
 
   # Sends invitation email

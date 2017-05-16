@@ -1,7 +1,7 @@
 class TransfersController < ApplicationController
 
   before_action :logged_in_member
-  before_action :must_be_site_admin, only: [:new, :create, :create_many, :destroy]
+  before_action :must_be_project_admin, only: [:new, :create, :create_many, :destroy]
 
   def new
     @transfer = Transfer.new
@@ -16,15 +16,16 @@ class TransfersController < ApplicationController
       @transfers = []
       params[:transfers].each do |key, transfer|
         # Find member
-  #      member = member_for transfer[:message]
-        member = @members.find(transfer[:member_id])
-        if member.nil?
-          puts "Couldn't find member matching '#{transfer[:message]}'"
-        else
-          puts "Found member match: '#{transfer[:message]}' == #{member.name}"
-          # Find Membership that hold all transfers
-          membership = member.memberships.where(project_id: current_project_id).first
-          @transfers << membership.transfers.build(transfer.permit(:message, :amount, :transferred_at))
+        unless transfer[:member_id] == "0"
+          member = @members.find(transfer[:member_id])
+          if member.nil?
+            puts "Couldn't find member matching '#{transfer[:message]}'"
+          else
+            puts "Found member match: '#{transfer[:message]}' == #{member.name}"
+            # Find Membership that hold all transfers
+            membership = member.memberships.where(project_id: current_project_id).first
+            @transfers << membership.transfers.build(transfer.permit(:message, :amount, :transferred_at))
+          end
         end
       end
       Transfer.import @transfers, ignore: true

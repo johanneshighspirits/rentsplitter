@@ -102,5 +102,12 @@ module SessionsHelper
     end
   end
 
+  def must_be_project_admin
+    unless project_admin?
+      flash[:danger] = "Access denied. Project admin only."
+      redirect_to root_path 
+    end
+  end
+
 
 end

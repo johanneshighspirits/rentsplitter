@@ -5,7 +5,7 @@ class InvitationsController < ApplicationController
   def edit
     member = Member.find_by(email: params[:email])
     if member && member.authenticated?(:invitation, params[:id])
-      puts "Member authenticated"
+      puts "Member invitation authenticated"
       # Check if someone is logged in already
       # If logged in member differs from the invited member,
       # log out current member and log in new member
@@ -20,6 +20,8 @@ class InvitationsController < ApplicationController
         # Prompt for password
         redirect_to login_path
       else
+        puts "Activating #{member.name}"
+        member.activate
         puts "Logging in #{member.name}"
         log_in member
         # Let user choose a password

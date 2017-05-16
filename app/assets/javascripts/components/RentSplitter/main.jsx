@@ -24,6 +24,7 @@ window.RentSplitter = React.createClass({
       return (
         <MemberInfo
           key={m}
+          order={m}
           member={member}
           thisMonth={thisMonth}
           transfers={member.transfers}
@@ -35,8 +36,8 @@ window.RentSplitter = React.createClass({
     return (
       <section className="centered">
         <article>
-          <h2>{this.props.project.name}<i>&mdash; react-js</i></h2>
-          <p>main info here</p>
+          <h2>{this.props.project.name}</h2>
+          <p><b>Start date</b> {this.props.project.startDate}</p>
         </article>
         <article>
           <ul>
@@ -52,11 +53,12 @@ function easeInQuad(t, b, c, d) {
   return c * (t /= d) * t + b;
 }
 
-function counter(element, startNr, endNr) {
+function counter(element, startNr, endNr, delay) {
   var time = 0;
   var diff = endNr;
   var minTime = 0;
-  var maxTime = 1500;
+  var maxTime = 1000 + delay;
+  element.innerHTML = "0:-";
 
   for (var i = 0; i <= endNr; i++) {
     (function(s) {
@@ -72,8 +74,8 @@ var MemberInfo = React.createClass({
   componentDidMount: function() {
     var counters = [].slice.call(ReactDOM.findDOMNode(this).getElementsByClassName('counter'));
     counters.forEach(function(element) {
-      counter(element, 0, element.dataset['amount']);
-    });
+      counter(element, 0, element.dataset['amount'], this.props.order * 1000);
+    }, this);
   },
   render: function() {
     var isMember = this.props.member.isMember;
@@ -86,9 +88,6 @@ var MemberInfo = React.createClass({
       if (rent.from >= this.props.member.joinedAt && rent.to <= this.props.member.leftAt) {
         // Member had membership when this rent is due
         totalAmountToPay += parseInt(rent.sharedAmount || 0);
-        // Convert amount to negative numbers for display purposes
-        rent.amount = rent.amount * -1;
-        rent.sharedAmount = rent.sharedAmount * -1;
         transactionHistory.push(
           <Transaction
             key={"rent" + i}
@@ -130,10 +129,10 @@ var MemberInfo = React.createClass({
       )
     }, this);
     // Sort transactionHistory on dates.
-    transactionHistory.sort(function(a,b){ a.props.date < b.props.date })
+    transactionHistory = transactionHistory.sort(function(a,b){ return b.props.date - a.props.date; })
     return (
-      <div className={isMember ? "memberInfo noLongerMember" : "memberInfo"}>
-        <h3>{this.props.member.name}</h3>
+      <div className={isMember ? "memberInfo" : "memberInfo noLongerMember"} style={{animationDelay: (this.props.order * 200) + "ms"}}>
+        <h3>{this.props.member.name}<span>Member since {this.props.member.joinedAt}</span></h3>
         {!isMember ? <p className="noLongerMember">{this.props.member.name} är inte medlem i<br/>Årsta Frukt & Musik AB längre.<br/>{totalAmountToPay > 0 ? "KVARSTÅENDE SKULD: " + (totalAmountToPay * -1) + ":-" : "Alla skulder betalda."}</p> : null }
         {totalAmountToPay > 0 ?
         <span className="red" style={{background: "#d05959", color: "#FFF"}}>Att betala senast sista {this.props.thisMonth}:
@@ -172,7 +171,7 @@ var Transaction = React.createClass({
         <td width="33%" className="lined shortDate">{this.props.transaction.shortDate}</td>
         <td width="33%" className="lined longDate">{this.props.transaction.longDate}</td>
         <td width="50%" className="lined"><i>{this.props.transaction.message}</i></td>
-        <td width="17%" className="lined right">{this.props.transaction.sharedAmount || this.props.transaction.amount}:-</td>
+        <td width="17%" className="lined right">{this.props.type == "rent" ? "-" : null}{this.props.transaction.sharedAmount || this.props.transaction.amount}:-</td>
       </tr>
     )
   }

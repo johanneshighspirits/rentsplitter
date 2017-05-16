@@ -66,11 +66,18 @@ b {
   border-radius: 10px;
   overflow: hidden;
   vertical-align: top;
-  animation: fade-in 400ms ease-out;
+  animation: fade-in 400ms ease-out backwards;
   h3 {
     text-align: center;
     margin: 0.5em 0 1.5em 0;
     font-size: 20px;
+    span {
+      display: block;
+      font-size: 12px;
+      font-weight: normal;
+      color: #999;
+      padding-top: 5px;
+    }
   }
 
   p.noLongerMember {

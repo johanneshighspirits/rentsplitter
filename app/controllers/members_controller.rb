@@ -84,7 +84,10 @@ class MembersController < ApplicationController
         project_name = existing_project.name
         if existing_project.admin_id == current_member.id
           # Make sure that current member is admin of the project.
+          p existing_project
           @member.projects << existing_project
+          p existing_project
+          p params
         else
           cancel_invite "NOT PROJECT ADMIN. Member #{current_member.id} is not #{existing_project.admin_id}."
           return false
@@ -99,7 +102,7 @@ class MembersController < ApplicationController
       @member.save
 
       project = @member.projects.find_by(name: project_name)
-      if !project.nil?
+      unless project.nil?
         membership = @member.memberships.where("project_id = ?", project.id)
         membership.update(joined_at: params[:joined_at], left_at: params[:left_at])
         @member.save

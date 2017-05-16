@@ -39,11 +39,7 @@ class Project < ApplicationRecord
     # Loop through all project's months and add the rent to project_rents
     m = 0
     result[:rents] = project_months.map do |date|
-
-      if !rents[m + 1].nil? && date > rents[m + 1].due_date
-        m += 1
-      end
-      month_members = members_for_month date
+      month_members = members_for_month date.next_month
 
       unless project_discounts["#{date.year}#{date.month}"].nil?
         result[:discounts].concat(
@@ -61,17 +57,21 @@ class Project < ApplicationRecord
         )
       end
 
-
-      {
+      rent = {
         amount: rents[m].amount,
-        message: "Rent for #{date.month}/#{date.year}",
+        message: "Rent for #{date.next_month.month}/#{date.next_month.year}",
         numberOfMembers: month_members,
         sharedAmount: (rents[m].amount / month_members).round(2),
         shortDate: (short_date date),
         longDate: date.to_s(:iso8601),
         from: date.next_month.beginning_of_month,
         to: date.next_month(2).beginning_of_month - 1.seconds,
-      }    
+      }
+      if !rents[m + 1].nil? && date > rents[m + 1].due_date
+        m += 1
+      end
+
+      rent
     end
     result
 
@@ -89,7 +89,8 @@ class Project < ApplicationRecord
   end
 
   def project_months
-    (start_date.prev_month..Date.current.end_of_month).select do |date|
+    end_month = Date.current.day < 25 ? Date.current.prev_month.end_of_month : Date.current.end_of_month
+    (start_date.prev_month..end_month).select do |date|
       date.day == date.end_of_month.day
     end
   end

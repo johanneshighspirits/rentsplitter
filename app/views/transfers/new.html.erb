@@ -40,11 +40,12 @@ fields: [
   },
   {
     fieldType: "select",
-    attribute: "member_id",
+    attribute: "transfers[0][member_id]",
     attributeName: "Which member made the transfer",
     options: @members.map {|m| [m.id, m.name]}.unshift([0, "Choose Member"]),
     isControlling: "project_id", # Get member's projects when member is selected
     controlType: "select",
+    controlUrl: "/members/:id/projects.json"
   },
   {
     fieldType: "select",

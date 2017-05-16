@@ -14,13 +14,23 @@ class ProjectsController < ApplicationController
   end
 
   def create
-    @project = Project.new(project_params)
-    if @project.save!
-      flash[:success] = "'#{@project.name}' successfully created. Let's add some members..."
+    new_project = current_member.projects.build(project_params)
+    if current_member.save
+      # Set join and left dates
+      membership = current_member.memberships.where(project_id: new_project.id).first
+      membership.joined_at = new_project.start_date
+      membership.left_at = 100.years.from_now
+      membership.save
+      if new_project.rents.empty?
+        new_project.rents.create(amount: params[:monthly_rent], due_date: new_project.start_date.change(day: 25))
+      end
+      flash[:success] = "'#{@project.name}' successfully created."
       # Open new Project
       set_current_project_id @project.id
       # Invite/add members
       redirect_to invite_path
+    else
+      flash[:danger] = "Could not save new Project."
     end
   end
 

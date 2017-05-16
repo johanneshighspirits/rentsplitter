@@ -2,8 +2,12 @@ require 'test_helper'
 
 class SignupMembersTest < ActionDispatch::IntegrationTest
 
+  test "valid signup should have joined_at and left_at set" do
+
+  end
+
   test "valid signup should show activation screen and send email for not logged in user" do
-    # Try when not logged in
+    # Create account
     get signup_path
     post signup_path params: {
       member: {

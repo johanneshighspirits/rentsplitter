@@ -1,8 +1,19 @@
 var Form = React.createClass({
   getInitialState: function(){
+    return({
+      members: this.props.members,
+      controllers: {},
+      controlValues: {},
+      fields: this.props.fields
+    })
+  },
+  componentDidMount: function(){
+    this.setupFields();
+  },
+  setupFields: function(){
     var controllers = {};
     var controlValues = {};
-    this.props.fields.forEach(function(item){
+    this.state.fields.forEach(function(item){
       // Add value to controlValues
       switch (item.fieldType) {
         case "select":
@@ -18,7 +29,7 @@ var Form = React.createClass({
           controlValues[item.attribute] = item.defaultValue;
         break;
         case "radio":
-          controlValues[item.attribute] = "";
+          controlValues[item.attribute] = item.checked ? item.defaultValue : "";
         break;
         default:
           console.warn("Ignored: " + item.attribute + ", of type " + item.fieldType);
@@ -44,15 +55,18 @@ var Form = React.createClass({
         }
       }
     });
-    return ({
-      members: this.props.members,
+    this.setState({
+      members: this.state.members,
       controllers: controllers,
       controlValues: controlValues,
-      fields: this.props.fields
+      fields: this.state.fields
     });
   },
-  pluralize: function(str) {
-    return str.replace("_id", "s");
+  // pluralize: function(str) {
+  //   return str.replace("_id", "s");
+  // },
+  generateUrl: function(template, value) {
+    return template.replace(":id", value);
   },
   handleSelect: function(e) {
     if (this.state.controlValues[e.target.name] !== undefined) {
@@ -81,7 +95,7 @@ var Form = React.createClass({
         case "select":
         // This Select is controlling another one, meaning that when
         // this value changes, the other value should change too.
-        var url = "/" + this.pluralize(e.target.name) + "/" + e.target.value + "/" + this.pluralize(controller[0].targetId) + ".json";
+        var url = this.generateUrl(e.target.dataset.controlurl, e.target.value);
         $.get(url, function(results){
           var fields = this.state.fields.map(function(item, i){
             if (item.attribute == controller[0].targetId) {
@@ -214,7 +228,6 @@ var Form = React.createClass({
         // Add input fields with transactions for previewing
         var fields = this.state.fields;
         var controlValues = this.state.controlValues;
-        console.log(transfers);
         var newFields = [{
           fieldType: "p",
           text: "Check that everything looks correct, edit if necessary. Click Submit when you're done."
@@ -314,10 +327,12 @@ var Form = React.createClass({
         case "select_noLabel":
           return (<FormSelect
             key={i}
+            hidden={item.hidden}
             hideLabel={item.fieldType.indexOf("_noLabel") != -1}
             attribute={item.attribute}
             attributeName={item.attributeName}
             options={item.options}
+            controlUrl={item.controlUrl}
             fieldValue={this.state.controllers[item.attribute] !== undefined ? this.state.controllers[item.attribute].fieldValue : this.state.controlValues[item.attribute]}
             handleSelect={this.handleSelect}
           />)
@@ -325,6 +340,7 @@ var Form = React.createClass({
         case "checkbox":
           return (<FormCheckbox 
             key={i}
+            hidden={item.hidden}
             attribute={item.attribute}
             attributeName={item.attributeName}
             checked={this.state.controlValues[item.attribute]}
@@ -333,6 +349,7 @@ var Form = React.createClass({
         case "radio":
           return (<FormRadio 
             key={i}
+            hidden={item.hidden}
             attribute={item.attribute}
             attributeName={item.attributeName}
             options={item.options}
@@ -344,6 +361,7 @@ var Form = React.createClass({
         case "file":
           return (<FormFileUpload
             key={i}
+            hidden={item.hidden}
             attribute={item.attribute}
             attributeName={item.attributeName}
             handleSelect={this.handleSelect}
@@ -361,6 +379,7 @@ var Form = React.createClass({
         default:
           return (<FormField
             key={i}
+            hidden={item.hidden}
             fieldType={item.fieldType}
             attribute={item.attribute}
             attributeName={item.attributeName}
@@ -388,7 +407,7 @@ var FormField = React.createClass({
   render: function() {
     var idName = this.props.attribute.replace("[", "_").replace("]", "");
     return (
-      <div>
+      <div className={this.props.hidden ? "hidden" : null }>
         <label htmlFor={idName}>{this.props.attributeName}</label>
         <input
           type={this.props.fieldType}
@@ -409,12 +428,13 @@ var FormSelect = React.createClass({
     });
     return (
       options.length > 0 ?
-      <div style={this.props.hideLabel ? {display: "inline"} : null}>
+      <div className={this.props.hidden ? "hidden" : null } style={this.props.hideLabel ? {display: "inline"} : null}>
         {this.props.hideLabel ? null : <label htmlFor={this.props.attribute}>{this.props.attributeName}</label>}
         <select
           value={this.props.fieldValue}
           name={this.props.attribute}
           id={this.props.attribute}
+          data-controlurl={this.props.controlUrl}
           onChange={this.props.handleSelect}>
             {options}
         </select>
@@ -427,7 +447,7 @@ var FormSelect = React.createClass({
 var FormRadio = React.createClass({
   render: function() {
     return (
-      <div>
+      <div className={this.props.hidden ? "hidden" : null }>
         <label htmlFor={this.props.attribute}>{this.props.attributeName}</label>
         <input
           type="radio"
@@ -445,7 +465,7 @@ var FormRadio = React.createClass({
 var FormCheckbox = React.createClass({
   render: function() {
     return (
-      <div>
+      <div className={this.props.hidden ? "hidden" : null }>
         <label htmlFor={this.props.attribute}>{this.props.attributeName}</label>
         <input
           type="checkbox"
@@ -463,7 +483,7 @@ var FormCheckbox = React.createClass({
 var FormFileUpload = React.createClass({
   render: function() {
     return (
-      <div>
+      <div className={this.props.hidden ? "hidden" : null }>
         <label htmlFor={this.props.attribute}>{this.props.attributeName}</label>
         <input
           type="file"
@@ -479,7 +499,7 @@ var FormFileUpload = React.createClass({
 var FormSubmit = React.createClass({
   render: function() {
     return (
-      <div>
+      <div className={this.props.hidden ? "hidden" : null }>
         <input
           type="submit"
           name="commit"

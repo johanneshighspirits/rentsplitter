@@ -1,0 +1,16 @@
+<ol>
+  <% @projects.each do |project| %>
+  <li>
+    <p><b><%= project.name %></b></p>
+    <%= link_to "Open", project %><br>
+    <%= link_to "Delete", project, method: :delete,
+                                  data: { confirm: "Are you sure? This will delete '#{project.name}' and all data will be lost." } if is_admin_for_project? project %><br>
+    id: <%= project.id %><br>members:
+    <ul>
+    <% project.members.each do |member| %>
+      <li><i><%= member.name %></i></li>
+    <% end %>
+    </ul>
+  </li>
+  <% end %>
+</ol>

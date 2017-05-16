@@ -1,9 +1,6 @@
 <% provide :page_title, "Invite new member" %>
 <% random_password = Member.new_token %>
-<%= react_component 'Form', 
-authenticity_token: form_authenticity_token, 
-action: invite_path,
-fields: [
+<% fields = [
   {
     fieldType: "text",
     attribute: "member[name]",
@@ -13,23 +10,10 @@ fields: [
     fieldType: "email",
     attribute: "member[email]",
     attributeName: "Email",
-  },
-  {
-    fieldType: "p",
-    text: "Assign new member to a Project"
-  },
-  {
-    fieldType: "radio",
-    attribute: "new_or_existing",
-    attributeName: "Create new Project",
-    defaultValue: "new",
-  },
-  {
-    fieldType: "radio",
-    attribute: "new_or_existing",
-    attributeName: "Choose existing Project",
-    defaultValue: "existing",
-  },
+  }
+]
+
+create_new_fields = [
   {
     fieldType: "p",
     text: "Choose a name and a start date for the new Project.",
@@ -47,76 +31,128 @@ fields: [
     attributeName: "Project start date",
     defaultValue: Date.current.beginning_of_month.next_month,
     isVisibleIfChecked: "new_or_existing#new",
-  },
+  }, 
   {
     fieldType: "number",
     attribute: "monthly_rent",
     attributeName: "Monthly rent",
     defaultValue: 0,
     isVisibleIfChecked: "new_or_existing#new",
-  },
-  {
-    fieldType: "select",
-    attribute: "project_id",
-    attributeName: "Select an existing Project",
-    isVisibleIfChecked: "new_or_existing#existing",
-    defaultValue: 0,
-    options: @projects.map { |p| [p.id, p.name] }.unshift([0, "Choose Project"]),
-  },
-  {
-    fieldType: "p",
-    text: "Select which month the new member joins the Project."
-  },
-  {
-    fieldType: "select",
-    attribute: "joined_at_m",
-    attributeName: "First month to pay rent for",
-    options: (1..12).map {|m| [m, Date::MONTHNAMES[m]]},
-    defaultValue: Date.current.next_month.month
-  },
-  {
-    fieldType: "select",
-    attribute: "joined_at_y",
-    attributeName: "",
-    options: (2000..20.years.from_now.year).map {|y| [y, y]},
-    defaultValue: Date.current.year
-  },
-  {
-    fieldType: "p",
-    text: "If the new member will only join for a limited time, select the last month to pay rent for as well, otherwise just leave it as it is."
-  },
-  {
-    fieldType: "select",
-    attribute: "left_at_m",
-    attributeName: "Last month to pay rent for",
-    options: (1..12).map {|m| [m, Date::MONTHNAMES[m]]},
-    defaultValue: Date.current.next_month.month
-  },
-  {
-    fieldType: "select",
-    attribute: "left_at_y",
-    attributeName: "",
-    options: (2000..100.years.from_now.year).map {|y| [y, y]},
-    defaultValue: 100.years.from_now.year
-  },
-  {
-    fieldType: "p",
-    text: "Auto generated password. The member will be prompted to change this when logging in for the first time."
-  },
-  {
-    fieldType: "password",
-    attribute: "member[password]",
-    attributeName: "Password",
-    defaultValue: random_password
-  },
-  {
-    fieldType: "password",
-    attribute: "member[password_confirmation]",
-    attributeName: "Confirm password",
-    defaultValue: random_password
-  },
-  {
-    fieldType: "submit",
-    attributeName: "Invite new Member"
   }
-] %>
+]
+
+# If member has no projects, only show the create
+# new project form
+if @projects.empty?
+  puts "No projects found, showing new project form only"
+  # Create new only
+  fields << {
+    fieldType: "radio",
+    attribute: "new_or_existing",
+    attributeName: "New Project",
+    defaultValue: "new",
+    checked: true,
+    hidden: true
+  }
+else
+  # Let user choose between creating a new poject
+  # and selecting an exisitng
+  fields.concat(
+    [
+      {
+        fieldType: "p",
+        text: "Assign new member to a Project"
+      },
+      {
+        fieldType: "radio",
+        attribute: "new_or_existing",
+        attributeName: "Create new Project",
+        defaultValue: "new",
+      },
+      {
+        fieldType: "radio",
+        attribute: "new_or_existing",
+        attributeName: "Choose existing Project",
+        defaultValue: "existing",
+        checked: @projects.count == 1
+      }
+    ]
+  )
+end
+
+fields.concat(create_new_fields)
+fields.concat(
+  [
+    {
+      fieldType: "select",
+      attribute: "project_id",
+      attributeName: "Select an existing Project",
+      isVisibleIfChecked: "new_or_existing#existing",
+      defaultValue: @projects.count == 1 ? @projects.first.id : 0,
+      options: @projects.map { |p| [p.id, p.name] }.unshift([0, "Choose Project"]),
+    },
+    {
+      fieldType: "p",
+      text: "Select which month the new member joins the Project. This is the first month to pay rent for."
+    },
+    {
+      fieldType: "select_noLabel",
+      attribute: "joined_at_m",
+      attributeName: "",
+      options: (1..12).map {|m| [m, Date::MONTHNAMES[m]]},
+      defaultValue: @projects.count == 1 ? @projects.first.start_date.month : Date.current.next_month.month
+    },
+    {
+      fieldType: "select_noLabel",
+      attribute: "joined_at_y",
+      attributeName: "",
+      options: (2000..20.years.from_now.year).map {|y| [y, y]},
+      defaultValue: @projects.count == 1 ? @projects.first.start_date.year : Date.current.year
+    },
+    {
+      fieldType: "p",
+      text: "If the new member will only join for a limited time, select the last month to pay rent for as well, otherwise just leave it as it is."
+    },
+    {
+      fieldType: "select_noLabel",
+      attribute: "left_at_m",
+      attributeName: "",
+      options: (1..12).map {|m| [m, Date::MONTHNAMES[m]]},
+      defaultValue: Date.current.next_month.month
+    },
+    {
+      fieldType: "select_noLabel",
+      attribute: "left_at_y",
+      attributeName: "",
+      options: (2000..100.years.from_now.year).map {|y| [y, y]},
+      defaultValue: 100.years.from_now.year
+    },
+    # {
+    #   fieldType: "p",
+    #   text: "Auto generated password. The member will be prompted to change this when logging in for the first time."
+    # },
+    {
+      fieldType: "password",
+      attribute: "member[password]",
+      attributeName: "Password",
+      defaultValue: random_password,
+      hidden: true
+    },
+    {
+      fieldType: "password",
+      attribute: "member[password_confirmation]",
+      attributeName: "Confirm password",
+      defaultValue: random_password,
+      hidden: true
+    },
+    {
+      fieldType: "submit",
+      attributeName: "Invite new Member"
+    }
+  ]
+) %>
+
+<%= react_component 'Form', 
+authenticity_token: form_authenticity_token, 
+action: invite_path,
+fields: fields %>
