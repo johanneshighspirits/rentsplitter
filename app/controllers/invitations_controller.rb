@@ -26,8 +26,10 @@ class InvitationsController < ApplicationController
         log_in member
         # Let user choose a password
         if params[:set_password]
+          # Member has been invited and must choose password
           redirect_to edit_member_path member, set_password: true
         else
+          # MEmber
           redirect_to edit_member_path member
         end
       end

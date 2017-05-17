@@ -4,13 +4,14 @@ class MembersController < ApplicationController
   include SessionsHelper
 
   before_action :logged_in_member, except: [:new, :create, :activate]
-  before_action :must_be_site_admin, only: [:index, :destroy]
+  before_action :must_be_site_admin, only: [:destroy]
+  before_action :must_be_project_admin, only: [:index]
 
   # SITE ADMIN ONLY:
   # List all members. Edit or Delete.
   # /members
   def index
-    @members = Member.all
+    @members = Project.find(current_project_id).members
   end
 
   # Sign up:
@@ -127,6 +128,7 @@ class MembersController < ApplicationController
   def edit
     @member = Member.find(params[:id])
     if params[:set_password]
+      session[:set_password] = true
       render 'members/edit_password'
     else
       render 'members/welcome'
@@ -136,21 +138,29 @@ class MembersController < ApplicationController
   def update
     @member = Member.find(params[:id])
     if @member.update_attributes(member_params)
-      if is_site_admin?
-        flash[:success] = "Member updated"
-        redirect_to @member
-      else
-        flash[:success] = "Password updated"
+      if session[:set_password]
+        # Member has been invited and has now accepted the
+        # invitation and chosen a password.
+        flash[:success] = "Profile updated"
         # Activate member if not already activated
         unless @member.activated?
           @member.update_attribute(:activated, true)
           flash[:success] += "Your account has been activated."
           puts "Account activated for '#{@member.name}, <#{@member.email}>'"
         end
+
         remember @member
-        redirect_to root_path
+      elsif params[:member][:edited_by] == "admin"
+        # Member has been edited by project admin
+        flash[:success] = "Profile for '#{@member.name}' updated"
+        redirect_to members_path and return
+      else
+        # Member has been edited by itself
+        flash[:success] = "Your profile has been updated."
+        redirect_to edit_member_path @member and return
       end
     else
+      flash[:success] = "Errors: #{@member.errors}"
       render 'edit'
     end
   end
@@ -168,7 +178,7 @@ class MembersController < ApplicationController
   private
     # Strong params
     def member_params
-      params.require(:member).permit(:name, :email, :password, :password_confirmation, :current_project_id)
+      params.require(:member).permit(:name, :email, :pattern, :password, :password_confirmation, :current_project_id)
     end
 
     # If member invitation goes wrong, rollback and rerender
