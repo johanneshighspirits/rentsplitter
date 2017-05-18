@@ -1,8 +1,9 @@
-<% provide(:page_title, "Register money transfer") %>
+<% # provide(:page_title, "Register money transfer") %>
 <% project_members = @members.map {|m| [m.id, m.name, m.pattern]}.unshift([0, "Choose Member", ""]) %>
 
 <%= react_component 'Form', 
 authenticity_token: form_authenticity_token, 
+title: "Register money transfer",
 action: transfers_path,
 members: project_members,
 fields: [

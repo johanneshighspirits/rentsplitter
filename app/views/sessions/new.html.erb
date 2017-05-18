@@ -1,12 +1,14 @@
-<% provide :page_title, "Log in" %>
+<% # provide :page_title, "Log in" %>
 <%= react_component 'Form', 
 authenticity_token: form_authenticity_token, 
+title: "Log in",
 action: login_path,
 fields: [
   {
     fieldType: "email",
     attribute: "session[email]",
     attributeName: "Email",
+    autofocus: true
   },
   {
     fieldType: "password",
@@ -26,4 +28,4 @@ fields: [
 ],
 flash: flash
  %>
-<p>Don't have an account? <%= link_to "Sign up here", signup_path %></p>
+<p class="centered">Don't have an account? <%= link_to "Sign up here", signup_path %></p>
