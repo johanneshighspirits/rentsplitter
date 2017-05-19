@@ -29,28 +29,21 @@ html, body {
   margin: 0;
 }
 /* --- flex --- */
-// .flex-container {
-//   display: flex;
-//   height: 600px;
-//   flex-direction: column;
-//   flex-wrap: wrap;
-//   justify-content: center;
-// }
 .flex-container {
   display: flex;
   flex-flow: column;
-  height: 100%;
-  .row.header {
+  min-height: 100%;
+  header {
     flex: 0 1 auto;
   }
-  .row.content {
+  .content {
     flex: 1 1 auto;
     display: flex;
     justify-content: center;
     flex-direction: column;
   }
-  .row.footer {
-    flex: 0 1 50px;
+  footer {
+    flex: 0 1 40px;
   }
 }
 body {
@@ -62,6 +55,12 @@ body {
 }
 h1 {
   font-size: 2.5em;
+  a {
+    color: #FFF;
+    &:hover {
+      color: #FFF;
+    }
+  }
 }
 b {
   font-weight: bold;
@@ -71,6 +70,14 @@ b {
 }
 .hidden {
   display: none;
+}
+a {
+  font-weight: bold;
+  text-decoration: none;
+  color: $text-color;
+  &:hover {
+    color: #000;
+  }
 }
 
 /* Alerts */
@@ -94,6 +101,24 @@ b {
   }
 }
 
+/* --- Header --- */
+header, footer {
+  text-align: center;
+}
+header {
+  background: #333;
+  color: #FFF;
+  nav {
+    ul, li {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    li {
+      display: inline-block;
+    }
+  }
+}
 /* --- MemberInfo --- */
 .memberInfo {
   display: inline-block;
@@ -231,11 +256,10 @@ form {
   display: block;
   position: relative;
   margin: auto;
-  width: 44%;
-  padding: 7em 3% 3em;
+  width: 92%;
+  padding: 7em 0 3em;
   color: #ddd;
   background: $brand-medium-dark;
-  border-radius: 5px;
   h3 {
     position: absolute;
     margin: 0;
@@ -244,14 +268,24 @@ form {
     top: 0;
     left: 0;
     width: 100%;
-    border-radius: 5px 5px 0 0;
     background: #444;
+  }
+  h4 {
+    background: rgba(94, 105, 105, 0.66);
+    margin: 2em 0 0;
+    padding: 1.2em 0;
+    color: #FFF;
+    width: 100%;
+    text-align: center;
+  }
+  p {
+    margin: 1em auto;
+    color: #FFF;
   }
   .input-container {
     display: block;
     position: relative;
-    margin: 0.5em auto;
-    width: 96%;
+    margin: 1em auto;
     label {
       display: block;
       position: absolute;
@@ -261,6 +295,11 @@ form {
       top: 0;
       transition: color 250ms;
 
+    }
+    &.centered label {
+      text-align: center;
+      color: #FFF;
+      position: relative;
     }
     input {
       display: block;
@@ -274,24 +313,34 @@ form {
       color: #ddd;
       font-size: 1em;
       transition: background-color 250ms, color 250ms;
-      &:hover, &:valid {
+      &:hover {
+        color: #eee;
+        &+label {
+          color: #eee;
+          &:before {
+            transform: scaleX(0.5);
+            background: #bbb;
+          }
+        }
+      }
+      &:active, &:focus, &:valid {
         color: #FFF;
         &+label {
           color: #FFF;
           &:before {
             transform: scaleX(1.0);
+            background: #FFF;
           }
         }
       }
-      &:active, &:focus {
-        color: #FFF;
-        &+label {
-          color: #FFF;
-          &:before {
-            transform: scaleX(1.0);
-          }
+      &[type=text], &[type=email], &[type=password], &[type=number], &[type=date] {
+        &:valid {
+          text-align: right;
         }
-      }
+        &:active:valid {
+          text-align: left;
+        }
+      } 
       &+label {
         &:before {
           display: block;
@@ -299,7 +348,7 @@ form {
           bottom: 0;
           left: 0;
           content: "";
-          background: #CCC;
+          background: #bbb;
           width: 100%;
           height: 2px;
           transform: scaleX(0.0);
@@ -313,20 +362,27 @@ form {
           width: 90%;
           padding-left: 10%;
           color: #ddd;
-          background: url(sprite.png) 0 3px no-repeat;
+          background: image-url("sprite.png") 0 3px no-repeat;
           &:before {
             transform: scaleX(0.0);
+            background: #bbb;
           }
           &:hover {
             color: #FFF;
+            &:before {
+              color: #FFF;
+              transform: scaleX(0.5);
+              background: #bbb;
+            }
           }
         }
         &:checked {
           &+label {
             color: #FFF;
-            background: url(sprite.png) 0 -37px no-repeat;
+            background: image-url("sprite.png") 0 -37px no-repeat;
             &:before {
               transform: scaleX(1.0);
+              background: #fff;
             }
           }
         }
@@ -355,6 +411,51 @@ form {
         -webkit-text-fill-color: #FFF !important;
       }
     }    
+  }
+  .flex-items-container {
+    display: flex;
+    position: relative;
+    margin: 0.5em auto;
+    width: 100%;
+    justify-content: space-between;
+    .flex-item {
+      flex-grow: 1;
+    }
+    input[type=radio] {
+      display: none;
+      &+label {
+        display: block;
+        position:relative;
+        padding: 1em 0;
+        text-align: center;
+        width: 100%;
+      }
+      &+label:hover {
+        color: #FFF;
+        &:before {
+          transform: scaleX(0.5);
+        }
+      }
+      &+label:before {
+        display: block;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        content: "";
+        background: #bbb;
+        width: 100%;
+        height: 2px;
+        transform: scaleX(0.0);
+        transition: all 250ms;
+      }
+      &:checked+label {
+        color: #FFF;
+        &:before {
+          transform: scaleX(1);
+          background: #FFF;
+        }
+      }
+    }
   }
 }
 
@@ -399,6 +500,10 @@ form {
 //   }
 // }
 
+.footer {
+  color: rgba(0,0,0,0.5);
+  font-size: 8px;
+}
 
 /* --- Media queries --- */
 @media screen and (min-width: 600px) {
@@ -416,6 +521,25 @@ form {
     display: block;
     width: 100%;
   }
+  form {
+    width: 86%;
+    border-radius: 8px;
+    h3{
+      border-radius: 8px 8px 0 0;
+    }
+    .input-container {
+      margin-left: 7%;
+      margin-right: 7%;
+      input {
+        &[type=checkbox] {
+          &+label {
+            width: 94%;
+            padding-left: 6%;
+          }
+        }
+      }
+    }
+  }
 }
 @media screen and (min-width: 800px) {
   .infoTextLeft, .amountRight {
@@ -427,9 +551,49 @@ form {
   .amountRight {
     width: 17%;
   }
+  form {
+    width: 64%;
+    border-radius: 8px;
+    h3{
+      border-radius: 8px 8px 0 0;
+    }
+    .input-container {
+      margin-left: 4%;
+      margin-right: 4%;
+      input {
+        padding-left: 25%;
+        width: 75%;
+        &[type=checkbox] {
+          &+label {
+            width: 93%;
+            padding-left: 7%;
+          }
+        }
+      }
+    }
+  }
 }
 @media screen and (min-width: 1000px) {
   .memberInfo {
     width: 24%;
+  }
+  form {
+    width: 44%;
+    border-radius: 8px;
+    h3{
+      border-radius: 8px 8px 0 0;
+    }
+    .input-container {
+      margin-left: 3%;
+      margin-right: 3%;
+      input {
+        &[type=checkbox] {
+          &+label {
+            width: 93%;
+            padding-left: 7%;
+          }
+        }
+      }
+    }
   }
 }

@@ -13,17 +13,12 @@
 
   <body>
     <div class="flex-container">
-      <div class="row header">
-        <%= render 'layouts/header' %>
-        <h2><%= yield :page_title %></h2>
-      </div>
-      <div class="row content">
+      <%= render 'layouts/header' %>
+      <div class="content">
         <%= react_component 'ErrorDisplay', errors: flash %>
         <%= yield %>
       </div>
-      <div class="row footer">
-        <footer>&copy; copyright Johannes Borgström 2017</footer>
-      </div>
+      <footer>&copy; copyright Johannes Borgström 2017</footer>
     </div>
   </body>
 </html>

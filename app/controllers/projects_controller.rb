@@ -21,16 +21,18 @@ class ProjectsController < ApplicationController
       membership.joined_at = new_project.start_date
       membership.left_at = 100.years.from_now
       membership.save
-      if new_project.rents.empty?
+      if new_project.reload.rents.empty?
         new_project.rents.create(amount: params[:monthly_rent], due_date: new_project.start_date.change(day: 25))
       end
-      flash[:success] = "'#{@project.name}' successfully created."
+      flash[:success] = "'#{new_project.name}' successfully created."
       # Open new Project
-      set_current_project_id @project.id
+      set_current_project_id new_project.id
       # Invite/add members
       redirect_to invite_path
     else
       flash[:danger] = "Could not save new Project."
+      @project = Project.new
+      redirect_to new_project_path
     end
   end
 

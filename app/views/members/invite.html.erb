@@ -1,10 +1,11 @@
-<% provide :page_title, "Invite new member" %>
+<% # provide :page_title, "Invite new member" %>
 <% random_password = Member.new_token %>
 <% fields = [
   {
     fieldType: "text",
     attribute: "member[name]",
     attributeName: "Name",
+    autofocus: true
   },
   {
     fieldType: "email",
@@ -36,7 +37,7 @@ create_new_fields = [
     fieldType: "number",
     attribute: "monthly_rent",
     attributeName: "Monthly rent",
-    defaultValue: 0,
+    defaultValue: "",
     isVisibleIfChecked: "new_or_existing#new",
   }
 ]
@@ -60,22 +61,27 @@ else
   fields.concat(
     [
       {
-        fieldType: "p",
+        fieldType: "h4",
         text: "Assign new member to a Project"
       },
       {
-        fieldType: "radio",
-        attribute: "new_or_existing",
-        attributeName: "Create new Project",
-        defaultValue: "new",
+        fieldType: "flex-items",
+        items: [
+          {
+            fieldType: "radio",
+            attribute: "new_or_existing",
+            attributeName: "Create new Project",
+            defaultValue: "new",
+          },
+          {
+            fieldType: "radio",
+            attribute: "new_or_existing",
+            attributeName: "Choose existing Project",
+            defaultValue: "existing",
+            checked: @projects.count == 1
+          }
+        ]
       },
-      {
-        fieldType: "radio",
-        attribute: "new_or_existing",
-        attributeName: "Choose existing Project",
-        defaultValue: "existing",
-        checked: @projects.count == 1
-      }
     ]
   )
 end
@@ -96,36 +102,46 @@ fields.concat(
       text: "Select which month the new member joins the Project. This is the first month to pay rent for."
     },
     {
-      fieldType: "select_noLabel",
-      attribute: "joined_at_m",
-      attributeName: "",
-      options: (1..12).map {|m| [m, Date::MONTHNAMES[m]]},
-      defaultValue: @projects.count == 1 ? @projects.first.start_date.month : Date.current.next_month.month
-    },
-    {
-      fieldType: "select_noLabel",
-      attribute: "joined_at_y",
-      attributeName: "",
-      options: (2000..20.years.from_now.year).map {|y| [y, y]},
-      defaultValue: @projects.count == 1 ? @projects.first.start_date.year : Date.current.year
+      fieldType: "flex-items",
+      items: [
+        {
+          fieldType: "select",
+          attribute: "joined_at_m",
+          attributeName: "",
+          options: (1..12).map {|m| [m, Date::MONTHNAMES[m]]},
+          defaultValue: @projects.count == 1 ? @projects.first.start_date.month : Date.current.next_month.month
+        },
+        {
+          fieldType: "select",
+          attribute: "joined_at_y",
+          attributeName: "",
+          options: (2000..20.years.from_now.year).map {|y| [y, y]},
+          defaultValue: @projects.count == 1 ? @projects.first.start_date.year : Date.current.year
+        },
+      ]
     },
     {
       fieldType: "p",
       text: "If the new member will only join for a limited time, select the last month to pay rent for as well, otherwise just leave it as it is."
     },
     {
-      fieldType: "select_noLabel",
-      attribute: "left_at_m",
-      attributeName: "",
-      options: (1..12).map {|m| [m, Date::MONTHNAMES[m]]},
-      defaultValue: Date.current.next_month.month
-    },
-    {
-      fieldType: "select_noLabel",
-      attribute: "left_at_y",
-      attributeName: "",
-      options: (2000..100.years.from_now.year).map {|y| [y, y]},
-      defaultValue: 100.years.from_now.year
+      fieldType: "flex-items",
+      items: [
+        {
+          fieldType: "select",
+          attribute: "left_at_m",
+          attributeName: "",
+          options: (1..12).map {|m| [m, Date::MONTHNAMES[m]]},
+          defaultValue: Date.current.next_month.month
+        },
+        {
+          fieldType: "select",
+          attribute: "left_at_y",
+          attributeName: "",
+          options: (2000..100.years.from_now.year).map {|y| [y, y]},
+          defaultValue: 100.years.from_now.year
+        }
+      ]
     },
     # {
     #   fieldType: "p",
@@ -155,4 +171,5 @@ fields.concat(
 <%= react_component 'Form', 
 authenticity_token: form_authenticity_token, 
 action: invite_path,
+title: "Invite new member",
 fields: fields %>
