@@ -1,8 +1,8 @@
 <header>
   <h1><%= link_to "RentSplitter", root_path %></h1>
-  <h2><%= yield :page_title %></h2>
+<!--  <h2><%= yield :page_title %></h2> -->
 <% if current_member %>
-  <p>Logged in as <b><%= current_member.name %></b></p>
+  <p class="logged-in-info">Logged in as <b><%= current_member.name %></b></p>
   <nav>
     <ul>
         <li><%= link_to "Home", root_path %></li>
@@ -17,6 +17,5 @@
         <li><%= link_to "Log out", logout_path, method: :delete %></li>
     </ul>
   </nav>
-  <hr>
 <% end %>
 </header>

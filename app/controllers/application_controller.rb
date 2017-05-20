@@ -4,8 +4,9 @@ class ApplicationController < ActionController::Base
 
   def index
     if logged_in?
-      puts "Logged in as #{current_member.name}"
-      set_current_project_id current_member.current_project_id
+      @current_member = current_member
+      puts "Logged in as #{@current_member.name}"
+      set_current_project_id @current_member.current_project_id
       if current_project_id == 0
         # Member is not associated with a Project yet
         redirect_to projects_path

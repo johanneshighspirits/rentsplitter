@@ -54,7 +54,8 @@ body {
   font-weight: 400;
 }
 h1 {
-  font-size: 2.5em;
+  font-size: 2em;
+  margin: 1em 0 0.5em;
   a {
     color: #FFF;
     &:hover {
@@ -67,6 +68,12 @@ b {
 }
 .centered {
   text-align: center;
+}
+.left {
+  text-align: left;
+}
+.right {
+  text-align: right;
 }
 .hidden {
   display: none;
@@ -99,6 +106,9 @@ a {
     border-color: $red;
     color: $red;
   }
+  .alert-info {
+    background-color: #e4f3ef;
+  }
 }
 
 /* --- Header --- */
@@ -108,6 +118,13 @@ header, footer {
 header {
   background: #333;
   color: #FFF;
+  .logged-in-info {
+    position: absolute;
+    top: 0.5em;
+    right: 2em;
+    text-align: right;
+    color: #95b5b9;
+  }
   nav {
     ul, li {
       margin: 0;
@@ -116,6 +133,14 @@ header {
     }
     li {
       display: inline-block;
+      a {
+        display: block;
+        color: #ddd;
+        padding: 0.5em 2em 1em;
+        &:hover {
+          color: #FFF;
+        }
+      }
     }
   }
 }
@@ -132,6 +157,10 @@ header {
   overflow: hidden;
   vertical-align: top;
   animation: fade-in 400ms ease-out backwards;
+  &.currentMember {
+    display: block;
+    margin: 0 auto;
+  }
   h3 {
     text-align: center;
     margin: 0.5em 0 1.5em 0;
@@ -294,7 +323,6 @@ form {
       padding: 1em 0;
       top: 0;
       transition: color 250ms;
-
     }
     &.centered label {
       text-align: center;
@@ -323,7 +351,7 @@ form {
           }
         }
       }
-      &:active, &:focus, &:valid {
+      &:active, &:focus {
         color: #FFF;
         &+label {
           color: #FFF;
@@ -333,14 +361,6 @@ form {
           }
         }
       }
-      &[type=text], &[type=email], &[type=password], &[type=number], &[type=date] {
-        &:valid {
-          text-align: right;
-        }
-        &:active:valid {
-          text-align: left;
-        }
-      } 
       &+label {
         &:before {
           display: block;
@@ -410,12 +430,25 @@ form {
         -webkit-box-shadow: 0 0 0 30px $brand-medium-dark inset;
         -webkit-text-fill-color: #FFF !important;
       }
+    }
+    select {
+      -webkit-appearance: none;
+      padding: 0.8em 2.5em;
+      background: rgba(255,255,255,0.1);
+      color: #FFF;
+      outline: none;
+      border: none;
+      border-radius: 0;
+      transition: background-color 250ms, border-color 250ms;
+      &:hover {
+        background-color: rgba(255,255,255,0.3);
+      }
     }    
   }
   .flex-items-container {
     display: flex;
     position: relative;
-    margin: 0.5em auto;
+    margin: 0 auto;
     width: 100%;
     justify-content: space-between;
     .flex-item {
@@ -450,6 +483,7 @@ form {
       }
       &:checked+label {
         color: #FFF;
+        background-color: rgba(255,255,255,0.1);
         &:before {
           transform: scaleX(1);
           background: #FFF;
@@ -510,6 +544,9 @@ form {
   .memberInfo {
     width: 32%;
     margin: 0.5%;
+    &.currentMember {
+      width: 64%;
+    }
   }
   .shortDate {
     display: table-cell;
@@ -576,16 +613,23 @@ form {
 @media screen and (min-width: 1000px) {
   .memberInfo {
     width: 24%;
+    &.currentMember {
+      width: 60%;
+    }
   }
   form {
-    width: 44%;
+    width: 60%;
     border-radius: 8px;
     h3{
       border-radius: 8px 8px 0 0;
     }
     .input-container {
-      margin-left: 3%;
-      margin-right: 3%;
+      margin-left: 10%;
+      margin-right: 10%;
+      &.flex-item.right, &.flex-item.left {
+        margin-left: 4%;
+        margin-right: 4%;
+      }
       input {
         &[type=checkbox] {
           &+label {

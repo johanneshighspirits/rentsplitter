@@ -13,9 +13,13 @@ window.RentSplitter = React.createClass({
       this.setState({
         rents: projectInfo.rentAndDiscounts.rents,
         rentDiscounts: projectInfo.rentAndDiscounts.discounts,
-        members: projectInfo.memberTransfers
+        members: projectInfo.memberTransfers.sort(this.sortMembers)
       });
     }.bind(this), 'json');
+  },
+  sortMembers: function(a, b) {
+    if (a.name == this.props.currentMember.name) { return -100; }
+    return a.name < b.name ? -1 : 1;
   },
   render: function() {
     var today = new Date();
@@ -26,6 +30,7 @@ window.RentSplitter = React.createClass({
           key={m}
           order={m}
           member={member}
+          currentMember={this.props.currentMember.name == member.name}
           thisMonth={thisMonth}
           transfers={member.transfers}
           rents={this.state.rents}
@@ -79,6 +84,7 @@ var MemberInfo = React.createClass({
   },
   render: function() {
     var isMember = this.props.member.isMember;
+    var isActivated = this.props.member.isActivated;
     /* transactionHistory is a list of all transactions that concerns this member.
     It is sorted on dates. */
     var transactionHistory = [];
@@ -131,8 +137,8 @@ var MemberInfo = React.createClass({
     // Sort transactionHistory on dates.
     transactionHistory = transactionHistory.sort(function(a,b){ return b.props.date - a.props.date; })
     return (
-      <div className={isMember ? "memberInfo" : "memberInfo noLongerMember"} style={{animationDelay: (this.props.order * 200) + "ms"}}>
-        <h3>{this.props.member.name}<span>Member since {this.props.member.joinedAt}</span></h3>
+      <div className={(isMember ? "memberInfo" : "memberInfo noLongerMember") + (this.props.currentMember ? " currentMember" : "")} style={{animationDelay: (this.props.order * 200) + "ms"}}>
+        <h3>{this.props.member.name}<span>{isActivated ? "Member since " + this.props.member.joinedAt : "Invitation sent"}</span></h3>
         {!isMember ? <p className="noLongerMember">{this.props.member.name} är inte medlem i<br/>Årsta Frukt & Musik AB längre.<br/>{totalAmountToPay > 0 ? "KVARSTÅENDE SKULD: " + (totalAmountToPay * -1) + ":-" : "Alla skulder betalda."}</p> : null }
         {totalAmountToPay > 0 ?
         <span className="red" style={{background: "#d05959", color: "#FFF"}}>Att betala senast sista {this.props.thisMonth}:

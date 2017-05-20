@@ -1,19 +1,24 @@
 var Form = React.createClass({
   getInitialState: function(){
+    var c = this.setupFields(this.props.fields);
     return({
       members: this.props.members,
-      controllers: {},
-      controlValues: {},
+      controllers: c.controllers,
+      controlValues: c.controlValues,
       fields: this.props.fields
     });
   },
   componentDidMount: function(){
-    this.setupFields();
+    var c = this.setupFields(this.state.fields);
+    this.setState({
+      controllers: c.controllers,
+      controlValues: c.controlValues,
+    });
   },
-  setupFields: function(){
+  setupFields: function(fields){
     var controllers = {};
     var controlValues = {};
-    this.state.fields.forEach(function(item){
+    fields.forEach(function(item){
       // Add value to controlValues
       switch (item.fieldType) {
         case "select":
@@ -26,19 +31,21 @@ var Form = React.createClass({
         case "hidden":
         case "checkbox":
         case "file":
-          controlValues[item.attribute] = item.defaultValue;
+          controlValues[item.attribute] = item.defaultValue !== undefined ? item.defaultValue : "";
         break;
         case "radio":
           controlValues[item.attribute] = item.checked ? item.defaultValue : "";
         break;
-        case "radios":
-          item.btns.forEach(function(btn) {
-            controlValues[btn.attribute] = btn.checked ? btn.defaultValue : "";
-          });
-        break;
         case "flex-items":
           item.items.forEach(function(flexItem) {
-            controlValues[flexItem.attribute] = flexItem.checked ? flexItem.defaultValue : "";
+            switch (flexItem.fieldType) {
+              case "radio":
+                controlValues[flexItem.attribute] = flexItem.checked ? flexItem.defaultValue : "";
+              break;
+              case "select":
+                controlValues[flexItem.attribute] = flexItem.defaultValue;
+              break;
+            }
           });
         break;
         default:
@@ -65,11 +72,9 @@ var Form = React.createClass({
         }
       }
     });
-    this.setState({
-      members: this.state.members,
+    return ({
       controllers: controllers,
-      controlValues: controlValues,
-      fields: this.state.fields
+      controlValues: controlValues
     });
   },
   // pluralize: function(str) {
@@ -337,6 +342,7 @@ var Form = React.createClass({
         case "select_noLabel":
           return (<FormSelect
             key={i}
+            alignment="centered"
             autofocus={item.autofocus}
             hidden={item.hidden}
             hideLabel={item.fieldType.indexOf("_noLabel") != -1}
@@ -370,26 +376,29 @@ var Form = React.createClass({
           />)
         break;
         case "radios":
-          var radios = item.btns.map(function(btn, i){
-            return (<FormRadio 
-            key={i}
-            hidden={btn.hidden}
-            attribute={btn.attribute}
-            attributeName={btn.attributeName}
-            options={btn.options}
-            fieldValue={btn.defaultValue}
-            checked={this.state.controlValues[btn.attribute] == btn.defaultValue}
-            handleSelect={this.handleSelect}
-          />)
-          }, this)
-          return (<div key={i} className="flex-items-container">{radios}</div>)
+          console.error("Warning! fieldType: radios is deprecated. Use 'flex-items' instead.");
+        //   var radios = item.btns.map(function(btn, i){
+        //     return (<FormRadio 
+        //     key={i}
+        //     hidden={btn.hidden}
+        //     attribute={btn.attribute}
+        //     attributeName={btn.attributeName}
+        //     options={btn.options}
+        //     fieldValue={btn.defaultValue}
+        //     checked={this.state.controlValues[btn.attribute] == btn.defaultValue}
+        //     handleSelect={this.handleSelect}
+        //   />)
+        //   }, this)
+        //   return (<div key={i} className="flex-items-container">{radios}</div>)
         break;
         case "flex-items":
           var flexItems = item.items.map(function(flexItem, i){
+            var alignment = item.items.length == 1 ? "centered" : (i % 2 == 0 ? "right" : "left");
             switch (flexItem.fieldType) {
               case "radio":
                 return (<FormRadio 
                 key={i}
+                alignment={alignment}
                 hidden={flexItem.hidden}
                 attribute={flexItem.attribute}
                 attributeName={flexItem.attributeName}
@@ -402,6 +411,7 @@ var Form = React.createClass({
               case "select":
                 return (<FormSelect 
                   key={i}
+                  alignment={alignment}
                   autofocus={flexItem.autofocus}
                   hidden={flexItem.hidden}
                   hideLabel={true} //{flexItem.fieldType.indexOf("_noLabel") != -1}
@@ -455,7 +465,8 @@ var Form = React.createClass({
             fieldType={item.fieldType}
             attribute={item.attribute}
             attributeName={item.attributeName}
-            handleSelect={this.handleSelect}            
+            handleSelect={this.handleSelect}      
+            value={this.state.controlValues[item.attribute]}      
             defaultValue={this.state.controlValues[item.attribute]}
           />)
         break;
@@ -467,6 +478,7 @@ var Form = React.createClass({
     return (
       <form acceptCharset="UTF-8" action={this.props.action} method="post">
         <input type="hidden" name="authenticity_token" defaultValue={this.props.authenticity_token} />
+        {this.props.method == "patch" ? <input name="_method" value="patch" type="hidden" /> : null}
         <h3>{this.props.title}</h3>
         {flash}
         {fields}
@@ -487,8 +499,9 @@ var FormField = React.createClass({
           onChange={this.props.handleSelect}
           name={this.props.attribute}
           id={idName}
-          defaultValue={this.props.defaultValue}
-          required
+          value={this.props.value}
+          onChange={this.props.handleSelect}
+          required={this.props.hidden == true}
         />
         <label htmlFor={idName}>{this.props.attributeName}</label>
       </div>
@@ -503,7 +516,9 @@ var FormSelect = React.createClass({
     });
     return (
       options.length > 0 ?
-      <div className={(this.props.hidden ? "hidden" : "input-container centered" ) + (this.props.hideLabel ? " flex-item" : "")} style={this.props.hideLabel ? {display: "inline"} : null}>
+      <div 
+        className={(this.props.hidden ? "hidden" : "input-container" ) + (this.props.hideLabel ? " flex-item" : "") + " " + this.props.alignment}
+        style={this.props.hideLabel ? {display: "inline"} : null}>
         {this.props.hideLabel ? null : <label htmlFor={this.props.attribute}>{this.props.attributeName}</label>}
         <select
           value={this.props.fieldValue}

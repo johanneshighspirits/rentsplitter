@@ -85,10 +85,7 @@ class MembersController < ApplicationController
         project_name = existing_project.name
         if existing_project.admin_id == current_member.id
           # Make sure that current member is admin of the project.
-          p existing_project
           @member.projects << existing_project
-          p existing_project
-          p params
         else
           cancel_invite "NOT PROJECT ADMIN. Member #{current_member.id} is not #{existing_project.admin_id}."
           return false
@@ -99,7 +96,7 @@ class MembersController < ApplicationController
         cancel_invite "NO NEW PROJECT NAME or NO PROJECT SELECTED"
         return false
       end
-
+      @member.current_project_id = params[:project_id]
       @member.save
 
       project = @member.projects.find_by(name: project_name)
@@ -120,6 +117,7 @@ class MembersController < ApplicationController
       redirect_to root_path
     else
       flash[:danger] = "#{@member.name} could not be saved."
+      p @member.errors.messages
       @projects = current_member.projects.where(admin_id: current_member.id)
       render 'invite'
     end
@@ -141,7 +139,7 @@ class MembersController < ApplicationController
       if session[:set_password]
         # Member has been invited and has now accepted the
         # invitation and chosen a password.
-        flash[:success] = "Profile updated"
+        flash[:success] = "Password updated"
         # Activate member if not already activated
         unless @member.activated?
           @member.update_attribute(:activated, true)
@@ -150,6 +148,7 @@ class MembersController < ApplicationController
         end
 
         remember @member
+        redirect_to root_path and return
       elsif params[:member][:edited_by] == "admin"
         # Member has been edited by project admin
         flash[:success] = "Profile for '#{@member.name}' updated"
