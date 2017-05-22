@@ -24,7 +24,7 @@ fields: [
   {
     fieldType: "password",
     attribute: "member[password_confirmation]",
-    attributeName: "Confirm password",
+    attributeName: "Confirm",
     defaultValue: "",
   },
   {
@@ -32,3 +32,4 @@ fields: [
     attributeName: "Sign up"
   }
 ] %>
+<p class="centered">Already a member? <%= link_to "Log in here", login_path %></p>

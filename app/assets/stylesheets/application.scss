@@ -13,6 +13,11 @@
  *= require_tree .
  *= require_self
  */
+/* --- Resets --- */
+ul, li {
+  margin: 0;
+  padding: 0;
+}
 /* --- Colors --- */
 $bg-color: #e3e6e6;
 $text-color: #494949;
@@ -23,6 +28,14 @@ $red-darker: #BA3446;
 $red-bright: #FEE;
 
 $brand-medium-dark: #6b7d7d;
+
+/* --- Mixins --- */
+@mixin border-box {
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
 /* --- Global --- */
 html, body {
   height: 100%;
@@ -119,10 +132,8 @@ header {
   background: #333;
   color: #FFF;
   .logged-in-info {
-    position: absolute;
-    top: 0.5em;
-    right: 2em;
-    text-align: right;
+    position: relative;
+    text-align: center;
     color: #95b5b9;
   }
   nav {
@@ -159,7 +170,7 @@ header {
   animation: fade-in 400ms ease-out backwards;
   &.currentMember {
     display: block;
-    margin: 0 auto;
+    margin: 0.5em auto;
   }
   h3 {
     text-align: center;
@@ -285,10 +296,11 @@ form {
   display: block;
   position: relative;
   margin: auto;
-  width: 92%;
+  width: 100%;
   padding: 7em 0 3em;
   color: #ddd;
   background: $brand-medium-dark;
+  @include border-box;
   h3 {
     position: absolute;
     margin: 0;
@@ -311,16 +323,25 @@ form {
     margin: 1em auto;
     color: #FFF;
   }
+  .line {
+    display: block;
+    width: 100%;
+    height: 1px;
+    border-bottom: 1px dotted #FFF;
+    margin: 1.3em 0;
+  }
   .input-container {
     display: block;
     position: relative;
-    margin: 1em auto;
+    margin: 0;
+    padding: 0 10%;
     label {
       display: block;
       position: absolute;
-      width: 100%;
+      width: 80%;
+      height: 100%;
       text-align: left;
-      padding: 1em 0;
+      line-height: 4em;
       top: 0;
       transition: color 250ms;
     }
@@ -333,20 +354,21 @@ form {
       display: block;
       position: relative;
       margin: 0;
-      padding: 1em 0 0.6em 25%;
+      padding: 0.5em 0 0.5em 25%;
       width: 75%;
       outline: none;
       border: none;
       background: none;
       color: #ddd;
       font-size: 1em;
+      line-height: 3em;
       transition: background-color 250ms, color 250ms;
       &:hover {
         color: #eee;
         &+label {
           color: #eee;
           &:before {
-            transform: scaleX(0.5);
+            transform: scaleX(0.25);
             background: #bbb;
           }
         }
@@ -365,7 +387,7 @@ form {
         &:before {
           display: block;
           position: absolute;
-          bottom: 0;
+          bottom: 0.5em;
           left: 0;
           content: "";
           background: #bbb;
@@ -379,31 +401,55 @@ form {
         display: none;
         &+label {
           position: relative;
-          width: 90%;
-          padding-left: 10%;
+          height: 4em;
+          // padding-left: 10%;
           color: #ddd;
-          background: image-url("sprite.png") 0 3px no-repeat;
+          // background: image-url("sprite.png") 2px 7px no-repeat;
+          & .icon {
+            width: 30px;
+          }
           &:before {
-            transform: scaleX(0.0);
-            background: #bbb;
+            display: none;
+          //   transform: scaleX(0.0);
+          //   background: #bbb;
+          }
+          & svg {
+            position: relative;
+            top: 10px;
+            left: 0;
+            margin-right: 2em;
           }
           &:hover {
             color: #FFF;
-            &:before {
-              color: #FFF;
-              transform: scaleX(0.5);
-              background: #bbb;
+            // background: image-url("sprite.png") 2px -33px no-repeat;
+            & .stroke-on-hover {
+              stroke-dashoffset: 0 !important;
             }
+
+            // &:before {
+            //   color: #FFF;
+            //   transform: scaleX(0.25);
+            //   background: #bbb;
+            // }
           }
         }
         &:checked {
           &+label {
-            color: #FFF;
-            background: image-url("sprite.png") 0 -37px no-repeat;
-            &:before {
-              transform: scaleX(1.0);
-              background: #fff;
+            color: #eee;
+            // background: image-url("sprite.png") 2px -73px no-repeat;
+            // &:before {
+            //   transform: scaleX(1.0);
+            //   background: #fff;
+            // }
+            & .stroke-on-checked {
+              stroke-dashoffset: 0 !important;
             }
+            & .show-on-checked {
+              opacity: 1 !important;
+            }
+          }
+          &:hover+label {
+            color: #FFF;
           }
         }
       }
@@ -466,7 +512,7 @@ form {
       &+label:hover {
         color: #FFF;
         &:before {
-          transform: scaleX(0.5);
+          transform: scaleX(0.25);
         }
       }
       &+label:before {
@@ -491,6 +537,56 @@ form {
       }
     }
   }
+}
+
+// @keyframes draw {
+//   to {
+//     stroke-dashoffset: 0;
+//   }
+// }
+// @keyframes erase {
+//   to {
+//     stroke-dashoffset: 105;
+//   }
+// }
+.drawable {
+  transition: all 350ms ease-out;
+  &.drawable-fill {
+    r: 0;
+  }
+}
+.svg-fill {
+  fill: #FFF;
+  opacity: 0;
+}
+.svg-stroke {
+  fill: none;
+  stroke: #FFF;
+  stroke-width: 6;
+}
+// .draw-visible{
+//   animation: draw 400ms ease-out forwards;
+// }
+// .draw-invisible{
+//   animation: erase 400ms ease-out forwards;
+// }
+
+
+::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+  color: #ddf;
+  font-style: italic;
+}
+::-moz-placeholder { /* Firefox 19+ */
+  color: #ddf;
+  font-style: italic;
+}
+:-ms-input-placeholder { /* IE 10+ */
+  color: #ddf;
+  font-style: italic;
+}
+:-moz-placeholder { /* Firefox 18- */
+  color: #ddf;
+  font-style: italic;
 }
 
 // input {
@@ -541,6 +637,13 @@ form {
 
 /* --- Media queries --- */
 @media screen and (min-width: 600px) {
+  header .logged-in-info {
+    position: absolute;
+    top: 0.5em;
+    right: 2em;
+    text-align: right;
+  }
+
   .memberInfo {
     width: 32%;
     margin: 0.5%;
@@ -565,16 +668,8 @@ form {
       border-radius: 8px 8px 0 0;
     }
     .input-container {
-      margin-left: 7%;
-      margin-right: 7%;
-      input {
-        &[type=checkbox] {
-          &+label {
-            width: 94%;
-            padding-left: 6%;
-          }
-        }
-      }
+      padding-left: 7%;
+      padding-right: 7%;
     }
   }
 }
@@ -595,17 +690,11 @@ form {
       border-radius: 8px 8px 0 0;
     }
     .input-container {
-      margin-left: 4%;
-      margin-right: 4%;
+      padding-left: 4%;
+      padding-right: 4%;
       input {
         padding-left: 25%;
         width: 75%;
-        &[type=checkbox] {
-          &+label {
-            width: 93%;
-            padding-left: 7%;
-          }
-        }
       }
     }
   }
@@ -624,19 +713,11 @@ form {
       border-radius: 8px 8px 0 0;
     }
     .input-container {
-      margin-left: 10%;
-      margin-right: 10%;
+      padding-left: 10%;
+      padding-right: 10%;
       &.flex-item.right, &.flex-item.left {
         margin-left: 4%;
         margin-right: 4%;
-      }
-      input {
-        &[type=checkbox] {
-          &+label {
-            width: 93%;
-            padding-left: 7%;
-          }
-        }
       }
     }
   }

@@ -127,11 +127,11 @@ var Form = React.createClass({
     }
   },
   guessMember: function(str) {
-    return ({
-      id: 1,
-      name: "ADMIN Member",
-      message: str
-    });
+    // return ({
+    //   id: 1,
+    //   name: "ADMIN Member",
+    //   message: str
+    // });
     var guess = {
       id: 0,
       name: undefined,
@@ -143,7 +143,7 @@ var Form = React.createClass({
       var memberName = member[1];
       var regexp = new RegExp(member[2], "gi");
       if (regexp.test(str.toLowerCase())) {
-        console.log("/" + member[2] + "/gi matches " + str);
+//        console.log("/" + member[2] + "/gi matches " + str);
         guess.id = memberId;
         guess.name = memberName;
       }
@@ -217,14 +217,16 @@ var Form = React.createClass({
               "amount": parseInt(cells[m + 3].replace(" ", "")),
           };
             if(memberId === 0){
-              console.log("TODO: Catch this unkown transaction: " + message);
+              console.error("Unkown transaction: " + message);
+            }else{
+              console.log("Member " + memberId + " transferred: " + transfer.amount);
+            }
               // if(!this.ignore(message)){
               //   this.state.unknownTransaction.push(transfer);
               // }
-            }else {
-              transfers.push(transfer);
-              console.log("Member " + memberId + " transferred: " + transfer.amount);
-            }
+            // }else {
+            transfers.push(transfer);
+            // }
           }
         }
         // console.log("Ignored " + nrOfIgnores + " transfers");
@@ -254,35 +256,34 @@ var Form = React.createClass({
           controlValues["transfers[" + i + "][member_id]"] = item.memberId;
 
           newFields.push(
-          {
-            fieldType: "p",
-            text: "Transfer " + (i + 1) + " (" + item.message + ")"
-          },
-          {
-            fieldType: "text_noLabel",
-            attribute: "transfers[" + i + "][transferred_at]",
-            attributeName: item.transferred_at.toLocaleDateString(),
-            // defaultValue: item.transferred_at.toLocaleDateString()
-          },
-          {
-            fieldType: "text_noLabel",
-            attribute: "transfers[" + i + "][amount]",
-            attributeName: item.amount,
-            // defaultValue: item.amount
-          },
-          {
-            fieldType: "text_noLabel",
-            attribute: "transfers[" + i + "][message]",
-            attributeName: item.message,
-            // defaultValue: item.message
-          },
-          {
-            fieldType: "select_noLabel",
-            attribute: "transfers[" + i + "][member_id]",
-            attributeName: item.memberId,
-            options: this.state.members,
-            defaultValue: item.memberId
-          }
+            {
+              fieldType: "date",
+              attribute: "transfers[" + i + "][transferred_at]",
+              attributeName: "Date",
+              defaultValue: item.transferred_at.toLocaleDateString()
+            },
+            {
+              fieldType: "number",
+              attribute: "transfers[" + i + "][amount]",
+              attributeName: "Amount",
+              defaultValue: item.amount
+            },
+            {
+              fieldType: "text",
+              attribute: "transfers[" + i + "][message]",
+              attributeName: "Message",
+              defaultValue: item.message
+            },
+            {
+              fieldType: "select",
+              attribute: "transfers[" + i + "][member_id]",
+              attributeName: "Who made this transaction?",
+              options: this.state.members,
+              defaultValue: item.memberId
+            },
+            {
+              fieldType: "divider"
+            }
           );
         }, this);
         discounts.forEach(function(item, i){
@@ -291,28 +292,27 @@ var Form = React.createClass({
           controlValues["rent_discounts[" + i + "][message]"] = item.message;
 
           newFields.push(
-          {
-            fieldType: "p",
-            text: "Rent Discount " + (i + 1) + " (" + item.message + ")"
-          },
-          {
-            fieldType: "text_noLabel",
-            attribute: "rent_discounts[" + i + "][transferred_at]",
-            attributeName: item.transferred_at.toLocaleDateString(),
-            // defaultValue: item.transferred_at.toLocaleDateString()
-          },
-          {
-            fieldType: "text_noLabel",
-            attribute: "rent_discounts[" + i + "][amount]",
-            attributeName: item.amount,
-            // defaultValue: item.amount
-          },
-          {
-            fieldType: "text_noLabel",
-            attribute: "rent_discounts[" + i + "][message]",
-            attributeName: item.message,
-            // defaultValue: item.message
-          }
+            {
+              fieldType: "date",
+              attribute: "rent_discounts[" + i + "][transferred_at]",
+              attributeName: "Date",
+              defaultValue: item.transferred_at.toLocaleDateString()
+            },
+            {
+              fieldType: "number",
+              attribute: "rent_discounts[" + i + "][amount]",
+              attributeName: "Amount",
+              defaultValue: item.amount
+            },
+            {
+              fieldType: "text",
+              attribute: "rent_discounts[" + i + "][message]",
+              attributeName: "Message",
+              defaultValue: item.message
+            },
+            {
+              fieldType: "divider"
+            }
           );
         }, this);
         newFields.push({
@@ -320,7 +320,10 @@ var Form = React.createClass({
           attributeName: "Add transfers"
         });
         this.setState({
-          fields: newFields
+          fields: newFields,
+          controllers: {},
+        }, function(){
+          this.setupFields(this.state.fields);
         });
       };
     })(file).bind(this);
@@ -454,6 +457,9 @@ var Form = React.createClass({
             </div>
           )
         break;
+        case "divider":
+          return <div key={i} className="line"></div>
+        break;
         case "submit":
           return <FormSubmit key={i} attributeName={item.attributeName} />
         break;
@@ -465,6 +471,7 @@ var Form = React.createClass({
             fieldType={item.fieldType}
             attribute={item.attribute}
             attributeName={item.attributeName}
+            placeholder=""
             handleSelect={this.handleSelect}      
             value={this.state.controlValues[item.attribute]}      
             defaultValue={this.state.controlValues[item.attribute]}
@@ -501,6 +508,7 @@ var FormField = React.createClass({
           id={idName}
           value={this.props.value}
           onChange={this.props.handleSelect}
+          placeholder={this.props.placeholder}
           required={this.props.hidden == true}
         />
         <label htmlFor={idName}>{this.props.attributeName}</label>
@@ -564,7 +572,7 @@ var FormCheckbox = React.createClass({
           checked={this.props.checked}
           onChange={this.props.handleSelect}
         />
-        <label htmlFor={this.props.attribute}>{this.props.attributeName}</label>
+        <label htmlFor={this.props.attribute}><Svg />{this.props.attributeName}</label>
       </div>
     )
   }
@@ -596,6 +604,50 @@ var FormSubmit = React.createClass({
           value={this.props.attributeName}
         />
       </div>
+    )
+  }
+})
+
+var Svg = React.createClass({
+  render: function() {
+    return (
+      <svg
+        className="icon"
+        version="1.1" id="checkbox_yes"
+        xmlns="http://www.w3.org/2000/svg"
+        xmlnsXlink="http://www.w3.org/1999/xlink"
+        x="0px"
+        y="0px"
+        viewBox="0 0 100 100"
+        style={{enableBackground:"new 0 0 100 100"}}
+        xmlSpace="preserve"
+      >
+        <polyline
+          points="29.5,49.704 47.296,67.5 77,37.796"
+          className="drawable drawable-stroke svg-stroke stroke-on-checked"
+          style={{strokeDasharray: 105, strokeDashoffset: 105 }}
+        />
+        <circle
+          cx="50"
+          cy="50"
+          r="46.5"
+          className="drawable stroke-on-hover"
+          style={{strokeDasharray: 290, strokeDashoffset: 290, stroke: "#FFF", fill: "none", strokeWidth: "6", opacity: "0.5" }}
+        />
+        <circle
+          cx="50"
+          cy="50"
+          r="46.5"
+          className="drawable show-on-checked"
+          style={{stroke: "#FFF", fill: "none", strokeWidth: "6", opacity: "0" }}
+        />
+        <circle
+          cx="50"
+          cy="50"
+          r="46.5"
+          style={{fill: "#FFF", opacity: "0.1" }}
+        />
+      </svg>
     )
   }
 })

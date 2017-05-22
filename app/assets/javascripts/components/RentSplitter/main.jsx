@@ -18,7 +18,11 @@ window.RentSplitter = React.createClass({
     }.bind(this), 'json');
   },
   sortMembers: function(a, b) {
-    if (a.name == this.props.currentMember.name) { return -100; }
+    if (a.name == this.props.currentMember.name) {
+      return -1;
+    }else if (b.name == this.props.currentMember.name) {
+      return 1;
+    }
     return a.name < b.name ? -1 : 1;
   },
   render: function() {
