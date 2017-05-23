@@ -120,7 +120,7 @@ class Member < ApplicationRecord
     end
 
     def remove_members_projects
-      self.projects.where(:admin_id, self.id).each do |project|
+      self.projects.where(admin_id: self.id).each do |project|
         project.destroy
       end
     end

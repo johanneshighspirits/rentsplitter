@@ -107,7 +107,11 @@ a {
 article.info {
   margin: 0 auto 1em;
   padding: 2em;
+  border-radius: 8px;
   @include border-box;
+  form {
+    width: 100%;
+  }
 }
 .bright {
   background-color: #FFF;
@@ -665,6 +669,9 @@ form {
   article.info {
     width: 80%;
     padding: 3em 6em;
+    form {
+      width: 100%;
+    }
   }
 
   .memberInfo {

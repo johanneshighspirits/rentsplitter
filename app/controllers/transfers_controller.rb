@@ -60,13 +60,14 @@ class TransfersController < ApplicationController
     # Fetch rents and discounts
     rents_and_discounts = p.project_rents_and_discounts
     member_and_transfers = p.members.includes(:memberships).map do |m|
+      membership = m.memberships.where(project_id: p.id).first
       member = {
         name: m.name,
-        isMember: m.memberships.first.left_at > Date.current,
+        isMember: membership.joined_at <= Date.current && membership.left_at > Date.current,
         isActivated: m.activated,
         isInvited: m.invited,
-        joinedAt: m.memberships.first.joined_at,
-        leftAt: m.memberships.first.left_at,
+        joinedAt: membership.joined_at,
+        leftAt: membership.left_at,
         transfers: m.transfers.order(transferred_at: :desc).map do |t|
           shortDate = "#{t.transferred_at.day}/#{t.transferred_at.month}"
           longDate = t.transferred_at.to_s(:iso8601)

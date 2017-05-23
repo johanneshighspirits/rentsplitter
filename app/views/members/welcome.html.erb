@@ -1,11 +1,11 @@
 <% provide :page_title, "Welcome #{@member.name}!" %>
 <section>
-  <article>
+  <article class="info bright">
     <h2>All done!</h2>
     <p><b>Your account has been successfully activated.</b></p>
   </article>
 
-  <article class="bright">
+  <article class="info bright">
     <h2>Get Started</h3>
     <% @projects = current_member.projects %>
     <% unless @projects.empty? %>

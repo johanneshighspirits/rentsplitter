@@ -36,7 +36,7 @@ class InvitationsController < ApplicationController
           # Member has been invited and must choose password
           redirect_to edit_member_path member, set_password: true
         else
-          # MEmber
+          # Member
           redirect_to edit_member_path member
         end
       end
@@ -52,7 +52,7 @@ class InvitationsController < ApplicationController
       # remember member
       flash[:success] = message
     else
-      flash[:danger] = "There is something wrong with the Activation link."
+      flash[:danger] = "There is something wrong with the activation link."
       redirect_to root_path
     end
   end
