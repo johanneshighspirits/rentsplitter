@@ -1,2 +1,6 @@
 <% provide :page_title, "Projects" %>
-<%= render 'project_list' %>
+<% if @projects.empty? %>
+  <%= render 'new_form' %>
+<% else %>
+  <%= render 'project_list' %>
+<% end %>

@@ -6,9 +6,14 @@ action: signup_path,
 fields: [
   {
     fieldType: "text",
-    attribute: "member[name]",
-    attributeName: "Name",
+    attribute: "member[first_name]",
+    attributeName: "First name",
     autofocus: true
+  },
+  {
+    fieldType: "text",
+    attribute: "member[last_name]",
+    attributeName: "Last name",
   },
   {
     fieldType: "email",

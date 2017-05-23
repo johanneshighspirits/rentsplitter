@@ -1,7 +1,8 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 admin:
-  name: Admin Adminsson
+  first_name: Admin
+  last_name: Adminsson
   email: admin_email@example.com
   password_digest: <%= Member.digest('password') %>
   admin: true
@@ -11,7 +12,8 @@ admin:
   activated: true
 
 member:
-  name: Member Membersson
+  first_name: Member
+  last_name: Membersson
   email: member_email@example.com
   password_digest: <%= Member.digest('password') %>
   # projects: projectOne, projectTwo, projectThree
@@ -20,7 +22,8 @@ member:
   activated: true
 
 member_invited_unactivated:
-  name: Invited Member Not Activated
+  first_name: Invited Member
+  last_name: Not Activated
   email: member_email2@example.com
   password_digest: <%= Member.digest('password') %>
   # projects: projectOne
@@ -29,7 +32,8 @@ member_invited_unactivated:
   activated: false
 
 member_activated: 
-  name: Member One Onesson
+  first_name: Member
+  last_name: One Onesson
   email: memberOne_email@example.com
   password_digest: <%= Member.digest('password') %>
   # projects: projectOne

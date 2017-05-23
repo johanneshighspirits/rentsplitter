@@ -2,9 +2,10 @@ require 'test_helper'
 
 class MemberTest < ActiveSupport::TestCase
 
-  test "should downcase email and create starter pattern on create" do
+  test "should downcase email and create starter pattern based on first name on create" do
     member = Member.new(
-      name: "Test", 
+      first_name: "Test", 
+      last_name: "Testsson", 
       email: "nOtReaLly@DowNcA.Sed", 
       current_project_id: 1,
       password_digest: Member.digest('password'))

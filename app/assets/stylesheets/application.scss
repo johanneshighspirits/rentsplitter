@@ -69,12 +69,16 @@ body {
 h1 {
   font-size: 2em;
   margin: 1em 0 0.5em;
+  text-align: center;
   a {
     color: #FFF;
     &:hover {
       color: #FFF;
     }
   }
+}
+h2, h3, h4 {
+  text-align: center;
 }
 b {
   font-weight: bold;
@@ -100,6 +104,14 @@ a {
   }
 }
 
+article.info {
+  margin: 0 auto 1em;
+  padding: 2em;
+  @include border-box;
+}
+.bright {
+  background-color: #FFF;
+}
 /* Alerts */
 .alert {
   display: block;
@@ -114,12 +126,12 @@ a {
   ul {
     padding: 0;
   }
-  .alert-danger{
+  &.alert-danger{
     background-color: $red-bright;
     border-color: $red;
     color: $red;
   }
-  .alert-info {
+  &.alert-info {
     background-color: #e4f3ef;
   }
 }
@@ -155,6 +167,12 @@ header {
     }
   }
 }
+footer {
+  font-size: 0.9em;
+  color: #999;
+  text-shadow: -1px 1px #FFF;
+}
+
 /* --- MemberInfo --- */
 .memberInfo {
   display: inline-block;
@@ -295,7 +313,7 @@ td {
 form {
   display: block;
   position: relative;
-  margin: auto;
+  margin: 2em auto 1em;
   width: 100%;
   padding: 7em 0 3em;
   color: #ddd;
@@ -644,6 +662,11 @@ form {
     text-align: right;
   }
 
+  article.info {
+    width: 80%;
+    padding: 3em 6em;
+  }
+
   .memberInfo {
     width: 32%;
     margin: 0.5%;
@@ -662,7 +685,7 @@ form {
     width: 100%;
   }
   form {
-    width: 86%;
+    width: 80%;
     border-radius: 8px;
     h3{
       border-radius: 8px 8px 0 0;
@@ -696,7 +719,7 @@ form {
     width: 17%;
   }
   form {
-    width: 64%;
+    width: 80%;
     border-radius: 8px;
     h3{
       border-radius: 8px 8px 0 0;
@@ -729,7 +752,8 @@ form {
     }
   }
   form {
-    width: 60%;
+    width: 80%;
+    max-width: 800px;
     border-radius: 8px;
     h3{
       border-radius: 8px 8px 0 0;

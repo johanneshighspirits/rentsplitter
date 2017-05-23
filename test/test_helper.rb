@@ -15,6 +15,7 @@ class ActiveSupport::TestCase
 
   def log_in_as(member)
     session[:member_id] = member.id
+    session[:project_id] = member.current_project_id
   end
 
 end
@@ -30,6 +31,7 @@ class ActionDispatch::IntegrationTest
         remember_me: remember_me 
       } 
     }
+    session[:project_id] = member.current_project_id
   end
 
   def log_out

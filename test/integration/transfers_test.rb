@@ -5,14 +5,21 @@ class TransfersTest < ActionDispatch::IntegrationTest
   def setup
     @admin = members(:admin)
     @member = members(:member)
-    @member.projects.create(name: "An Example Project")
+    @project = @member.projects.create(name: "An Example Project")
   end
-
+  
   test "should save valid transfer" do
-    # log in as admin
-    log_in_as @admin
+    # log in as project admin
+    get login_path
+    log_in_as @member
+    p @member
+    p session[:project_id]
+    assert_redirected_to root_path
+    follow_redirect!
     get new_transfer_path
-    assert_response :success
+    p response.body
+    assert_template 'transfers/new'
+
     assert_difference 'Transfer.count', 1 do
       post transfers_path, params: {
         project_id: @member.projects.first.id,
@@ -28,7 +35,7 @@ class TransfersTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "should save multiple transfers at once if admin" do
+  test "should save multiple transfers at once if project admin" do
     # not logged_in
     get new_transfer_path
     assert_redirected_to login_path
@@ -41,8 +48,8 @@ class TransfersTest < ActionDispatch::IntegrationTest
     follow_redirect!
     assert_template 'application/index'
     log_out
-    # log in as admin
-    log_in_as @admin
+    # log in as project admin
+    log_in_as @project_admin
     get new_transfer_path
     assert_response :success
     transfers = 

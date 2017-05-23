@@ -1,12 +1,13 @@
 class Member < ApplicationRecord
   attr_accessor :remember_token, :invitation_token, :reset_token
-#  before_create :create_invitation_digest
+  before_create :create_invitation_digest
   # before_create :set_join_and_left_dates
   before_create :create_pattern
   before_save { email.downcase! }
   after_save :check_current_project_id
+  after_destroy :remove_members_projects
 
-  validates :name, presence: true, length: { maximum: 200 }
+  validates :first_name, :last_name, presence: true, length: { maximum: 200 }
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i
   validates :email, presence: true, length: { maximum: 255 },
                     format: { with: VALID_EMAIL_REGEX },
@@ -18,6 +19,11 @@ class Member < ApplicationRecord
   has_many :projects, through: :memberships
   has_many :transfers, through: :memberships
   accepts_nested_attributes_for :memberships
+
+  # Returns Member's full name
+  def name
+    "#{first_name} #{last_name}"
+  end
 
   # Returns the hash digest of a given string
   def Member.digest(string)
@@ -44,6 +50,7 @@ class Member < ApplicationRecord
   end
 
   def send_activation_email
+    # create_invitation_digest
     MemberMailer.activation(self).deliver_now
   end
 
@@ -68,6 +75,8 @@ class Member < ApplicationRecord
 
   # Returns true if the given token matches the digest
   def authenticated?(attribute, token)
+    p self
+    puts "Authenticating #{attribute} with #{token}"
     digest = send("#{attribute}_digest")
     return false if digest.nil?
     BCrypt::Password.new(digest).is_password?(token)
@@ -100,7 +109,7 @@ class Member < ApplicationRecord
     # end
 
     def create_pattern
-      self.pattern = pattern.nil? ? name.downcase : pattern
+      self.pattern = pattern.nil? ? first_name.downcase : pattern
     end
 
     def check_current_project_id
@@ -109,5 +118,12 @@ class Member < ApplicationRecord
         update_attribute(:current_project_id, project_id)
       end
     end
+
+    def remove_members_projects
+      self.projects.where(:admin_id, self.id).each do |project|
+        project.destroy
+      end
+    end
+
 
 end

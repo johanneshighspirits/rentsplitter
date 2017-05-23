@@ -10,10 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170522200555) do
+ActiveRecord::Schema.define(version: 20170523072519) do
 
   create_table "members", force: :cascade do |t|
-    t.string   "name"
     t.string   "email"
     t.datetime "created_at",                         null: false
     t.datetime "updated_at",                         null: false
@@ -25,6 +24,8 @@ ActiveRecord::Schema.define(version: 20170522200555) do
     t.string   "pattern"
     t.integer  "current_project_id"
     t.boolean  "invited",            default: false
+    t.string   "first_name"
+    t.string   "last_name"
   end
 
   create_table "memberships", force: :cascade do |t|

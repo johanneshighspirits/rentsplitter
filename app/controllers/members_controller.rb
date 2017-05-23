@@ -26,6 +26,7 @@ class MembersController < ApplicationController
   def create
     # Init Member
     @member = Member.new(member_params)
+    @member.invited = true
     if @member.save
       flash[:info] = "Registration successful!"
       @member.send_activation_email
@@ -183,7 +184,7 @@ class MembersController < ApplicationController
   private
     # Strong params
     def member_params
-      params.require(:member).permit(:name, :email, :pattern, :password, :password_confirmation, :current_project_id)
+      params.require(:member).permit(:first_name, :last_name, :email, :pattern, :password, :password_confirmation, :current_project_id)
     end
 
     # If member invitation goes wrong, rollback and rerender

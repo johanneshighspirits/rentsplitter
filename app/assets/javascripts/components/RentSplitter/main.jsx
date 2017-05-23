@@ -18,9 +18,9 @@ window.RentSplitter = React.createClass({
     }.bind(this), 'json');
   },
   sortMembers: function(a, b) {
-    if (a.name == this.props.currentMember.name) {
+    if (a.name == this.props.currentMember.first_name + " " + this.props.currentMember.last_name) {
       return -1;
-    }else if (b.name == this.props.currentMember.name) {
+    }else if (b.name == this.props.currentMember.first_name + " " + this.props.currentMember.last_name) {
       return 1;
     }
     return a.name < b.name ? -1 : 1;
@@ -34,7 +34,7 @@ window.RentSplitter = React.createClass({
           key={m}
           order={m}
           member={member}
-          currentMember={this.props.currentMember.name == member.name}
+          currentMember={this.props.currentMember.first_name + " " + this.props.currentMember.last_name == member.name}
           thisMonth={thisMonth}
           transfers={member.transfers}
           rents={this.state.rents}

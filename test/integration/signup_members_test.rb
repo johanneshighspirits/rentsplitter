@@ -11,7 +11,8 @@ class SignupMembersTest < ActionDispatch::IntegrationTest
     get signup_path
     post signup_path params: {
       member: {
-        name: "Bertil",
+        first_name: "Bertil",
+        last_name: "Bertilson",
         email: "bertil@bertil.com",
         password: "bertil",
         password_confirmation: "bertil",
@@ -26,7 +27,7 @@ class SignupMembersTest < ActionDispatch::IntegrationTest
     member.invitation_digest = Member.digest(member.invitation_token)
     member.save
     # Member clicks on email activation link
-    link = edit_invitation_url(member.invitation_token, email: member.email)
+    link = edit_invitation_url(member.reload.invitation_token, email: member.email)
 
     post activate_path params: {
       activation_link: link
@@ -47,7 +48,8 @@ class SignupMembersTest < ActionDispatch::IntegrationTest
     get signup_path
     post signup_path params: {
       member: {
-        name: "Bertil2",
+        first_name: "Bertil2",
+        last_name: "Bertilson2",
         email: "bertil2@bertil.com",
         password: "bertil2",
         password_confirmation: "bertil2",

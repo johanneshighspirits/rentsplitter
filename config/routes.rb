@@ -22,5 +22,6 @@ Rails.application.routes.draw do
   resources :projects
   resources :transfers
   resources :invitations, only: [:create, :edit]
+  resources :memberships, only: [:destroy]
 
 end

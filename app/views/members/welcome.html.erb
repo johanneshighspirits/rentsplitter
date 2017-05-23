@@ -1,13 +1,20 @@
 <% provide :page_title, "Welcome #{@member.name}!" %>
-<p><b>Your account has been successfully activated.</b></p>
+<section>
+  <article>
+    <h2>All done!</h2>
+    <p><b>Your account has been successfully activated.</b></p>
+  </article>
 
-<h3>Get Started</h3>
-<% @projects = current_member.projects %>
-<% unless @projects.empty? %>
-  <h2>Open an existing Project</h2>
-  <%= render 'projects/project_list' %>
-  <h2>Or create a new Project</h2>
-<% else %>
-  <h2>Start by creating a new Project</h2>
-<% end %>
-<%= render 'projects/new_form' %>
+  <article class="bright">
+    <h2>Get Started</h3>
+    <% @projects = current_member.projects %>
+    <% unless @projects.empty? %>
+      <p>Open an existing Project</p>
+      <%= render 'projects/project_list' %>
+      <p>Or create a new Project</p>
+    <% else %>
+      <p>Start by creating a new Project</p>
+    <% end %>
+    <%= render 'projects/new_form' %>
+  </article>
+</section>

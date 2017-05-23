@@ -20,7 +20,7 @@ class InvitationsController < ApplicationController
         puts "Logging out #{current_member.name}."
         log_out
       end
-      message = "Welcome #{member.name}!"
+      message = "Welcome #{member.first_name}!"
       puts "Invitation accepted by '#{member.name}, <#{member.email}>'"
       # Choose password if not already activated
       if member.activated?

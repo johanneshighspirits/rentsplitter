@@ -8,13 +8,15 @@ class AddMembersTest < ActionDispatch::IntegrationTest
     @projectOne = projects(:projectOne)
     random_pass = Member.new_token
     @valid_new_member = {
-      name: "MemberWithoutProjectName",
+      first_name: "MemberWithout",
+      last_name:"ProjectName",
       email: "MemberWithout@Project.Name",
       password: random_pass,
       password_confirmation: random_pass
     }
     @valid_new_member2 = {
-      name: "AnotherMemberWithoutProjectName",
+      first_name: "AnotherMember",
+      last_name: "WithoutProjectName",
       email: "AnotherMemberWithout@Project.Name",
       password: random_pass,
       password_confirmation: random_pass
@@ -44,7 +46,7 @@ class AddMembersTest < ActionDispatch::IntegrationTest
       }
     end
     assert_template 'members/invite'
-    assert_select 'h2', "Invite new member"
+    assert_select 'h3', "Invite new member"
   end
 
   test "must assign project to new member" do
