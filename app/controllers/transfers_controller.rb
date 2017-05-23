@@ -64,6 +64,7 @@ class TransfersController < ApplicationController
         name: m.name,
         isMember: m.memberships.first.left_at > Date.current,
         isActivated: m.activated,
+        isInvited: m.invited,
         joinedAt: m.memberships.first.joined_at,
         leftAt: m.memberships.first.left_at,
         transfers: m.transfers.order(transferred_at: :desc).map do |t|

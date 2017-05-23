@@ -1,6 +1,6 @@
 class Member < ApplicationRecord
   attr_accessor :remember_token, :invitation_token, :reset_token
-  before_create :create_invitation_digest
+#  before_create :create_invitation_digest
   # before_create :set_join_and_left_dates
   before_create :create_pattern
   before_save { email.downcase! }
@@ -38,7 +38,9 @@ class Member < ApplicationRecord
 
   # Sends invitation email
   def send_invitation_email(info)
+    create_invitation_digest
     MemberMailer.invitation(self, info).deliver_now
+    update(invited: true)
   end
 
   def send_activation_email

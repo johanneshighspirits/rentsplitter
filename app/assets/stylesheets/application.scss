@@ -670,6 +670,18 @@ form {
     .input-container {
       padding-left: 7%;
       padding-right: 7%;
+      input {
+        &:hover + label:before {
+          transform: scaleX(0.5);
+        }
+        &:active + label:before,
+        &:focus + label:before {
+          transform: scaleX(1);
+        }
+      }
+      label {
+        width: 86%;
+      }
     }
   }
 }
@@ -690,11 +702,21 @@ form {
       border-radius: 8px 8px 0 0;
     }
     .input-container {
-      padding-left: 4%;
-      padding-right: 4%;
+      padding-left: 8%;
+      padding-right: 8%;
       input {
         padding-left: 25%;
         width: 75%;
+        &:hover + label:before {
+          transform: scaleX(0.5);
+        }
+        &:active + label:before,
+        &:focus + label:before {
+          transform: scaleX(1);
+        }
+      }
+      label {
+        width: 84%;
       }
     }
   }
@@ -715,6 +737,18 @@ form {
     .input-container {
       padding-left: 10%;
       padding-right: 10%;
+      input {
+        &:hover + label:before {
+          transform: scaleX(0.5);
+        }
+        &:active + label:before,
+        &:focus + label:before {
+          transform: scaleX(1);
+        }
+      }
+      label {
+        width: 80%;
+      }
       &.flex-item.right, &.flex-item.left {
         margin-left: 4%;
         margin-right: 4%;

@@ -260,26 +260,30 @@ var Form = React.createClass({
               fieldType: "date",
               attribute: "transfers[" + i + "][transferred_at]",
               attributeName: "Date",
-              defaultValue: item.transferred_at.toLocaleDateString()
+              defaultValue: item.transferred_at.toLocaleDateString(),
+              unknown: item.memberId === 0
             },
             {
               fieldType: "number",
               attribute: "transfers[" + i + "][amount]",
               attributeName: "Amount",
-              defaultValue: item.amount
+              defaultValue: item.amount,
+              unknown: item.memberId === 0
             },
             {
               fieldType: "text",
               attribute: "transfers[" + i + "][message]",
               attributeName: "Message",
-              defaultValue: item.message
+              defaultValue: item.message,
+              unknown: item.memberId === 0
             },
             {
               fieldType: "select",
               attribute: "transfers[" + i + "][member_id]",
               attributeName: "Who made this transaction?",
               options: this.state.members,
-              defaultValue: item.memberId
+              defaultValue: item.memberId,
+              unknown: item.memberId === 0
             },
             {
               fieldType: "divider"

@@ -10,6 +10,8 @@
       <% end %>
       <p><b>Email:</b> <%= member.email %><br>
       Activated: <%= member.activated %><br>
+
+      <br>
       <%= f.label :pattern, "Regex pattern" %>
       <%= f.text_field :pattern %><%= f.submit "Update" %><br>
       current_project_id: <%= member.current_project_id %><br>
@@ -26,6 +28,9 @@
         }
       %>
       <% end %>
+    <% end %>
+    <% unless member.invited %>
+      <%= button_to 'Send invite', invitations_path, method: :post, params: { member: member, project_name: @project.name } %>
     <% end %>
     <hr>
   </li>

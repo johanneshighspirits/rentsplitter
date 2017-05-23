@@ -4,14 +4,15 @@ class MembersController < ApplicationController
   include SessionsHelper
 
   before_action :logged_in_member, except: [:new, :create, :activate]
-  before_action :must_be_site_admin, only: [:destroy]
-  before_action :must_be_project_admin, only: [:index]
+  # before_action :must_be_site_admin, only: [:destroy]
+  before_action :must_be_project_admin, only: [:index, :destroy]
 
   # SITE ADMIN ONLY:
   # List all members. Edit or Delete.
   # /members
   def index
-    @members = Project.find(current_project_id).members
+    @project = Project.find(current_project_id)
+    @members = @project.members
   end
 
   # Sign up:
@@ -111,8 +112,10 @@ class MembersController < ApplicationController
       end
 
       # Member saved to db. Send invitiation email.
-      @member.send_invitation_email sender: current_member, project_name: project_name
-      flash[:info] = "Invitation email sent to #{@member.email} from #{current_member.name}. Invited to project #{project_name}."
+      if params[:send_invitation]
+        @member.send_invitation_email sender: current_member, project_name: project_name
+        flash[:info] = "Invitation email sent to #{@member.email} from #{current_member.name}. Invited to project #{project_name}."
+      end
       set_current_project_id Project.find_by(name: project_name).id
       redirect_to root_path
     else
@@ -166,12 +169,15 @@ class MembersController < ApplicationController
 
   # ADMIN ONLY:
   # Deleting a Member
-  # delete /members/id
+  # delete /members/:id
   def destroy
     # Maybe this shouldn't be allowed if member has transactions?
     # Since calculations are based on all transactions from the
     # beginning of time, deleting a member's transactions would
     # impact the other members' debts...
+    Member.find(params[:id]).destroy
+    flash[:success] = "Deleted"
+    redirect_to members_path
   end
 
   private

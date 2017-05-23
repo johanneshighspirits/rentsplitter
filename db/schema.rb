@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170513212048) do
+ActiveRecord::Schema.define(version: 20170522200555) do
 
   create_table "members", force: :cascade do |t|
     t.string   "name"
@@ -24,6 +24,7 @@ ActiveRecord::Schema.define(version: 20170513212048) do
     t.string   "remember_digest"
     t.string   "pattern"
     t.integer  "current_project_id"
+    t.boolean  "invited",            default: false
   end
 
   create_table "memberships", force: :cascade do |t|

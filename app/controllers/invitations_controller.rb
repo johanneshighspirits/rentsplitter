@@ -1,5 +1,12 @@
 class InvitationsController < ApplicationController
 
+  def create
+    member = Member.find(params[:member])
+    member.send_invitation_email(sender: current_member, project_name: params[:project_name])
+    flash[:success] = "Invitation sent to #{member.name}"
+    redirect_to members_path
+  end
+
   # Member clicked on invitation link, thereby accepting the invitation
   # /invitations/<token>/edit?email=<url escaped email address>
   def edit
