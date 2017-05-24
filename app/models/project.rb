@@ -103,8 +103,4 @@ class Project < ApplicationRecord
     self.start_date = Date.current.beginning_of_month.next_month if start_date.nil?
   end
 
-  def info
-    "project info string here"
-  end
-
 end

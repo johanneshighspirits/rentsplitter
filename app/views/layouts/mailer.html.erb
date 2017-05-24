@@ -2,12 +2,39 @@
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <style>
-      /* Email styles need to be inline */
+    <style type="text/css">
+      .ReadMsgBody{ width: 100%; background-color: #ffffff; }
+      .ExternalClass{ width: 100%; background-color: #ffffff; }
+      body{ width: 100%; background-color: #ffffff; margin:0; padding:0; -webkit-font-smoothing: antialiased; font-family: Open Sans, Helvetica Neue, Helvetica, Arial, sans-serif; }
+      table{ border-collapse: collapse; }
+      @media only screen and (max-width: 640px){
+        body[yahoo] .deviceWidth {width:460px!important; padding:0;}  
+        body[yahoo] .center {text-align: center!important;}  
+          .deviceHide { display:none; }
+          .tvaSpalter{ display:block !important; width:100% !important; }
+          .tvaSpaltImg{ height:auto !important; max-width:460px !important; width:100% !important; }
+          .tvaSpaltSpalt{ line-height:125% !important; }
+          .tvaSpaltSpalt img { padding: 0 !important;}
+          .tablePrice { width: 180px !important; }
+      }
+      @media only screen and (max-width: 479px) {
+        body[yahoo] .deviceWidth {width:300px!important; padding:0;}  
+        body[yahoo] .center {text-align: center!important;}
+          .fullWidthButton{ max-width:600px !important; width:100% !important; }
+          .fullWidthButton a{ display:block !important; font-size:18px !important; }
+          .deviceHide, .deviceSmallHide { display: none; }
+          .tvaSpalter{ display:block !important; width:100% !important; }
+          .tvaSpaltImg{ height:auto !important; max-width:480px !important; width:100% !important; }
+          .tvaSpaltSpalt{ line-height:125% !important; }
+          .tvaSpaltSpalt img { padding: 0 !important;}
+          .tablePrice { width: 290px !important; }
+      }
     </style>
   </head>
 
-  <body>
+  <body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" yahoo="fix" style="width: 100%; background-color: #c3c3c3; margin:0; padding:0; -webkit-font-smoothing: antialiased; font-family: Open Sans, Helvetica Neue, Helvetica, Arial, sans-serif;">
+    <%= render 'layouts/mailer_header' %>
     <%= yield %>
+    <%= render 'layouts/mailer_footer' %>
   </body>
 </html>
