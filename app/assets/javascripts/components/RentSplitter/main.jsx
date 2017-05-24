@@ -28,6 +28,7 @@ window.RentSplitter = React.createClass({
   render: function() {
     var today = new Date();
     var thisMonth = today.getMonthName();
+    var dueMonth = today.getDay() < 25 ? (new Date(today.getFullYear(), today.getMonth() - 1, 1)).getMonthName() : thisMonth;
     var members = this.state.members.length === 0 ? <Loader /> : this.state.members.map(function(member, m) {
       return (
         <MemberInfo
@@ -35,18 +36,29 @@ window.RentSplitter = React.createClass({
           order={m}
           member={member}
           currentMember={this.props.currentMember.first_name + " " + this.props.currentMember.last_name == member.name}
-          thisMonth={thisMonth}
+          dueMonth={dueMonth}
           transfers={member.transfers}
           rents={this.state.rents}
           rentDiscounts={this.state.rentDiscounts}
         />
       )
     }, this);
+    var projectInfo = this.props.project.info !== undefined ? this.props.project.info.split("\n").map(function(line, i){
+      var pattern = /\*([^\*]*)\*/gi;
+      if (pattern.test(line)) {
+        var html = {
+          __html: line.replace(pattern, "<b>$1</b>") + "<br/>"
+        }
+        return <span key={i}><span dangerouslySetInnerHTML={html}></span></span>        
+      }else{
+        return <span key={i}>{line}<br /></span>
+      }
+    }) : null;
     return (
       <section className="centered">
         <article>
           <h2>{this.props.project.name}</h2>
-          <p><b>Start date</b> {this.props.project.startDate}</p>
+          <p>{projectInfo}</p>
         </article>
         <article>
           <ul>
@@ -148,7 +160,7 @@ var MemberInfo = React.createClass({
         </h3>
         {!isMember ? <p className="noLongerMember">{this.props.member.name} är inte medlem i<br/>Årsta Frukt & Musik AB längre.<br/>{totalAmountToPay > 0 ? "KVARSTÅENDE SKULD: " + (totalAmountToPay * -1) + ":-" : "Alla skulder betalda."}</p> : null }
         {totalAmountToPay > 0 ?
-        <span className="red" style={{background: "#d05959", color: "#FFF"}}>Att betala senast sista {this.props.thisMonth}:
+        <span className="red" style={{background: "#d05959", color: "#FFF"}}>Att betala senast sista {this.props.dueMonth}:
           <span className="displayNumbers right counter" data-amount={totalAmountToPay}>{totalAmountToPay}:-</span>
         </span>
           :

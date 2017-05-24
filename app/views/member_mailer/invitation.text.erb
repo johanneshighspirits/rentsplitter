@@ -2,7 +2,8 @@ Hej <%= @member.first_name %>,
 
 <%= @sender.name %> har bjudit in dig till RentSplitter-projektet <%= @project_name %>.
 
-För att acceptera, klicka på länken nedan:
+För att acceptera, klicka på länken nedan. Du kan också kopiera länken och klistra in i din webbläsare.
+
 <%= edit_invitation_url(@member.invitation_token, email: @member.email, set_password: true) %>
 
 Hälsningar,

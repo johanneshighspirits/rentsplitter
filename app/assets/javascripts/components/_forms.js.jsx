@@ -632,8 +632,9 @@ var Svg = React.createClass({
           style={{strokeDasharray: 105, strokeDashoffset: 105 }}
         />
         <circle
-          cx="50"
-          cy="50"
+          id="stroke-circle"
+          cx="0"
+          cy="0"
           r="46.5"
           className="drawable stroke-on-hover"
           style={{strokeDasharray: 290, strokeDashoffset: 290, stroke: "#FFF", fill: "none", strokeWidth: "6", opacity: "0.5" }}
