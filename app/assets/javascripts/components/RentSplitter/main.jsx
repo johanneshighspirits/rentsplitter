@@ -43,7 +43,7 @@ window.RentSplitter = React.createClass({
         />
       )
     }, this);
-    var projectInfo = this.props.project.info !== undefined ? this.props.project.info.split("\n").map(function(line, i){
+    var projectInfo = this.props.project.info !== null ? this.props.project.info.split("\n").map(function(line, i){
       var pattern = /\*([^\*]*)\*/gi;
       if (pattern.test(line)) {
         var html = {

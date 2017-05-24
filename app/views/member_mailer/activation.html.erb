@@ -1,12 +1,1 @@
-<h1>Hej <%= @member.name %>,</h1>
-
-<p>Du är snart redo att börja använda <b>RentSplitter</b>. Klicka på aktiveringslänken nedan för att komma igång.</p>
-
-<%= link_to "Aktivera", edit_invitation_url(@member.invitation_token, email: @member.email) %>
-
-<p>Om du inte har använt denna epostadress för att skapa ett konto hos <b>RentSplitter</b> kan du bortse från detta mail.</p>
-
-<p><i>Hälsningar,<br>
-//Johannes<br><br>
-RentSplitter<br>
-rentsplitter.herokuapp.com</i></p>
+<%= render 'mailer_content' %>

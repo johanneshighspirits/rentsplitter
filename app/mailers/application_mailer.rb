@@ -1,4 +1,4 @@
 class ApplicationMailer < ActionMailer::Base
-  default from: 'noreply@rentsplitter.herokuapp.com'
+  default from: 'RentSplitter <noreply@rentsplitter.herokuapp.com>'
   layout 'mailer'
 end
