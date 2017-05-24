@@ -17,8 +17,8 @@ class MemberMailer < ApplicationMailer
         "<b>#{@sender.name}</b> har bjudit in dig till RentSplitter-projektet <i>#{@project_name}</i>.",
         "För att acceptera, klicka på länken nedan:",
       ],
-      call_to_action_href: edit_invitation_url(@member.invitation_token, email: @member.email, set_password: true)
-      call_to_action_title: "Acceptera inbjudan",
+      call_to_action_href: (edit_invitation_url(@member.invitation_token, email: @member.email, set_password: true)),
+      call_to_action_title: "Acceptera inbjudan"
     }
     mail to: @member.email, subject: "RentSplitter Invitation"
     puts "ACTIVATION LINK for #{@member.name}:"
