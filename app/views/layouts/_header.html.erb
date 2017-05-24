@@ -6,9 +6,7 @@
   <nav>
     <ul>
         <li><%= link_to "Home", root_path %></li>
-      <% if current_member.projects.count > 1 %>
         <li><%= link_to "Projects", projects_path %></li>
-      <% end %>
       <% if project_admin? %>
         <li><%= link_to "Members", members_path %></li>
         <li><%= link_to "Invite New Member", invite_path %></li>

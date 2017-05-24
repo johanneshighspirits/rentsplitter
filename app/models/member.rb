@@ -49,9 +49,15 @@ class Member < ApplicationRecord
     update(invited: true)
   end
 
+  # Sends activation email
   def send_activation_email
     # create_invitation_digest
     MemberMailer.activation(self).deliver_now
+  end
+
+  # Sends invoice email
+  def send_invoice_email(info)
+    MemberMailer.invoice(self, info).deliver_now
   end
 
   # Sets the password reset attributes

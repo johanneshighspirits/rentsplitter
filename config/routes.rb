@@ -16,7 +16,7 @@ Rails.application.routes.draw do
 
   get     '/members/:id/projects', to: 'projects#for_member'
   get     '/projects/:id/transfers', to: 'transfers#for_project'
-
+  post    '/projects/:id/send_invoices', to: 'projects#send_invoices'
 
   resources :members
   resources :projects

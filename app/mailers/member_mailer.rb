@@ -43,6 +43,22 @@ class MemberMailer < ApplicationMailer
     puts edit_invitation_url(@member.invitation_token, email: @member.email)
   end
 
+  def invoice(member, info)
+    @sender = info[:sender]
+    @project_name = info[:project_name]
+    @member = member
+
+    # @content = {
+    #   heading1: "Inbjudan",
+    #   greeting: "Hej #{@member.first_name}",
+    #   body: [
+    #     "<b>#{@sender.name}</b> har bjudit in dig till RentSplitter-projektet <i>#{@project_name}</i>.",
+    #     "För att acceptera, klicka på länken nedan:"
+    #   ]
+    # }
+    mail to: @member.email, subject: "#{@project_name} | #{info[:for_month]}"
+  end
+
 
   
 end

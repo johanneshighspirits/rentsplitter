@@ -11,13 +11,7 @@ class Project < ApplicationRecord
   # validates :admin_id, presence: true
   validates :name, uniqueness: { scope: :admin_id }
 
-  # def total_rent
-  #   rents.sum(:amount)
-  # end
-
   def project_rents_and_discounts
-    @project_members = members.includes(:memberships)
-
     @membership_ranges = memberships.inject([]) do |ranges, membership|
       ranges << (membership.joined_at..membership.left_at)
     end
@@ -95,9 +89,18 @@ class Project < ApplicationRecord
     end
   end
 
-  def total_discount
-    rent_discounts.sum(:amount)
-  end
+  # def total_rent(from, to)
+  #   rents.where("due_date > ?", from).sum(:amount)
+  # end
+
+  # Returns sum of all discounts during a member's membership
+  # Please note that discounts transferred in February only is
+  # valid for member's who paid rent in January. So a member
+  # that joins in February (from = 2017-02-01) will only get
+  # discounts that are transferred after March 1st (2017-03-01)
+  # def total_discount(from = start_date, to = Date.current)
+  #   rent_discounts.where("transferred_at >= ? AND transferred_at <= ?", from.next_month, to).sum(:amount)
+  # end
 
   def check_start_date
     self.start_date = Date.current.beginning_of_month.next_month if start_date.nil?

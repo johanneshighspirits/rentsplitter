@@ -52,9 +52,51 @@ class ProjectsController < ApplicationController
     else
       flash[:danger] = "Only members with admin privileges can delete projects."
     end
-      redirect_to projects_path
+    redirect_to projects_path
   end
 
+  def send_invoices
+    @project = Project.find(params[:id])
+    if is_admin_for_project? @project
+      project_rents_and_discounts = @project.project_rents_and_discounts
+
+      @project.members.each do |member|
+        membership = member.memberships.where(project_id: @project.id).first
+        info = {
+          sender: current_member,
+          project_name: @project.name
+        }
+        puts "\n    Sending invoice to\n=== #{member.name} ===\n    who joined at #{membership.joined_at}"
+        rent_total = project_rents_and_discounts[:rents].inject(0) do |sum, r|
+          if r[:to] < membership.joined_at
+            sum
+          else
+            sum + r[:sharedAmount]
+          end
+        end
+        puts "Total rent: #{rent_total}:-"
+        discount_total = project_rents_and_discounts[:discounts].inject(0) do |sum, d|
+          if d[:to] < membership.joined_at
+            sum
+          else
+            sum + d[:sharedAmount]
+          end
+        end
+        puts "Total discount: #{discount_total}:-"
+        paid_total = membership.transfers.sum(:amount)
+        puts "Paid #{paid_total}:-"
+        debt = rent_total - discount_total - paid_total
+        puts "#{member.name} must pay #{debt}:-"
+#        member.send_invoice_email info
+      end
+      flash[:success] = "Invoices sent"
+    else
+      flash[:danger] = "Only members with admin privileges can send invoices."
+    end
+    redirect_to projects_path
+  end
+
+  # Returns a member's project(s)
   def for_member
     projects_for_member = Member.find(params[:id]).projects.map { |p| [p.id, p.name] }
     render json: projects_for_member
