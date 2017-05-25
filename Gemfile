@@ -33,6 +33,8 @@ gem 'jbuilder', '~> 2.5'
 gem 'bcrypt', '~> 3.1.7'
 # Use activerecord-import to bulk insert statements
 gem "activerecord-import", ">= 0.2.0"
+# Css autoprefix
+gem "autoprefixer-rails"
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development

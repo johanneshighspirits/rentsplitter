@@ -43,6 +43,8 @@ GEM
     addressable (2.5.1)
       public_suffix (~> 2.0, >= 2.0.2)
     arel (7.1.4)
+    autoprefixer-rails (7.1.1)
+      execjs
     babel-source (5.8.35)
     babel-transpiler (0.7.0)
       babel-source (>= 4.0, < 6)
@@ -217,6 +219,7 @@ PLATFORMS
 
 DEPENDENCIES
   activerecord-import (>= 0.2.0)
+  autoprefixer-rails
   bcrypt (~> 3.1.7)
   byebug
   capybara (~> 2.14.0)

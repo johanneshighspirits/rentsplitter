@@ -15,7 +15,7 @@ class Member < ApplicationRecord
   validates :password, presence: true, length: { minimum: 6 }, allow_nil: true
 
   has_secure_password
-  has_many :memberships #, dependent: :destroy
+  has_many :memberships, dependent: :destroy
   has_many :projects, through: :memberships
   has_many :transfers, through: :memberships
   accepts_nested_attributes_for :memberships
