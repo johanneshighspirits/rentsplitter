@@ -34,8 +34,12 @@ module SessionsHelper
   end
 
   def set_current_project_id(p_id)
-    session[:project_id] = p_id
-    current_member.open_project p_id
+    if Project.exists?(p_id)
+      session[:project_id] = p_id
+      current_member.open_project p_id
+    else
+      session[:project_id] = 0
+    end
   end
 
   # Is current logged in member the admin of the currently open project

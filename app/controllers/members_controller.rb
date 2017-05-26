@@ -7,7 +7,7 @@ class MembersController < ApplicationController
   # before_action :must_be_site_admin, only: [:destroy]
   before_action :must_be_project_admin, only: [:index, :destroy]
 
-  # SITE ADMIN ONLY:
+  # PROJECT ADMIN ONLY:
   # List all members. Edit or Delete.
   # /members
   def index

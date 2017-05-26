@@ -31,7 +31,7 @@ $brand-medium-dark: #6b7d7d;
 
 /* --- Mixins --- */
 @mixin border-box {
-  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
      -moz-box-sizing: border-box;
           box-sizing: border-box;
 }
@@ -77,8 +77,18 @@ h1 {
     }
   }
 }
+h3 {
+  font-size: 1.5em;
+}
 h2, h3, h4 {
   text-align: center;
+  span {
+    display: block;
+    font-size: 0.63em;
+    font-weight: normal;
+    color: #999;
+    padding-top: 5px;
+  }
 }
 b {
   font-weight: bold;
@@ -198,13 +208,6 @@ footer {
     text-align: center;
     margin: 0.5em 0 1.5em 0;
     font-size: 20px;
-    span {
-      display: block;
-      font-size: 12px;
-      font-weight: normal;
-      color: #999;
-      padding-top: 5px;
-    }
   }
 
   p.noLongerMember {
@@ -313,19 +316,19 @@ table {
 
 
 /* --- Forms --- */
-form {
+form.full-width {
   display: block;
   position: relative;
   margin: 2em auto 1em;
   width: 100%;
-  padding: 7em 0 3em;
+  padding: 0 0 3em 0;
   color: #ddd;
   background: $brand-medium-dark;
   @include border-box;
   h3 {
-    position: absolute;
-    margin: 0;
-    padding: 1.75em 0;
+    position: relative;
+    margin: 0 0 1em 0;
+    padding: 1.6em 0;
     text-align: center;
     top: 0;
     left: 0;
@@ -374,6 +377,7 @@ form {
     input {
       display: block;
       position: relative;
+      appearance: none;
       margin: 0;
       padding: 0.5em 0 0.5em 25%;
       width: 75%;
@@ -496,16 +500,9 @@ form {
           color: #FFF;
         }
       }
-      &:-webkit-autofill,
-      &:-webkit-autofill:hover,
-      &:-webkit-autofill:focus {
-        border: none;
-        -webkit-box-shadow: 0 0 0 30px $brand-medium-dark inset;
-        -webkit-text-fill-color: #FFF !important;
-      }
     }
     select {
-      -webkit-appearance: none;
+      appearance: none;
       padding: 0.8em 2.5em;
       background: rgba(255,255,255,0.1);
       color: #FFF;
@@ -564,6 +561,21 @@ form {
       }
     }
   }
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill,
+  textarea:-webkit-autofill:hover,
+  textarea:-webkit-autofill:focus,
+  select:-webkit-autofill,
+  select:-webkit-autofill:hover,
+  select:-webkit-autofill:focus {
+    border: none !important;
+    -webkit-box-shadow: 0 0 0 30px $brand-medium-dark inset;
+            box-shadow: 0 0 0 30px $brand-medium-dark inset;
+    -webkit-text-fill-color: #FFF !important;
+    transition: background-color 5000s linear 0s;
+  }
 }
 
 // @keyframes draw {
@@ -599,7 +611,7 @@ form {
 // }
 
 
-::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+::input-placeholder { /* Chrome/Opera/Safari */
   color: #ddf;
   font-style: italic;
 }

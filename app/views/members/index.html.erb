@@ -6,42 +6,41 @@
       <li>
         <%= form_for member do |f| %>
           <%= f.hidden_field :edited_by, value: "admin" %>
-          <h3><%= member.name %></h3>
+          <h3><%= member.name %><span><%= member.email %></span></h3>
           <% if member.id == current_member.id %>
             <p><b><i>PROJECT ADMIN</i></b></p>
           <% end %>
-          <p><b>Email:</b> <%= member.email %><br>
-          Activated: <%= member.activated %><br>
-
-          <br>
-          <%= f.label :pattern, "Regex pattern" %>
-          <%= f.text_field :pattern %><%= f.submit "Update" %><br>
-          current_project_id: <%= member.current_project_id %><br>
-          projects: <ol><% member.projects.each do |p| %>
-            <li><b><%= p.name %></b></li>
-          <% end %></ol>
-          transfers: <%= member.transfers.count %><br>
+          <p>
+            <%= f.label :pattern, "Regex pattern" %>
+            <%= f.text_field :pattern %><%= f.submit "Update" %><br>
           </p>
-          <% if member.id != current_member.id %>
-          <%= link_to "Remove from project", member.memberships.where(project_id: @project.id).first,
-            method: :delete,
-            data: {
-              confirm: "This will remove #{member.name} from #{@project.name}. WARNING: All member's transactions will be deleted as well. This will affect every member's debt.\nIf the member only has left the project, set end date instead."
-            }
-            %>
-          <br>
-    <!--       <%= link_to "Delete", member,
-            method: :delete,
-            data: {
-              confirm: "Are you absolutely positive you want to delete #{member.name}? This action can not be undone."
-            }
+        <% end %>
+
+        <% if member.invited? %>
+          <% if member.activated? %>
+            <p>Member account is active and confirmed</p>
+          <% else %>
+            <p>Member has <b>not activated</b> account.<br>
+            Invitation was sent <%= time_ago_in_words(member.updated_at, include_seconds: true) %> ago</p>
+            <p><%= button_to 'Send invite again', invitations_path, method: :post, params: { member: member, project_name: @project.name } unless member.updated_at > 24.hours.ago %></p>
+          <% end %>
+        <% else %>
+        <p><%= button_to 'Send invite', invitations_path, method: :post, params: { member: member, project_name: @project.name } %></p>
+        <% end %>
+        <% if member.id != current_member.id %>
+        <%= link_to "Remove from project", member.memberships.where(project_id: @project.id).first,
+          method: :delete,
+          data: {
+            confirm: "This will remove #{member.name} from #{@project.name}. WARNING: All member's transactions will be deleted as well. This will affect every member's debt.\nIf the member only has left the project, set end date instead."
+          }
           %>
-     -->      <% end %>
+        <br>
+        <% link_to "Delete", member,
+          method: :delete,
+          data: {
+            confirm: "Are you absolutely positive you want to delete #{member.name}? This action can not be undone."
+          } %>
         <% end %>
-        <% unless member.invited %>
-          <%= button_to 'Send invite', invitations_path, method: :post, params: { member: member, project_name: @project.name } %>
-        <% end %>
-        <hr>
       </li>
     <% end %>
     </ul>

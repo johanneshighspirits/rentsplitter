@@ -487,7 +487,7 @@ var Form = React.createClass({
       return <span key={i} className={"alert alert-" + error[0]}>{error[1]}</span>
     }) : null;
     return (
-      <form acceptCharset="UTF-8" action={this.props.action} method="post">
+      <form className="full-width" acceptCharset="UTF-8" action={this.props.action} method="post">
         <input type="hidden" name="authenticity_token" defaultValue={this.props.authenticity_token} />
         {this.props.method == "patch" ? <input name="_method" value="patch" type="hidden" /> : null}
         <h3>{this.props.title}</h3>
