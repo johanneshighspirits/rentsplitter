@@ -18,18 +18,100 @@
 
 <tr>
   <td>
+    <table style="border-collapse: collapse;<% 'border-radius:0 0 10px 10px;' unless @template == "invoice" %>background-color:#f7f7f7;" width="560" class="deviceWidth" border="0" cellpadding="0" cellspacing="0" align="center" bgcolor="#f7f7f7">
+      <tr>
+        <td width="100%" style="padding:0 10px 30px 10px;">
+          <table style="border-collapse: collapse;" class="deviceWidth" border="0" cellpadding="0" cellspacing="0" align="left">
+            <tr>
+              <td width="100%" style="font-size: 13px; color: #555555; font-weight: normal; text-align: left; font-family: Open Sans, Helvetica, Arial, sans-serif; line-height: 20px; vertical-align: top; padding:30px 10px 10px 10px">
+                <h1 style="mso-table-lspace:0; mso-table-rspace:0; margin:0; padding: 5px 0 10px 0; font-size: 18px; color: #344a4a; font-weight: bold; font-family:Open Sans, Helvetica, Arial, sans-serif;"><%= @content[:greeting] %></h1>
+
+                <% @content[:body].each do |line| %>
+                  <p style="font-size: 13px; color: #344a4a; font-weight: normal; text-align: left; font-family: Open Sans, Helvetica, Arial, sans-serif;"><%= raw line %></p>
+                <% end %>         
+
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>
+
+<% if @template == "invoice" %>
+<tr>
+  <td>
+    <table style="border-collapse: collapse;background-color:#f00;" width="560" class="deviceWidth" border="0" cellpadding="0" cellspacing="0" align="center" bgcolor="#f00">
+      <tr>
+        <% if @debt > 0 %>
+        <td width="100%" style="padding:30px;width:100%;color: #FFF;background: #d05959;background: -moz-linear-gradient(339deg, #d05959 0%, #d05959 38%, #BA3446 100%) !important;background: -webkit-gradient(linear, left top, right top, color-stop(0%, #d05959), color-stop(38%, #d05959), color-stop(100%, #BA3446)) !important;background: -webkit-linear-gradient(339deg, #d05959 0%, #d05959 38%, #BA3446 100%) !important;background: -o-linear-gradient(339deg, #d05959 0%, #d05959 38%, #BA3446 100%) !important;background: -ms-linear-gradient(339deg, #d05959 0%, #d05959 38%, #BA3446 100%) !important;background: linear-gradient(111deg, #d05959 0%, #d05959 38%, #BA3446 100%) !important;filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d05959', endColorstr='#BA3446',GradientType=1 );">
+          <table style="border-collapse: collapse;" width="100%" class="deviceWidth" border="0" cellpadding="0" cellspacing="0" align="left">
+            <tr>
+              <td width="100%" style="text-align:left;">
+                Att betala senast <%= @due_date %>:
+              </td>
+            </tr>
+            <tr>
+              <td width="100%" style="text-align:right;font-size:48px;">
+                <%= @debt %>:-
+              </td>
+            </tr>
+          </table>
+        </td>
+        <% else %>
+        <td width="100%" style="padding:30px;width:100%;color: #FFF;background: #499260; background: -moz-linear-gradient(339deg, #499260 0%, #499260 38%, #286B70 100%) !important; background: -webkit-gradient(linear, left top, right top, color-stop(0%, #499260), color-stop(38%, #499260), color-stop(100%, #286B70)) !important; background: -webkit-linear-gradient(339deg, #499260 0%, #499260 38%, #286B70 100%) !important; background: -o-linear-gradient(339deg, #499260 0%, #499260 38%, #286B70 100%) !important; background: -ms-linear-gradient(339deg, #499260 0%, #499260 38%, #286B70 100%) !important; background: linear-gradient(111deg, #499260 0%, #499260 38%, #286B70 100%) !important; filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#499260', endColorstr='#286B70',GradientType=1 ) !important;">
+          <table style="border-collapse: collapse;" width="100%" class="deviceWidth" border="0" cellpadding="0" cellspacing="0" align="left">
+            <tr>
+              <td width="100%" style="text-align:left;">
+                Till godo:
+              </td>
+            </tr>
+            <tr>
+              <td width="100%" style="text-align:right;font-size:48px;">
+                <%= @debt * -1 %>:-
+              </td>
+            </tr>
+          </table>
+        </td>
+        <% end %>
+      </tr>
+    </table>
+  </td>
+</tr>
+<% end %>
+
+<% unless @content[:additional].nil? %>
+<tr>
+  <td>
     <table style="border-collapse: collapse;border-radius:0 0 10px 10px;background-color:#f7f7f7;" width="560" class="deviceWidth" border="0" cellpadding="0" cellspacing="0" align="center" bgcolor="#f7f7f7">
       <tr>
         <td width="100%" style="padding:0 10px 30px 10px;">
           <table style="border-collapse: collapse;" class="deviceWidth" border="0" cellpadding="0" cellspacing="0" align="left">
             <tr>
-              <td width="100%" style="font-size: 13px; color: #555555; font-weight: normal; text-align: left; font-family: Open Sans, Helvetica, Arial, sans-serif; line-height: 20px; vertical-align: top; padding:30px 10px 10px 42px">
-                <h1 style="mso-table-lspace:0; mso-table-rspace:0; margin:0; padding: 5px 0 10px 0; font-size: 18px; color: #344a4a; font-weight: bold; font-family:Open Sans, Helvetica, Arial, sans-serif;"><%= @content[:greeting] %></h1>
-                <% @content[:body].each do |line| %>
+              <td width="100%" style="font-size: 13px; color: #555555; font-weight: normal; text-align: left; font-family: Open Sans, Helvetica, Arial, sans-serif; line-height: 20px; vertical-align: top; padding:30px 10px 10px 10px">
+                
+                <% @content[:additional].each do |line| %>
                   <p style="font-size: 13px; color: #344a4a; font-weight: normal; text-align: left; font-family: Open Sans, Helvetica, Arial, sans-serif;"><%= raw line %></p>
-                <% end %>                
+                <% end %>         
+
               </td>
             </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<% end %>
+            
+<% unless @content[:call_to_action_href].nil? %>
+<tr>
+  <td>
+    <table style="border-collapse: collapse;border-radius:0 0 10px 10px;background-color:#f7f7f7;" width="560" class="deviceWidth" border="0" cellpadding="0" cellspacing="0" align="center" bgcolor="#f7f7f7">
+      <tr>
+        <td width="100%" style="padding:0 10px 30px 10px;">
+          <table style="border-collapse: collapse;" class="deviceWidth" border="0" cellpadding="0" cellspacing="0" align="center">
             <tr>
               <td style="padding:5px 8px 10px 8px">
                 <table border="0" cellpadding="0" cellspacing="0" align="center" style="border-radius:5px;border-collapse: collapse;">
@@ -43,8 +125,21 @@
                 </table>    
               </td>
             </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<% end %>
+<tr>
+  <td>
+    <table style="border-collapse: collapse;border-radius:0 0 10px 10px;background-color:#f7f7f7;" width="560" class="deviceWidth" border="0" cellpadding="0" cellspacing="0" align="center" bgcolor="#f7f7f7">
+      <tr>
+        <td width="100%" style="padding:0 10px 30px 10px;">
+          <table style="border-collapse: collapse;" class="deviceWidth" border="0" cellpadding="0" cellspacing="0" align="left">
             <tr>
-              <td width="100%" style="font-size: 13px; color: #555555; font-weight: normal; text-align: left; font-family: Open Sans, Helvetica, Arial, sans-serif; line-height: 20px; vertical-align: top; padding:30px 10px 10px 42px">
+              <td width="100%" style="font-size: 13px; color: #555555; font-weight: normal; text-align: left; font-family: Open Sans, Helvetica, Arial, sans-serif; line-height: 20px; vertical-align: top; padding:30px 10px 10px 10px">
                 <p style="font-size: 13px; color: #344a4a; font-weight: normal; text-align: left; font-family: Open Sans, Helvetica, Arial, sans-serif;">
                 <% unless @sender.nil? %>
                   //<b><%= @sender.name %></b><br>

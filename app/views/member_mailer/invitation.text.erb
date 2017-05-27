@@ -7,4 +7,8 @@ För att acceptera, klicka på länken nedan. Du kan också kopiera länken och 
 <%= edit_invitation_url(@member.invitation_token, email: @member.email, set_password: true) %>
 
 Hälsningar,
+<% unless @sender.nil? %>
 //<%= @sender.name %>
+<% end %>
+RentSplitter
+https://rentsplitter.herokuapp.com

@@ -230,23 +230,23 @@ footer {
   }
   .green {
     background: $green;
-    background: -moz-linear-gradient(339deg, $green 0%, $green 38%, $green-darker 100%) !important; /* ff3.6+ */
-    background: -webkit-gradient(linear, left top, right top, color-stop(0%, $green), color-stop(38%, $green), color-stop(100%, $green-darker)) !important; /* safari4+,chrome */
-    background: -webkit-linear-gradient(339deg, $green 0%, $green 38%, $green-darker 100%) !important; /* safari5.1+,chrome10+ */
-    background: -o-linear-gradient(339deg, $green 0%, $green 38%, $green-darker 100%) !important; /* opera 11.10+ */
-    background: -ms-linear-gradient(339deg, $green 0%, $green 38%, $green-darker 100%) !important; /* ie10+ */
-    background: linear-gradient(111deg, $green 0%, $green 38%, $green-darker 100%) !important; /* w3c */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='$green', endColorstr='$green-darker',GradientType=1 ) !important; /* ie6-9 */
+    background: -moz-linear-gradient(339deg, $green 0%, $green 38%, $green-darker 100%) !important;
+    background: -webkit-gradient(linear, left top, right top, color-stop(0%, $green), color-stop(38%, $green), color-stop(100%, $green-darker)) !important;
+    background: -webkit-linear-gradient(339deg, $green 0%, $green 38%, $green-darker 100%) !important;
+    background: -o-linear-gradient(339deg, $green 0%, $green 38%, $green-darker 100%) !important;
+    background: -ms-linear-gradient(339deg, $green 0%, $green 38%, $green-darker 100%) !important;
+    background: linear-gradient(111deg, $green 0%, $green 38%, $green-darker 100%) !important;
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='$green', endColorstr='$green-darker',GradientType=1 ) !important;
   }
   .red {
     background: $red;
-    background: -moz-linear-gradient(339deg, $red 0%, $red 38%, $red-darker 100%) !important; /* ff3.6+ */
-    background: -webkit-gradient(linear, left top, right top, color-stop(0%, $red), color-stop(38%, $red), color-stop(100%, $red-darker)) !important; /* safari4+,chrome */
-    background: -webkit-linear-gradient(339deg, $red 0%, $red 38%, $red-darker 100%) !important; /* safari5.1+,chrome10+ */
-    background: -o-linear-gradient(339deg, $red 0%, $red 38%, $red-darker 100%) !important; /* opera 11.10+ */
-    background: -ms-linear-gradient(339deg, $red 0%, $red 38%, $red-darker 100%) !important; /* ie10+ */
-    background: linear-gradient(111deg, $red 0%, $red 38%, $red-darker 100%) !important; /* w3c */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='$red', endColorstr='$red-darker',GradientType=1 ); /* ie6-9 */
+    background: -moz-linear-gradient(339deg, $red 0%, $red 38%, $red-darker 100%) !important;
+    background: -webkit-gradient(linear, left top, right top, color-stop(0%, $red), color-stop(38%, $red), color-stop(100%, $red-darker)) !important;
+    background: -webkit-linear-gradient(339deg, $red 0%, $red 38%, $red-darker 100%) !important;
+    background: -o-linear-gradient(339deg, $red 0%, $red 38%, $red-darker 100%) !important;
+    background: -ms-linear-gradient(339deg, $red 0%, $red 38%, $red-darker 100%) !important;
+    background: linear-gradient(111deg, $red 0%, $red 38%, $red-darker 100%) !important;
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='$red', endColorstr='$red-darker',GradientType=1 );
   }
   .noLongerMember {
     color: #AAA;
@@ -388,6 +388,7 @@ form.full-width {
       font-size: 1em;
       line-height: 3em;
       transition: background-color 250ms, color 250ms;
+      z-index: 99;
       &:hover {
         color: #eee;
         &+label {
@@ -686,7 +687,7 @@ form.full-width {
   article.info {
     width: 80%;
     padding: 3em 6em;
-    form {
+    form.full-width {
       width: 100%;
     }
   }
@@ -708,7 +709,7 @@ form.full-width {
     display: block;
     width: 100%;
   }
-  form {
+  form.full-width {
     width: 80%;
     border-radius: 8px;
     h3{
@@ -742,7 +743,7 @@ form.full-width {
   .amountRight {
     width: 17%;
   }
-  form {
+  form.full-width {
     width: 80%;
     border-radius: 8px;
     h3{
@@ -775,7 +776,7 @@ form.full-width {
       width: 49%;
     }
   }
-  form {
+  form.full-width {
     width: 80%;
     max-width: 800px;
     border-radius: 8px;
