@@ -11,7 +11,7 @@ class MembersLoginTest < ActionDispatch::IntegrationTest
     get root_path
     assert_redirected_to login_path
     follow_redirect!
-    assert_select 'h2', /Log in/
+    assert_select 'h3', /Log in/
   end
 
   test "show 'Logged in as member.name' if logged in" do
@@ -76,8 +76,9 @@ class MembersLoginTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
   end
 
-  test "show members page to logged in site admin" do
+  test "show members page to logged in project admin" do
     # Log in as admin
+    get login_path
     post login_path, params: {
       session: {
         email: @admin.email,

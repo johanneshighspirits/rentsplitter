@@ -1,6 +1,7 @@
 FactoryGirl.define do
   factory :member do
-    name "Member Membersson"
+    first_name "Member"
+    last_name "Membersson"
     email "member@example.com"
     password_digest { Member.digest("password") }
 
