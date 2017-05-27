@@ -378,8 +378,8 @@ form.full-width {
       display: block;
       position: relative;
       appearance: none;
-      margin: 0;
-      padding: 0.5em 0 0.5em 25%;
+      margin: 0 0 0 25%;
+      padding: 0.5em 0 0.5em 0;
       width: 75%;
       outline: none;
       border: none;
@@ -388,7 +388,7 @@ form.full-width {
       font-size: 1em;
       line-height: 3em;
       transition: background-color 250ms, color 250ms;
-      z-index: 99;
+      z-index: 1;
       &:hover {
         color: #eee;
         &+label {
@@ -421,6 +421,7 @@ form.full-width {
           height: 2px;
           transform: scaleX(0.0);
           transition: all 250ms;
+          z-index: 1;
         }
       }
       &[type=checkbox] {
@@ -575,6 +576,7 @@ form.full-width {
     -webkit-box-shadow: 0 0 0 30px $brand-medium-dark inset;
             box-shadow: 0 0 0 30px $brand-medium-dark inset;
     -webkit-text-fill-color: #FFF !important;
+    transition: background-color 5000s ease-out 0s;
   }
 }
 
@@ -752,7 +754,7 @@ form.full-width {
       padding-left: 8%;
       padding-right: 8%;
       input {
-        padding-left: 25%;
+        margin-left: 25%;
         width: 75%;
         &:hover + label:before {
           transform: scaleX(0.5);

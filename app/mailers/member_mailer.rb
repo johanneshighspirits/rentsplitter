@@ -68,6 +68,7 @@ class MemberMailer < ApplicationMailer
   end
 
   def invoice_reminder_for_project_admin(project_admin, project)
+    puts "MemberMailer.send_invoice_reminder_for_project_admin"
     @project_name = project.name
     @content = {
       heading1: "Skicka räkningar | #{@project_name}",
@@ -78,7 +79,10 @@ class MemberMailer < ApplicationMailer
       call_to_action_href: projects_url,
       call_to_action_title: "Öppna #{@project_name}"
     }    
+    p @content
+    puts "Let's mail..."
     mail to: project_admin.email, subject: "Time to send invoices for '#{@project_name}"
+    puts "Did it work?"
   end
 
   
