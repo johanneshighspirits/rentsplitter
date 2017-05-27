@@ -3,10 +3,12 @@
   <li>
     <p><b><%= project.name %></b></p>
     <%= link_to "Open", project %><br>
-    <%= link_to "Send invoices", "/projects/#{project.id}/send_invoices", method: :post %><br>
-    <%= link_to "Delete", project, method: :delete,
-                                  data: { confirm: "Are you sure? This will delete '#{project.name}' and all data will be lost." } if is_admin_for_project? project %><br>
-    id: <%= project.id %><br>members:
+    <% if is_admin_for_project? project %>
+      <%= link_to "Send invoices", "/projects/#{project.id}/send_invoices", method: :post %><br>
+      <%= link_to "Delete", project, method: :delete,
+                                  data: { confirm: "Are you sure? This will delete '#{project.name}' and all data will be lost." } %><br>
+    <% end %>
+    Members:
     <ul>
     <% project.members.each do |member| %>
       <li><i><%= member.name %></i></li>
