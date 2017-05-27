@@ -91,7 +91,6 @@ class Project < ApplicationRecord
 
   def send_invoice_reminder_for_project_admin
     admin = Member.find(admin_id)
-    puts "Project.send_invoice_reminder_for_project_admin"
     admin.send_invoice_reminder self
   end
 
