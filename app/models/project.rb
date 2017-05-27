@@ -89,6 +89,11 @@ class Project < ApplicationRecord
     end
   end
 
+  def send_invoice_reminder_for_project_admin
+    admin = Member.find(admin_id)
+    admin.send_invoice_reminder self
+  end
+
   # def total_rent(from, to)
   #   rents.where("due_date > ?", from).sum(:amount)
   # end

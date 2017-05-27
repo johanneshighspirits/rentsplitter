@@ -60,6 +60,13 @@ class Member < ApplicationRecord
     MemberMailer.invoice(self, info).deliver_now
   end
 
+  # If member is admin of a project, it's time to
+  # send invoices to all members.
+  def send_invoice_reminder(project)
+    puts "Time to send invoices for #{project.name}"
+    MemberMailer.invoice_reminder_for_project_admin self, project
+  end
+
   # Sets the password reset attributes
   def create_reset_digest
     self.reset_token = Member.new_token

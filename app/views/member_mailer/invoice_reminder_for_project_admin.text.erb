@@ -1,0 +1,12 @@
+<%= @content[:greeting] %>
+
+Det är dags att skicka ut räkningar för <%= @project_name %>
+
+<%= projects_url %>
+
+Hälsningar,
+<% unless @sender.nil? %>
+//<%= @sender.name %>
+<% end %>
+RentSplitter
+https://rentsplitter.herokuapp.com

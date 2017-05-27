@@ -87,7 +87,9 @@ class ProjectsController < ApplicationController
         puts "Paid #{paid_total}:-"
         debt = rent_total - discount_total - paid_total
         puts "#{member.name} must pay #{debt}:-"
-#        member.send_invoice_email info
+        info[:debt] = debt
+        info[:due_date] = Date.current.end_of_month
+        member.send_invoice_email info
       end
       flash[:success] = "Invoices sent"
     else

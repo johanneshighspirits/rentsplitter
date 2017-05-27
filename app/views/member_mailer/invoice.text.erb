@@ -1,0 +1,20 @@
+Hej <%= @member.first_name %>,
+
+<% if @debt > 0 %>
+Dags att betala hyran igen.
+Summan denna månad är <%= @debt %>:-
+<% else %>
+Du ligger på plus och behöver inte betala denna månad.
+Till godo: <%= @debt * -1 %>:-
+<% end %>
+
+För att se hela uträkningen, klicka på länken nedan:
+
+<%= root_url %>
+
+Hälsningar,
+<% unless @sender.nil? %>
+//<%= @sender.name %>
+<% end %>
+RentSplitter
+https://rentsplitter.herokuapp.com
