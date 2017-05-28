@@ -25,6 +25,11 @@ fields: [
     defaultValue: 0,
   },
   {
+    fieldType: "textarea",
+    attribute: "project[account_info]",
+    attributeName: "Enter account info that will be shown in invoice emails.",
+  },
+  {
     fieldType: "hidden",
     attribute: "project[admin_id]",
     defaultValue: current_member.id,

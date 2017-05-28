@@ -53,11 +53,13 @@ class MemberMailer < ApplicationMailer
     @member = member
 
     @content = {
-      heading1: "Räkning | #{@project_name}",
+      heading1: "Räkning",
       greeting: "Hej #{@member.first_name}",
       body: [
-        "Dags att betala hyran igen."
+        "Dags att betala hyran för <b>#{@project_name}</b> igen."
       ],
+      invoice_number: "#{@member.name}",
+      account_info: info[:account_info],
       additional: [
         "För att se hela uträkningen, klicka på länken nedan:"
       ],
@@ -70,7 +72,7 @@ class MemberMailer < ApplicationMailer
   def invoice_reminder_for_project_admin(project_admin, project)
     @project_name = project.name
     @content = {
-      heading1: "Skicka räkningar | #{@project_name}",
+      heading1: "Skicka räkningar",
       greeting: "Hej #{project_admin.first_name}",
       body: [
         "Det är dags att skicka ut räkningar för <b>#{@project_name}</b>"
@@ -78,7 +80,7 @@ class MemberMailer < ApplicationMailer
       call_to_action_href: projects_url,
       call_to_action_title: "Öppna #{@project_name}"
     }    
-    mail to: project_admin.email, subject: "Time to send invoices for '#{@project_name}"
+    mail to: project_admin.email, subject: "Reminder to send invoices for '#{@project_name}'"
   end
 
   

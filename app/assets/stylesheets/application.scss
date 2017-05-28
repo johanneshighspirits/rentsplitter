@@ -503,6 +503,27 @@ form.full-width {
         }
       }
     }
+    textarea {
+      width: 100%;
+      padding: 1.5em 2.25em;
+      border: 2px solid rgba(255,255,255,0.5);
+      background: none;
+      color: #FFF;
+      font-size: 1em;
+      border-radius: 5px;
+      height: 8em;
+      outline: none;
+      transition: all 250ms ease-out;
+      @include border-box;
+      &:hover {
+        border: 2px solid rgba(255,255,255,0.5);
+        background: rgba(255,255,255,0.1);
+      }
+      &:active, &:focus {
+        border: 2px solid rgba(255,255,255,1);
+        background: rgba(255,255,255,0.1);
+      }
+    }
     select {
       appearance: none;
       padding: 0.8em 2.5em;

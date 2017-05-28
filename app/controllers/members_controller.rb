@@ -67,12 +67,14 @@ class MembersController < ApplicationController
         # Logged in member wants to create a new project
         project_name = params[:project][:name]
         params[:project][:admin_id] = current_member.id
-        if @member.projects.where("admin_id = ? AND name = ?", current_member.id, project_name).empty?
+        if current_member.projects.where("admin_id = ? AND name = ?", current_member.id, project_name).empty?
           # Member is not the admin of a project with this name, create it
           puts "Will create new Project: '#{project_name}'"
           # Create project
           puts "Assign project '#{project_name}' to member '#{@member.name}"
-          @member.projects.build(project_params)
+          puts "Assign project admin privileges to current member '#{current_member.name}"
+          current_member.projects.build(project_params)
+          current_member.save
         else
           flash[:danger] = "A project named '#{project_name}' already exists. Choose another name."
           puts "A project named '#{project_name}' already exists. Choose another name."

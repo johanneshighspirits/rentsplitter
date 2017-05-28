@@ -50,7 +50,13 @@ create_new_fields = [
     attributeName: "Monthly rent",
     defaultValue: 0,
     isVisibleIfChecked: "new_or_existing#new",
-  }
+  },
+  {
+    fieldType: "textarea",
+    attribute: "project[account_info]",
+    attributeName: "Enter account info that will be shown in invoice emails.",
+    isVisibleIfChecked: "new_or_existing#new",
+  },
 ]
 
 # If member has no projects, only show the create

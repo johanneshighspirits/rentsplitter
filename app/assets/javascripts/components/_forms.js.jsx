@@ -24,6 +24,7 @@ var Form = React.createClass({
         case "select":
         case "select_noLabel":
         case "text":
+        case "textarea":
         case "email":
         case "password":
         case "number":
@@ -467,6 +468,20 @@ var Form = React.createClass({
         case "submit":
           return <FormSubmit key={i} attributeName={item.attributeName} />
         break;
+        case "textarea":
+          return (<FormTextarea
+            key={i}
+            autofocus={item.autofocus}
+            hidden={item.hidden}
+            fieldType={item.fieldType}
+            attribute={item.attribute}
+            attributeName={item.attributeName}
+            placeholder=""
+            handleSelect={this.handleSelect}      
+            value={this.state.controlValues[item.attribute]}      
+            defaultValue={this.state.controlValues[item.attribute]}
+          />)
+        break;
         default:
           return (<FormField
             key={i}
@@ -516,6 +531,28 @@ var FormField = React.createClass({
           required={this.props.hidden == true}
         />
         <label htmlFor={idName}>{this.props.attributeName}</label>
+      </div>
+    )
+  }
+});
+
+var FormTextarea = React.createClass({
+  render: function() {
+    var idName = this.props.attribute.replace("[", "_").replace("]", "");
+    return (
+      <div className={this.props.hidden ? "hidden" : "input-container" }>
+        <p>{this.props.attributeName}</p>
+        <textarea
+          autoFocus={this.props.autofocus}
+          type={this.props.fieldType}
+          onChange={this.props.handleSelect}
+          name={this.props.attribute}
+          id={idName}
+          value={this.props.value}
+          onChange={this.props.handleSelect}
+          placeholder={this.props.placeholder}
+          required={this.props.hidden == true}
+        />
       </div>
     )
   }
