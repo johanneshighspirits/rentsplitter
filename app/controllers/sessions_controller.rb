@@ -11,8 +11,8 @@ class SessionsController < ApplicationController
         # Log in if activated
         puts "Logging in #{@member.name}"
         log_in @member
-        puts "Remembering #{@member.name}"
-        params[:session][:remember_me] == '1' ? remember(@member) : forget(@member)
+        puts "Remembering #{@member.name}? if on == #{params[:session][:remember_me]} Bool: #{params[:session][:remember_me] == 'on'}"
+        params[:session][:remember_me] == 'on' ? remember(@member) : forget(@member)
         # Redirect to root
         redirect_back_or root_path
       else

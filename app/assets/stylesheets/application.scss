@@ -46,6 +46,11 @@ html, body {
   display: flex;
   flex-flow: column;
   min-height: 100%;
+  background: $bg-color;
+  background: -moz-linear-gradient(top, $bg-color 32%, #c7d4d8 100%);
+  background: -webkit-linear-gradient(top, $bg-color 32%,#c7d4d8 100%);
+  background: linear-gradient(to bottom, $bg-color 32%,#c7d4d8 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='$bg-color', endColorstr='#c7d4d8',GradientType=1 );
   header {
     flex: 0 1 auto;
   }
@@ -56,6 +61,7 @@ html, body {
     flex-direction: column;
   }
   footer {
+    padding: 5em 0 1em;
     flex: 0 1 40px;
   }
 }
@@ -63,7 +69,6 @@ body {
   font-family: 'Lato', HelveticaNeue, Helvetica, Arial, sans-serif;
   font-size: 13px;
   color: $text-color;
-  background: $bg-color;
   font-weight: 400;
 }
 h1 {
@@ -156,11 +161,16 @@ header, footer {
 }
 header {
   background: #333;
+  background: #244c5b;
+  background: -moz-linear-gradient(-45deg, #244c5b 0%, #22393f 100%);
+  background: -webkit-linear-gradient(-45deg, #244c5b 0%,#22393f 100%);
+  background: linear-gradient(135deg, #244c5b 0%,#22393f 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#244c5b', endColorstr='#22393f',GradientType=1 );
   color: #FFF;
   .logged-in-info {
     position: relative;
     text-align: center;
-    color: #95b5b9;
+    color: #99b2b5;
   }
   nav {
     ul, li {
