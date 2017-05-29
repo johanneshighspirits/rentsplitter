@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170528074344) do
+ActiveRecord::Schema.define(version: 20170529185755) do
 
   create_table "members", force: :cascade do |t|
     t.string   "email"
@@ -77,7 +77,7 @@ ActiveRecord::Schema.define(version: 20170528074344) do
     t.datetime "updated_at",     null: false
     t.integer  "membership_id"
     t.index ["membership_id"], name: "index_transfers_on_membership_id"
-    t.index ["message", "amount", "transferred_at"], name: "index_transfers_on_message_and_amount_and_transferred_at", unique: true
+    t.index ["message", "amount", "transferred_at", "membership_id"], name: "transfers_unique_index", unique: true
   end
 
 end
