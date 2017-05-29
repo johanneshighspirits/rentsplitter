@@ -40,6 +40,7 @@ class Member < ApplicationRecord
   # Activate an account
   def activate
     update_columns(activated: true)
+    MemberMailer.invitation_accepted(self).deliver_now unless current_project_id == 0
   end
 
   # Sends invitation email

@@ -53,6 +53,12 @@ create_new_fields = [
   },
   {
     fieldType: "textarea",
+    attribute: "project[info]",
+    attributeName: "Enter project info that will be shown on Project's front page. Use asterisks(*) to emphasize. (E.g. 'This is *important*' will make the word important bold.)",
+    isVisibleIfChecked: "new_or_existing#new",
+  },
+  {
+    fieldType: "textarea",
     attribute: "project[account_info]",
     attributeName: "Enter account info that will be shown in invoice emails.",
     isVisibleIfChecked: "new_or_existing#new",
