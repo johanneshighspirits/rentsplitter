@@ -1,0 +1,30 @@
+<% # provide :page_title, "Reset password" %>
+<%= react_component 'Form', 
+authenticity_token: form_authenticity_token, 
+title: "Reset password",
+action: password_reset_path(params[:id]),
+method: "patch",
+fields: [
+  {
+    fieldType: "hidden",
+    attribute: "email",
+    defaultValue: @member.email
+  },
+  {
+    fieldType: "password",
+    attribute: "member[password]",
+    attributeName: "New password",
+    autofocus: true
+  },
+  {
+    fieldType: "password",
+    attribute: "member[password_confirmation]",
+    attributeName: "Confirm password",
+  },
+  {
+    fieldType: "submit",
+    attributeName: "Update password"
+  }
+],
+flash: flash
+ %>

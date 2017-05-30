@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+
   resources :rent_discounts
   root 'application#index'
 
@@ -23,5 +24,6 @@ Rails.application.routes.draw do
   resources :transfers
   resources :invitations, only: [:create, :edit]
   resources :memberships, only: [:destroy]
+  resources :password_resets, only: [:new, :edit, :create, :update]
 
 end

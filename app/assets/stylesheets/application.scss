@@ -35,7 +35,34 @@ $brand-medium-dark: #6b7d7d;
      -moz-box-sizing: border-box;
           box-sizing: border-box;
 }
-
+/* Gradients */
+@mixin bg-gradient {
+  background: $bg-color;
+  background: -moz-linear-gradient(top, $bg-color 32%, #c7d4d8 100%);
+  background: -webkit-linear-gradient(top, $bg-color 32%,#c7d4d8 100%);
+  background: linear-gradient(to bottom, $bg-color 32%,#c7d4d8 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='$bg-color', endColorstr='#c7d4d8',GradientType=1 );
+}
+@mixin red-gradient {
+  background: $red;
+  background: -moz-linear-gradient(339deg, $red 0%, $red 38%, $red-darker 100%) !important;
+  background: -webkit-gradient(linear, left top, right top, color-stop(0%, $red), color-stop(38%, $red), color-stop(100%, $red-darker)) !important;
+  background: -webkit-linear-gradient(339deg, $red 0%, $red 38%, $red-darker 100%) !important;
+  background: -o-linear-gradient(339deg, $red 0%, $red 38%, $red-darker 100%) !important;
+  background: -ms-linear-gradient(339deg, $red 0%, $red 38%, $red-darker 100%) !important;
+  background: linear-gradient(111deg, $red 0%, $red 38%, $red-darker 100%) !important;
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='$red', endColorstr='$red-darker',GradientType=1 );
+}
+@mixin green-gradient {
+  background: $green;
+  background: -moz-linear-gradient(339deg, $green 0%, $green 38%, $green-darker 100%) !important;
+  background: -webkit-gradient(linear, left top, right top, color-stop(0%, $green), color-stop(38%, $green), color-stop(100%, $green-darker)) !important;
+  background: -webkit-linear-gradient(339deg, $green 0%, $green 38%, $green-darker 100%) !important;
+  background: -o-linear-gradient(339deg, $green 0%, $green 38%, $green-darker 100%) !important;
+  background: -ms-linear-gradient(339deg, $green 0%, $green 38%, $green-darker 100%) !important;
+  background: linear-gradient(111deg, $green 0%, $green 38%, $green-darker 100%) !important;
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='$green', endColorstr='$green-darker',GradientType=1 ) !important;
+}
 /* --- Global --- */
 html, body {
   height: 100%;
@@ -46,11 +73,7 @@ html, body {
   display: flex;
   flex-flow: column;
   min-height: 100%;
-  background: $bg-color;
-  background: -moz-linear-gradient(top, $bg-color 32%, #c7d4d8 100%);
-  background: -webkit-linear-gradient(top, $bg-color 32%,#c7d4d8 100%);
-  background: linear-gradient(to bottom, $bg-color 32%,#c7d4d8 100%);
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='$bg-color', endColorstr='#c7d4d8',GradientType=1 );
+  @include bg-gradient;
   header {
     flex: 0 1 auto;
   }
@@ -239,24 +262,10 @@ footer {
     margin: 0;
   }
   .green {
-    background: $green;
-    background: -moz-linear-gradient(339deg, $green 0%, $green 38%, $green-darker 100%) !important;
-    background: -webkit-gradient(linear, left top, right top, color-stop(0%, $green), color-stop(38%, $green), color-stop(100%, $green-darker)) !important;
-    background: -webkit-linear-gradient(339deg, $green 0%, $green 38%, $green-darker 100%) !important;
-    background: -o-linear-gradient(339deg, $green 0%, $green 38%, $green-darker 100%) !important;
-    background: -ms-linear-gradient(339deg, $green 0%, $green 38%, $green-darker 100%) !important;
-    background: linear-gradient(111deg, $green 0%, $green 38%, $green-darker 100%) !important;
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='$green', endColorstr='$green-darker',GradientType=1 ) !important;
+    @include green-gradient;
   }
   .red {
-    background: $red;
-    background: -moz-linear-gradient(339deg, $red 0%, $red 38%, $red-darker 100%) !important;
-    background: -webkit-gradient(linear, left top, right top, color-stop(0%, $red), color-stop(38%, $red), color-stop(100%, $red-darker)) !important;
-    background: -webkit-linear-gradient(339deg, $red 0%, $red 38%, $red-darker 100%) !important;
-    background: -o-linear-gradient(339deg, $red 0%, $red 38%, $red-darker 100%) !important;
-    background: -ms-linear-gradient(339deg, $red 0%, $red 38%, $red-darker 100%) !important;
-    background: linear-gradient(111deg, $red 0%, $red 38%, $red-darker 100%) !important;
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='$red', endColorstr='$red-darker',GradientType=1 );
+    @include red-gradient;
   }
   .noLongerMember {
     color: #AAA;
@@ -369,6 +378,18 @@ form.full-width {
     position: relative;
     margin: 0;
     padding: 0 10%;
+    a {
+      text-align: right;
+      font-weight: normal;
+      font-style: italic;
+      color: #b6ccdc;
+      display: block;
+      padding: 0;
+      transition: color 250ms;
+      &:hover {
+        color: #FFF;
+      }
+    }
     label {
       display: block;
       position: absolute;

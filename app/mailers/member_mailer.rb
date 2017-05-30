@@ -58,6 +58,28 @@ class MemberMailer < ApplicationMailer
     puts edit_invitation_url(@member.invitation_token, email: @member.email)
   end
 
+  def password_reset(member)
+    @member = member
+
+    @content = {
+      heading1: "Återställning av lösen",
+      greeting: "Hej #{@member.first_name}",
+      body: [
+        "För att återställa ditt lösenord, klicka på nedanstående länk."
+      ],
+      call_to_action_href: edit_password_reset_url(@member.reset_token, email: @member.email),
+      call_to_action_title: "Återställ lösenord",
+      additional: [
+        "Länken är giltig i två timmar.",
+        " ",
+        "Om du inte begärt att få ditt lösenord återställt kan du bortse från detta mail."
+      ]
+    }
+    mail to: member.email, subject: "Password reset"
+    puts "PASSWORD RESET LINK for #{@member.name}:"
+    puts edit_password_reset_url(@member.reset_token, email: @member.email)
+  end
+
   def invoice(member, info)
     @template = "invoice"
     @sender = info[:sender]

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170529185755) do
+ActiveRecord::Schema.define(version: 20170530143133) do
 
   create_table "members", force: :cascade do |t|
     t.string   "email"
@@ -26,6 +26,8 @@ ActiveRecord::Schema.define(version: 20170529185755) do
     t.boolean  "invited",            default: false
     t.string   "first_name"
     t.string   "last_name"
+    t.string   "reset_digest"
+    t.datetime "reset_sent_at"
   end
 
   create_table "memberships", force: :cascade do |t|

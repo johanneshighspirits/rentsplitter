@@ -455,6 +455,13 @@ var Form = React.createClass({
         case "h4":
           return <h4 key={i}>{item.text}</h4>
         break;
+        case "a":
+          return (
+            <div key={i} className="input-container">
+              <a href={item.href}>{item.text}</a>
+            </div>
+          )
+        break;
         case "text_noLabel":
           return (
             <div className="input-container">

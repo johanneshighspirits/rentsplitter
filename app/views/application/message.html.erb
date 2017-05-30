@@ -1,0 +1,9 @@
+<% provide :page_title, heading %>
+<section>
+  <article class="info bright">
+    <h2><%= heading %></h2>
+    <% body.each do |line| %>
+      <p class="centered"><%= line %></p>
+    <% end %>
+  </article>
+</section>

@@ -1,0 +1,19 @@
+<% # provide :page_title, "Forgot password" %>
+<%= react_component 'Form', 
+authenticity_token: form_authenticity_token, 
+title: "Forgot password",
+action: password_resets_path,
+fields: [
+  {
+    fieldType: "email",
+    attribute: "password_reset[email]",
+    attributeName: "Email",
+    autofocus: true
+  },
+  {
+    fieldType: "submit",
+    attributeName: "Reset password"
+  }
+],
+flash: flash
+ %>
