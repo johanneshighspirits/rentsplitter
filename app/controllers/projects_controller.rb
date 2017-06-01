@@ -102,7 +102,19 @@ class ProjectsController < ApplicationController
     else
       flash[:danger] = "Only members with admin privileges can send invoices."
     end
-    redirect_to projects_path
+
+    respond_to do |format|
+      format.html { redirect_to projects_path }
+      format.js {
+        @response = { 
+          selector: "send_invoices",
+          btn_text: "Invoices sent",
+          disable: true
+        }
+        render 'application/ajax_success' 
+      }
+    end
+
   end
 
   # Returns a member's project(s)

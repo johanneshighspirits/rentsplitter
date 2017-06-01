@@ -1,0 +1,10 @@
+<h2>Member info</h2>
+
+<section>
+  <article class="info bright">
+    <h3><%= @member.name %></h3>
+    <p><%= link_to @member.email, "mailto:#{@member.email}" %></p>
+    <p><i>Contact info here...</i></p>
+    <%= link_to 'Go back', :back, class: "btn-primary inverted" %>
+  </article>
+</section>

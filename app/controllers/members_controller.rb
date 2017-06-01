@@ -15,6 +15,10 @@ class MembersController < ApplicationController
     @members = @project.members
   end
 
+  def show
+    @member = Member.find(params[:id])
+  end
+
   # Sign up:
   # /signup
   def new

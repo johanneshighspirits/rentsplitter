@@ -1,19 +1,27 @@
-<ol>
+<ul class="overview projects">
   <% @projects.each do |project| %>
   <li>
-    <p><b><%= project.name %></b></p>
-    <%= link_to "Open", project %><br>
+    <h3><%= project.name %></h3>
+    <p>Project info</p>
+    <%= link_to "Open #{project.name}", project, class: "btn-primary inverted" %>
     <% if is_admin_for_project? project %>
-      <%= link_to "Send invoices", "/projects/#{project.id}/send_invoices", method: :post %><br>
+      <%= link_to "Send invoices",
+        "/projects/#{project.id}/send_invoices",
+        method: :post,
+        remote: true,
+        id: "send_invoices",
+        class: "btn-primary inverted",
+        data: { disable_with: "Sending..."} %>
       <%= link_to "Delete", project, method: :delete,
-                                  data: { confirm: "Are you sure? This will delete '#{project.name}' and all data will be lost." } %><br>
+                                  data: { confirm: "Are you sure? This will delete '#{project.name}' and all data will be lost." }, class: "btn-primary inverted" %>
     <% end %>
-    Members:
-    <ul>
+    <hr style="margin-top:2em;">
+    <h3>Members</h3>
+    <ul class="overview members centered">
     <% project.members.each do |member| %>
-      <li><i><%= member.name %></i></li>
+      <li><%= link_to "#{member.name}", member %></li>
     <% end %>
     </ul>
   </li>
   <% end %>
-</ol>
+</ul>

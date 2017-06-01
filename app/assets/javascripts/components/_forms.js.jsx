@@ -649,6 +649,7 @@ var FormSubmit = React.createClass({
         <input
           type="submit"
           name="commit"
+          className="btn-primary"
           value={this.props.attributeName}
         />
       </div>
