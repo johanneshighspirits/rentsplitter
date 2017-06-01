@@ -98,6 +98,7 @@ class ProjectsController < ApplicationController
           puts "Ignored unactivated member: #{member.name}."
         end
       end
+      @project.update(invoices_sent_at: Time.now)
       flash[:success] = "#{invoice_count} #{'invoice'.pluralize(invoice_count)} sent"
     else
       flash[:danger] = "Only members with admin privileges can send invoices."

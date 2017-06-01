@@ -1,17 +1,38 @@
 <ul class="overview projects">
   <% @projects.each do |project| %>
+  <% active_members = project.members.select { |m| m.activated } %>
+  <% member_names = active_members.map { |m| m.name }.join(', ') %>
   <li>
     <h3><%= project.name %></h3>
-    <p>Project info</p>
+    <% unless project.info.nil? %>
+    <p>
+      <% project.info.split("\n").each do |line| %>
+        <% line.split("*").each_with_index do |segment, i| %>
+          <% if i.even? %>
+            <%= "#{segment}" %>
+          <% else %>
+            <b><%= "#{segment}" %></b>
+          <% end %>
+        <% end %>
+        <br>
+      <% end %>
+    </p>
+    <% end %> 
+
     <%= link_to "Open #{project.name}", project, class: "btn-primary inverted" %>
     <% if is_admin_for_project? project %>
+    <% unless project.invoices_sent_at.nil? %>
+      <p>Invoices was last sent <b><%= time_ago_in_words(project.invoices_sent_at) %> ago</b>. <br><i>(<%= project.invoices_sent_at.to_date %>)</i></p>
+    <% end %>
       <%= link_to "Send invoices",
         "/projects/#{project.id}/send_invoices",
         method: :post,
         remote: true,
         id: "send_invoices",
         class: "btn-primary inverted",
-        data: { disable_with: "Sending..."} %>
+        data: {
+          disable_with: "Sending...",
+          confirm: "This will send invoice emails to the following #{active_members.count} #{'member'.pluralize(active_members.count)}:\n\n#{member_names}"} %>
       <%= link_to "Delete", project, method: :delete,
                                   data: { confirm: "Are you sure? This will delete '#{project.name}' and all data will be lost." }, class: "btn-primary inverted" %>
     <% end %>

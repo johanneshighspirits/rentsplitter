@@ -366,6 +366,7 @@ table {
   }
 }
 
+form.full-width .input-container .btn-primary,
 .btn-primary {
   display: block;
   margin: 0.8em auto;
@@ -901,6 +902,9 @@ form.full-width {
       }
       label {
         width: 80%;
+      }
+      &.centered label {
+        width: 100%;
       }
       &.flex-item.right, &.flex-item.left {
         margin-left: 4%;
