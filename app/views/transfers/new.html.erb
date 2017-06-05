@@ -22,22 +22,23 @@ fields: [
     text: "Add single transfer manually."
   },
   {
-    fieldType: "date",
-    attribute: "transfers[0][transferred_at]",
-    attributeName: "Transfer date",
-    defaultValue: Date.current.to_date
-  },
-  {
     fieldType: "text",
     attribute: "transfers[0][message]",
     attributeName: "Message",
-    defaultValue: ""
+    defaultValue: "",
+    handleBlur: "guessMember"
   },
   {
     fieldType: "number",
     attribute: "transfers[0][amount]",
     attributeName: "Amount",
     defaultValue: ""
+  },
+  {
+    fieldType: "date",
+    attribute: "transfers[0][transferred_at]",
+    attributeName: "Transfer date",
+    defaultValue: Date.current.to_date
   },
   {
     fieldType: "select",

@@ -1,0 +1,40 @@
+<% # provide(:page_title, "Register Rent Discount") %>
+<% # project_members = @members.map {|m| [m.id, m.name, m.pattern]}.unshift([0, "Choose Member", ""]) %>
+
+<%= react_component 'Form', 
+authenticity_token: form_authenticity_token, 
+title: "Register Rent Discount",
+action: rent_discounts_path,
+# members: project_members,
+fields: [
+  {
+    fieldType: "text",
+    attribute: "rent_discount[message]",
+    attributeName: "Message",
+    defaultValue: "#{URI.decode @message}",
+    handleBlur: "guessMember"
+  },
+  {
+    fieldType: "number",
+    attribute: "rent_discount[amount]",
+    attributeName: "Amount",
+    defaultValue: "",
+    autofocus: true
+  },
+  {
+    fieldType: "date",
+    attribute: "rent_discount[transferred_at]",
+    attributeName: "Transfer date",
+    defaultValue: Date.current.to_date
+  },
+  {
+    fieldType: "select",
+    attribute: "project_id",
+    attributeName: "Select Project",
+    options: @projects.map {|p| [p.id, p.name]}.unshift([0, "Choose Project"]),
+  },
+  {
+    fieldType: "submit",
+    attributeName: "Add Rent Discount"
+  }
+] %>

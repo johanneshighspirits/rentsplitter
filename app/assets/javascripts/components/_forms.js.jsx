@@ -1,3 +1,5 @@
+var abfRentDiscountRegex = /\d{3}:\d{4}:\d/gi;
+
 var Form = React.createClass({
   getInitialState: function(){
     var c = this.setupFields(this.props.fields);
@@ -84,7 +86,7 @@ var Form = React.createClass({
   generateUrl: function(template, value) {
     return template.replace(":id", value);
   },
-  handleSelect: function(e) {
+  handleChange: function(e) {
     if (this.state.controlValues[e.target.name] !== undefined) {
       var controlValues = this.state.controlValues;
       switch (e.target.type) {
@@ -127,12 +129,18 @@ var Form = React.createClass({
       }
     }
   },
+  handleBlur: function(e) {
+    if (e.target.dataset["blurhandler"] == "guessMember") {
+      var guess = this.guessMember(e.target.value);
+      console.log("Member guess: " + guess.name);
+      if (abfRentDiscountRegex.test(e.target.value)) {
+        if (confirm("Is this an Abf rent discount?")) {
+          window.location = "/rent_discounts/new?message=" + encodeURIComponent(e.target.value); 
+        }
+      }
+    }
+  },
   guessMember: function(str) {
-    // return ({
-    //   id: 1,
-    //   name: "ADMIN Member",
-    //   message: str
-    // });
     var guess = {
       id: 0,
       name: undefined,
@@ -144,7 +152,6 @@ var Form = React.createClass({
       var memberName = member[1];
       var regexp = new RegExp(member[2], "gi");
       if (regexp.test(str.toLowerCase())) {
-//        console.log("/" + member[2] + "/gi matches " + str);
         guess.id = memberId;
         guess.name = memberName;
       }
@@ -195,7 +202,7 @@ var Form = React.createClass({
 
         for (var m = 0; m < cells.length; m+=5){
           var message = cells[m + 2];
-          if(/\d{3}:\d{4}:\d/gi.test(message)){
+          if(abfRentDiscountRegex.test(message)){
             // 123:1234:1
             // This is a rent discount
             var discount = {
@@ -359,7 +366,7 @@ var Form = React.createClass({
             options={item.options}
             controlUrl={item.controlUrl}
             fieldValue={this.state.controllers[item.attribute] !== undefined ? this.state.controllers[item.attribute].fieldValue : this.state.controlValues[item.attribute]}
-            handleSelect={this.handleSelect}
+            handleChange={this.handleChange}
           />)
         break;
         case "checkbox":
@@ -369,7 +376,7 @@ var Form = React.createClass({
             attribute={item.attribute}
             attributeName={item.attributeName}
             checked={this.state.controlValues[item.attribute]}
-            handleSelect={this.handleSelect}          
+            handleChange={this.handleChange}          
           />)
         case "radio":
           return (<FormRadio 
@@ -380,7 +387,7 @@ var Form = React.createClass({
             options={item.options}
             fieldValue={item.defaultValue}
             checked={this.state.controlValues[item.attribute] == item.defaultValue}
-            handleSelect={this.handleSelect}
+            handleChange={this.handleChange}
           />)
         break;
         case "radios":
@@ -394,7 +401,7 @@ var Form = React.createClass({
         //     options={btn.options}
         //     fieldValue={btn.defaultValue}
         //     checked={this.state.controlValues[btn.attribute] == btn.defaultValue}
-        //     handleSelect={this.handleSelect}
+        //     handleChange={this.handleChange}
         //   />)
         //   }, this)
         //   return (<div key={i} className="flex-items-container">{radios}</div>)
@@ -413,7 +420,7 @@ var Form = React.createClass({
                 options={flexItem.options}
                 fieldValue={flexItem.defaultValue}
                 checked={this.state.controlValues[flexItem.attribute] == flexItem.defaultValue}
-                handleSelect={this.handleSelect}
+                handleChange={this.handleChange}
               />)
               break;
               case "select":
@@ -428,7 +435,7 @@ var Form = React.createClass({
                   options={flexItem.options}
                   controlUrl={flexItem.controlUrl}
                   fieldValue={this.state.controllers[flexItem.attribute] !== undefined ? this.state.controllers[flexItem.attribute].fieldValue : this.state.controlValues[flexItem.attribute]}
-                  handleSelect={this.handleSelect}
+                  handleChange={this.handleChange}
               />)
               break;
             }
@@ -442,7 +449,7 @@ var Form = React.createClass({
             hidden={item.hidden}
             attribute={item.attribute}
             attributeName={item.attributeName}
-            handleSelect={this.handleSelect}
+            handleChange={this.handleChange}
           />)
         break;
         case "p":
@@ -465,7 +472,7 @@ var Form = React.createClass({
         case "text_noLabel":
           return (
             <div className="input-container">
-              <input key={i} type="text" name={item.attribute} defaultValue={this.state.controlValues[item.attribute]} onChange={this.handleSelect}/>
+              <input key={i} type="text" name={item.attribute} defaultValue={this.state.controlValues[item.attribute]} onChange={this.handleChange}/>
             </div>
           )
         break;
@@ -484,7 +491,7 @@ var Form = React.createClass({
             attribute={item.attribute}
             attributeName={item.attributeName}
             placeholder=""
-            handleSelect={this.handleSelect}      
+            handleChange={this.handleChange}      
             value={this.state.controlValues[item.attribute]}      
             defaultValue={this.state.controlValues[item.attribute]}
           />)
@@ -498,7 +505,9 @@ var Form = React.createClass({
             attribute={item.attribute}
             attributeName={item.attributeName}
             placeholder=""
-            handleSelect={this.handleSelect}      
+            handleChange={this.handleChange}      
+            handleBlur={this.handleBlur}
+            dataBlurHandler={item.handleBlur}
             value={this.state.controlValues[item.attribute]}      
             defaultValue={this.state.controlValues[item.attribute]}
           />)
@@ -523,17 +532,19 @@ var Form = React.createClass({
 
 var FormField = React.createClass({
   render: function() {
-    var idName = this.props.attribute.replace("[", "_").replace("]", "");
+    var idName = this.props.attribute.replace(/\[/g, "_").replace(/\]/g, "");
     return (
       <div className={this.props.hidden ? "hidden" : "input-container" }>
         <input
           autoFocus={this.props.autofocus}
           type={this.props.fieldType}
-          onChange={this.props.handleSelect}
+          onChange={this.props.handleChange}
           name={this.props.attribute}
           id={idName}
           value={this.props.value}
-          onChange={this.props.handleSelect}
+          onChange={this.props.handleChange}
+          onBlur={this.props.handleBlur}
+          data-blurhandler={this.props.dataBlurHandler}
           placeholder={this.props.placeholder}
           required={this.props.hidden == true}
         />
@@ -545,18 +556,18 @@ var FormField = React.createClass({
 
 var FormTextarea = React.createClass({
   render: function() {
-    var idName = this.props.attribute.replace("[", "_").replace("]", "");
+    var idName = this.props.attribute.replace(/\[/g, "_").replace(/\]/g, "");
     return (
       <div className={this.props.hidden ? "hidden" : "input-container" }>
         <p>{this.props.attributeName}</p>
         <textarea
           autoFocus={this.props.autofocus}
           type={this.props.fieldType}
-          onChange={this.props.handleSelect}
+          onChange={this.props.handleChange}
           name={this.props.attribute}
           id={idName}
           value={this.props.value}
-          onChange={this.props.handleSelect}
+          onChange={this.props.handleChange}
           placeholder={this.props.placeholder}
           required={this.props.hidden == true}
         />
@@ -581,7 +592,7 @@ var FormSelect = React.createClass({
           name={this.props.attribute}
           id={this.props.attribute}
           data-controlurl={this.props.controlUrl}
-          onChange={this.props.handleSelect}>
+          onChange={this.props.handleChange}>
             {options}
         </select>
       </div>
@@ -600,7 +611,7 @@ var FormRadio = React.createClass({
           name={this.props.attribute}
           id={this.props.attribute + "_" + this.props.fieldValue}
           checked={this.props.checked}
-          onChange={this.props.handleSelect}
+          onChange={this.props.handleChange}
         />
       <label htmlFor={this.props.attribute + "_" + this.props.fieldValue}>{this.props.attributeName}</label>
       </span>
@@ -618,7 +629,7 @@ var FormCheckbox = React.createClass({
           name={this.props.attribute}
           id={this.props.attribute}
           checked={this.props.checked}
-          onChange={this.props.handleSelect}
+          onChange={this.props.handleChange}
         />
         <label htmlFor={this.props.attribute}><Svg />{this.props.attributeName}</label>
       </div>
@@ -634,7 +645,7 @@ var FormFileUpload = React.createClass({
           type="file"
           name={this.props.attribute}
           id={this.props.attribute}
-          onChange={this.props.handleSelect}
+          onChange={this.props.handleChange}
         />
         <label htmlFor={this.props.attribute}>{this.props.attributeName}</label>
       </div>
