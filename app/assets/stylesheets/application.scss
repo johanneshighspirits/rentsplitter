@@ -29,7 +29,7 @@ $red-darker: #BA3446;
 $red-bright: #FEE;
 $red-bright-darker: #eacaca;
 
-$brand-medium-dark: #6b7d7d;
+$brand-medium-dark: #387280;
 
 /* --- Mixins --- */
 @mixin border-box {
@@ -424,10 +424,10 @@ form.full-width {
     top: 0;
     left: 0;
     width: 100%;
-    background: #444;
+    @include brand-gradient-dark;
   }
   h4 {
-    background: rgba(94, 105, 105, 0.66);
+    background: rgb(48, 99, 111);
     margin: 2em 0 0;
     padding: 1.2em 0;
     color: #FFF;
