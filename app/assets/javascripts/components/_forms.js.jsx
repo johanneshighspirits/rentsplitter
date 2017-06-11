@@ -1,5 +1,9 @@
 var abfRentDiscountRegex = /\d{3}:\d{4}:\d/gi;
 
+function idEncode(attribute) {
+  return attribute.replace(/\[/g, "_").replace(/\]/g, "");
+}
+
 var Form = React.createClass({
   getInitialState: function(){
     var c = this.setupFields(this.props.fields);
@@ -55,13 +59,17 @@ var Form = React.createClass({
           item.items.forEach(function(flexItem) {
             switch (flexItem.fieldType) {
               case "radio":
-                controlValues[flexItem.attribute] = {
-                  pristine: true,
-                  valid: flexItem.validations === undefined ? true : this.validate(flexItem.defaultValue, flexItem.validations).valid,
-                  value: flexItem.checked ? flexItem.defaultValue : "",
-                  validations: flexItem.validations,
-                  formError: flexItem.validations !== undefined ? flexItem.validations[0].message : "Error"
-                };
+                if (controlValues[flexItem.attribute] === undefined) {
+                  controlValues[flexItem.attribute] = {
+                    pristine: true,
+                    valid: flexItem.validations === undefined ? true : this.validate(flexItem.defaultValue, flexItem.validations).valid,
+                    value: flexItem.checked ? flexItem.defaultValue : "",
+                    validations: flexItem.validations,
+                    formError: flexItem.validations !== undefined ? flexItem.validations[0].message : "Error"
+                  };
+                }else if (flexItem.checked){
+                  controlValues[flexItem.attribute].value = flexItem.defaultValue;
+                }
               break;
               case "select":
                 controlValues[flexItem.attribute] = {
@@ -125,7 +133,7 @@ var Form = React.createClass({
       var errorPosition = 0;
       var scroll = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
       Object.keys(controlValues).forEach(function(key) {
-        var element = document.getElementById(key.replace(/\[/g, "_").replace(/\]/g, ""));
+        var element = document.getElementById(idEncode(key));
         if (element !== null) {
           // Set pristine to false to ensure that formError message is shown
           controlValues[key].pristine = false;
@@ -205,8 +213,8 @@ var Form = React.createClass({
     };
   },
   handleChange: function(e) {
+    var controlValues = this.state.controlValues;
     if (this.state.controlValues[e.target.name] !== undefined) {
-      var controlValues = this.state.controlValues;
       switch (e.target.type) {
         case "checkbox":
           controlValues[e.target.name].value = !controlValues[e.target.name].value;
@@ -241,13 +249,9 @@ var Form = React.createClass({
           controlValues[e.target.name].formError = validation.message;
         break;
       }
-      this.setState({
-        controlValues: controlValues
-      });      
     }
 
     if (this.state.controllers[e.target.name] !== undefined) {
-
       var controller = this.state.controllers[e.target.name];
       switch (controller[0].controlType) {
         case "select":
@@ -258,16 +262,24 @@ var Form = React.createClass({
           var fields = this.state.fields.map(function(item, i){
             if (item.attribute == controller[0].targetId) {
               item.options = results;
+              controlValues[item.attribute].value = results[0][0];
+              controlValues[item.attribute].valid = this.validate(results[0][0], item.validations);
             }
             return item;
-          });
+          }, this);
           this.setState({
             fields: fields
+          }, function(){
+            // Validate the newly added field
+            this.setupFields(this.state.fields);
           });
         }.bind(this), 'json');
         break;
       }
     }
+    this.setState({
+      controlValues: controlValues
+    });      
   },
   handleBlur: function(e) {
     if (e.target.type == "email" && e.target.value !== "") {
@@ -704,7 +716,7 @@ var Form = React.createClass({
 
 var FormField = React.createClass({
   render: function() {
-    var idName = this.props.attribute.replace(/\[/g, "_").replace(/\]/g, "");
+    var idName = idEncode(this.props.attribute);
     return (
       <div className={this.props.hidden ? "hidden" : "input-container" }>
         <input
@@ -729,7 +741,7 @@ var FormField = React.createClass({
 
 var FormTextarea = React.createClass({
   render: function() {
-    var idName = this.props.attribute.replace(/\[/g, "_").replace(/\]/g, "");
+    var idName = idEncode(this.props.attribute);
     return (
       <div className={this.props.hidden ? "hidden" : "input-container" }>
         <p>{this.props.attributeName}</p>
@@ -752,6 +764,7 @@ var FormTextarea = React.createClass({
 
 var FormSelect = React.createClass({
   render: function() {
+    var idName = idEncode(this.props.attribute);
     var options = this.props.options.map(function(option, i){
       return <option key={i} value={option[0]}>{option[1]}</option>
     });
@@ -760,11 +773,11 @@ var FormSelect = React.createClass({
       <div 
         className={(this.props.hidden ? "hidden" : "input-container" ) + (this.props.hideLabel ? " flex-item" : "") + " " + this.props.alignment}
         style={this.props.hideLabel ? {display: "inline"} : null}>
-        {this.props.hideLabel ? null : <label htmlFor={this.props.attribute}>{this.props.attributeName}</label>}
+        {this.props.hideLabel ? null : <label htmlFor={idName}>{this.props.attributeName}</label>}
         <select
           value={this.props.fieldValue}
           name={this.props.attribute}
-          id={this.props.attribute}
+          id={idName}
           data-controlurl={this.props.controlUrl}
           onChange={this.props.handleChange}>
             {options}
@@ -816,7 +829,7 @@ var FormCheckbox = React.createClass({
 var FormFileUpload = React.createClass({
   render: function() {
     return (
-      <div className={this.props.hidden ? "hidden" : "input-container" }>
+      <div className={this.props.hidden ? "hidden" : "input-container centered" }>
         <input
           type="file"
           name={this.props.attribute}

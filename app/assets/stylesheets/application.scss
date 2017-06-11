@@ -204,6 +204,7 @@ article.info {
   color: #FFF;
   @include border-box;
   @include red-gradient;
+  animation: grow-in-Y 300ms ease-out backwards;
   &:after {
     display: block;
     position: absolute;
@@ -619,6 +620,15 @@ form.full-width {
       &[type=submit] {
         text-transform: uppercase;
         margin-bottom: 0;
+      }
+      &[type=file] {
+        display: none;
+        &+label {
+          text-align: center;
+          position: relative;
+          width: 100%;
+          margin: 1.8em 0;
+        }
       }
     }
     textarea {

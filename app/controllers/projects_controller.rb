@@ -121,6 +121,7 @@ class ProjectsController < ApplicationController
   # Returns a member's project(s)
   def for_member
     projects_for_member = Member.find(params[:id]).projects.map { |p| [p.id, p.name] }
+    projects_for_member.unshift([0, "Choose Member"]) if projects_for_member.count > 1
     render json: projects_for_member
   end
 

@@ -8,37 +8,72 @@ action: transfers_path,
 members: project_members,
 fields: [
   {
-    fieldType: "p",
-    text: "Add multiple transfers from Excel file."
+    fieldType: "h4",
+    text: "Add single or multiple transfers"
   },
+  {
+    fieldType: "flex-items",
+    items: [
+      {
+        fieldType: "radio",
+        attribute: "single_or_multiple",
+        attributeName: "Add single transfer",
+        defaultValue: "single",
+        checked: true
+      },
+      {
+        fieldType: "radio",
+        attribute: "single_or_multiple",
+        attributeName: "Add transfers from excel file",
+        defaultValue: "multiple"
+      }
+    ]
+  },
+  # {
+  #   fieldType: "p",
+  #   text: "Add multiple transfers from Excel file.",
+  #   isVisibleIfChecked: "single_or_multiple#multiple"
+  # },
   {
     fieldType: "file",
     attribute: "excelFile",
-    attributeName: "Upload Excel file...",
-    defaultValue: ""
+    attributeName: "Click here to upload Excel file...",
+    defaultValue: "",
+    isVisibleIfChecked: "single_or_multiple#multiple"
   },
-  {
-    fieldType: "p",
-    text: "Add single transfer manually."
-  },
+  # {
+  #   fieldType: "p",
+  #   text: "Add single transfer manually.",
+  #   isVisibleIfChecked: "single_or_multiple#single"
+  # },
   {
     fieldType: "text",
     attribute: "transfers[0][message]",
     attributeName: "Message",
     defaultValue: "",
-    handleBlur: "guessMember"
+    handleBlur: "guessMember",
+    isVisibleIfChecked: "single_or_multiple#single",
+    autofocus: true,
+    validations: [
+      {
+        type: "presence",
+        message: "Enter a description of this transfer."
+      }
+    ],
   },
   {
     fieldType: "number",
     attribute: "transfers[0][amount]",
     attributeName: "Amount",
-    defaultValue: 0
+    defaultValue: 0,
+    isVisibleIfChecked: "single_or_multiple#single"
   },
   {
     fieldType: "date",
     attribute: "transfers[0][transferred_at]",
     attributeName: "Transfer date",
-    defaultValue: Date.current.to_date
+    defaultValue: Date.current.to_date,
+    isVisibleIfChecked: "single_or_multiple#single"
   },
   {
     fieldType: "select",
@@ -47,7 +82,16 @@ fields: [
     options: @members.map {|m| [m.id, m.name]}.unshift([0, "Choose Member"]),
     isControlling: "project_id", # Get member's projects when member is selected
     controlType: "select",
-    controlUrl: "/members/:id/projects.json"
+    controlUrl: "/members/:id/projects.json",
+    isVisibleIfChecked: "single_or_multiple#single",
+    validations: [
+      {
+        type: "value>",
+        limit: 0,
+        message: "Select the member who transferred the amount."
+      }
+    ],
+    defaultValue: 0
   },
   {
     fieldType: "select",
@@ -61,6 +105,7 @@ fields: [
         message: "Select a Project."
       }
     ],
+    isVisibleIfChecked: "single_or_multiple#single"
   },
   {
     fieldType: "submit",
