@@ -34,25 +34,50 @@ var Form = React.createClass({
         case "hidden":
         case "checkbox":
         case "file":
-          controlValues[item.attribute] = item.defaultValue !== undefined ? item.defaultValue : "";
+          controlValues[item.attribute] = {
+            pristine: true,
+            valid: item.validations === undefined ? true : this.validate(item.defaultValue, item.validations).valid,
+            value: item.defaultValue !== undefined ? item.defaultValue : "",
+            validations: item.validations,
+            formError: item.validations !== undefined ? item.validations[0].message : "Error"
+          };
         break;
         case "radio":
-          controlValues[item.attribute] = item.checked ? item.defaultValue : "";
+          controlValues[item.attribute] = {
+            pristine: true,
+            valid: item.validations === undefined,
+            value: item.checked ? item.defaultValue : "",
+            validations: item.validations,
+            formError: item.validations !== undefined ? item.validations[0].message : "Error"
+          };
         break;
         case "flex-items":
           item.items.forEach(function(flexItem) {
             switch (flexItem.fieldType) {
               case "radio":
-                controlValues[flexItem.attribute] = flexItem.checked ? flexItem.defaultValue : "";
+                controlValues[flexItem.attribute] = {
+                  pristine: true,
+                  valid: flexItem.validations === undefined ? true : this.validate(flexItem.defaultValue, flexItem.validations).valid,
+                  value: flexItem.checked ? flexItem.defaultValue : "",
+                  validations: flexItem.validations,
+                  formError: flexItem.validations !== undefined ? flexItem.validations[0].message : "Error"
+                };
               break;
               case "select":
-                controlValues[flexItem.attribute] = flexItem.defaultValue;
+                controlValues[flexItem.attribute] = {
+                  pristine: true,
+                  valid: flexItem.validations === undefined ? true : this.validate(flexItem.defaultValue, flexItem.validations).valid,
+                  value: flexItem.defaultValue,
+                  validations: flexItem.validations,
+                  formError: flexItem.validations !== undefined ? flexItem.validations[0].message : "Error"
+                };
               break;
             }
           });
         break;
         default:
-          console.warn("Ignored: " + item.attribute + ", of type " + item.fieldType);
+          console.log("Ignored: " + item.attribute + ", of type " + item.fieldType);
+        break;
       }
 
       if (item.isControlling !== undefined) {
@@ -74,7 +99,7 @@ var Form = React.createClass({
           });          
         }
       }
-    });
+    }, this);
     return ({
       controllers: controllers,
       controlValues: controlValues
@@ -86,19 +111,134 @@ var Form = React.createClass({
   generateUrl: function(template, value) {
     return template.replace(":id", value);
   },
+  // getInitialState: function() {
+  //   return ({
+  //     pristine: true,
+  //     valid: false,
+  //     formError: ""
+  //   });
+  // },
+  validateForm: function(e) {
+    if (!this.state.dontValidate) {
+      var isValid = true;
+      var controlValues = this.state.controlValues;
+      var errorPosition = 0;
+      var scroll = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
+      Object.keys(controlValues).forEach(function(key) {
+        var element = document.getElementById(key.replace(/\[/g, "_").replace(/\]/g, ""));
+        if (element !== null) {
+          // Set pristine to false to ensure that formError message is shown
+          controlValues[key].pristine = false;
+          // If input field is undefined, set to false and add formError message
+          if (controlValues[key].valid === undefined) {
+            controlValues[key].valid = false;
+            controlValues[key].formError = controlValues[key].validations !== undefined ? controlValues[key].validations[0].message : "Error";
+          }
+          // If one of the fields is invalid the form is invalid.
+          if (controlValues[key].valid === false) {
+            var pos = element.getBoundingClientRect().top + scroll - 20;
+            if (errorPosition === 0) {
+              errorPosition = pos;
+            }else if (pos < errorPosition) {
+              errorPosition = pos;
+            }
+            if (errorPosition == pos) {
+              console.log("focus on " + element);
+              element.focus();
+            }
+            isValid = false;
+          }
+          console.log("Validating " + key + ": " + controlValues[key].valid);
+        }
+      }, this);
+
+      // Prevent form from submitting if invalid
+      if (!isValid) {
+        e.preventDefault();
+        window.scrollTo(0, errorPosition);
+        this.setState({
+          controlValues: controlValues
+        });
+      }    
+    }
+  },
+  validate: function(value, validations) {
+    var valid = false;
+    var message = "";
+    if (validations === undefined) {
+      return {
+        valid: true,
+        message: message
+      };
+    }
+    validations.forEach(function(validation, i){
+      switch (validation.type) {
+        case "presence":
+        console.log(value);
+          valid = value !== "" && value !== undefined;
+          message = value !== "" ? "" : validation.message;
+          console.log(validation.type + ": " + valid);
+        break;
+        case "length>":
+          valid = value.length > validation.limit;
+          message = value.length > validation.limit ? "" : validation.message;
+          console.log(validation.type + ": " + valid);
+        break;
+        case "value>":
+          valid = value > validation.limit;
+          message = value > validation.limit ? "" : validation.message;
+          console.log(validation.type + ": " + valid);
+        break;
+        case "email":
+          valid = /^[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+$/i.test(value);
+          message = valid ? "" : validation.message;
+          console.log(validation.type + ": " + valid);
+        break;
+        default:
+          valid = true;
+        break;
+      }
+    });
+    return {
+      valid: valid,
+      message: message
+    };
+  },
   handleChange: function(e) {
     if (this.state.controlValues[e.target.name] !== undefined) {
       var controlValues = this.state.controlValues;
       switch (e.target.type) {
         case "checkbox":
-          controlValues[e.target.name] = !controlValues[e.target.name];
+          controlValues[e.target.name].value = !controlValues[e.target.name].value;
+          var validation = this.validate(e.target.value, this.state.controlValues[e.target.name].validations);
+          controlValues[e.target.name].pristine = false;
+          controlValues[e.target.name].valid = validation.valid;
+          controlValues[e.target.name].formError = validation.message;
         break;
         case "file":
-          controlValues[e.target.name] = e.target.value;
+          controlValues[e.target.name].value = e.target.value;
           this.parseExcelFile(e);
         break;
+        case "email":
+          controlValues[e.target.name].value = e.target.value;
+          /*
+          Only validate email if it's invalid. Validate on blur event.
+          That way error messages will disappear when email is valid
+          but won't show up until writing is done and field is blurred.
+          */
+          if (!controlValues[e.target.name].valid && !controlValues[e.target.name].pristine) {
+            var validation = this.validate(e.target.value, this.state.controlValues[e.target.name].validations);
+            controlValues[e.target.name].pristine = false;
+            controlValues[e.target.name].valid = validation.valid;
+            controlValues[e.target.name].formError = validation.message;
+          }
+        break;
         default:
-          controlValues[e.target.name] = e.target.value;
+          controlValues[e.target.name].value = e.target.value;
+          var validation = this.validate(e.target.value, this.state.controlValues[e.target.name].validations);
+          controlValues[e.target.name].pristine = false;
+          controlValues[e.target.name].valid = validation.valid;
+          controlValues[e.target.name].formError = validation.message;
         break;
       }
       this.setState({
@@ -130,6 +270,17 @@ var Form = React.createClass({
     }
   },
   handleBlur: function(e) {
+    if (e.target.type == "email" && e.target.value !== "") {
+      console.log("HANDLE BLUR for " + e.target.id);
+      var controlValues = this.state.controlValues;
+      var validation = this.validate(e.target.value, controlValues[e.target.name].validations);
+      controlValues[e.target.name].pristine = false;
+      controlValues[e.target.name].valid = validation.valid;
+      controlValues[e.target.name].formError = validation.message;
+      this.setState({
+        controlValues: controlValues
+      });
+    }
     if (e.target.dataset["blurhandler"] == "guessMember") {
       var guess = this.guessMember(e.target.value);
       console.log("Member guess: " + guess.name);
@@ -258,10 +409,10 @@ var Form = React.createClass({
           text: "Check that everything looks correct, edit if necessary. Click Submit when you're done."
         }];
         transfers.forEach(function(item, i){
-          controlValues["transfers[" + i + "][transferred_at]"] = item.transferred_at.toLocaleDateString();
-          controlValues["transfers[" + i + "][amount]"] = item.amount;
-          controlValues["transfers[" + i + "][message]"] = item.message;
-          controlValues["transfers[" + i + "][member_id]"] = item.memberId;
+          controlValues["transfers[" + i + "][transferred_at]"].value = item.transferred_at.toLocaleDateString();
+          controlValues["transfers[" + i + "][amount]"].value = item.amount;
+          controlValues["transfers[" + i + "][message]"].value = item.message;
+          controlValues["transfers[" + i + "][member_id]"].value = item.memberId;
 
           newFields.push(
             {
@@ -299,9 +450,9 @@ var Form = React.createClass({
           );
         }, this);
         discounts.forEach(function(item, i){
-          controlValues["rent_discounts[" + i + "][transferred_at]"] = item.transferred_at.toLocaleDateString();
-          controlValues["rent_discounts[" + i + "][amount]"] = item.amount;
-          controlValues["rent_discounts[" + i + "][message]"] = item.message;
+          controlValues["rent_discounts[" + i + "][transferred_at]"].value = item.transferred_at.toLocaleDateString();
+          controlValues["rent_discounts[" + i + "][amount]"].value = item.amount;
+          controlValues["rent_discounts[" + i + "][message]"].value = item.message;
 
           newFields.push(
             {
@@ -348,7 +499,7 @@ var Form = React.createClass({
       if (item.isVisibleIfChecked !== undefined) {
         // This item is only rendered if `isVisibleIfChecked` is selected/checked
         var ids = item.isVisibleIfChecked.split("#");
-        if (this.state.controlValues[ids[0]] != ids[1]) {
+        if (this.state.controlValues[ids[0]].value != ids[1]) {
           return null;
         }
       }
@@ -357,6 +508,9 @@ var Form = React.createClass({
         case "select_noLabel":
           return (<FormSelect
             key={i}
+            valid={this.state.controlValues[item.attribute].valid}
+            pristine={this.state.controlValues[item.attribute].pristine}
+            formError={this.state.controlValues[item.attribute].formError}
             alignment="centered"
             autofocus={item.autofocus}
             hidden={item.hidden}
@@ -365,28 +519,34 @@ var Form = React.createClass({
             attributeName={item.attributeName}
             options={item.options}
             controlUrl={item.controlUrl}
-            fieldValue={this.state.controllers[item.attribute] !== undefined ? this.state.controllers[item.attribute].fieldValue : this.state.controlValues[item.attribute]}
+            fieldValue={this.state.controllers[item.attribute] !== undefined ? this.state.controllers[item.attribute].fieldValue : this.state.controlValues[item.attribute].value}
             handleChange={this.handleChange}
           />)
         break;
         case "checkbox":
           return (<FormCheckbox 
             key={i}
+            valid={this.state.controlValues[item.attribute].valid}
+            pristine={this.state.controlValues[item.attribute].pristine}
+            formError={this.state.controlValues[item.attribute].formError}
             hidden={item.hidden}
             attribute={item.attribute}
             attributeName={item.attributeName}
-            checked={this.state.controlValues[item.attribute]}
+            checked={this.state.controlValues[item.attribute].value}
             handleChange={this.handleChange}          
           />)
         case "radio":
           return (<FormRadio 
             key={i}
+            valid={this.state.controlValues[item.attribute].valid}
+            pristine={this.state.controlValues[item.attribute].pristine}
+            formError={this.state.controlValues[item.attribute].formError}
             hidden={item.hidden}
             attribute={item.attribute}
             attributeName={item.attributeName}
             options={item.options}
             fieldValue={item.defaultValue}
-            checked={this.state.controlValues[item.attribute] == item.defaultValue}
+            checked={this.state.controlValues[item.attribute].value == item.defaultValue}
             handleChange={this.handleChange}
           />)
         break;
@@ -413,19 +573,25 @@ var Form = React.createClass({
               case "radio":
                 return (<FormRadio 
                 key={i}
+                valid={this.state.controlValues[flexItem.attribute].valid}
+                pristine={this.state.controlValues[flexItem.attribute].pristine}
+                formError={this.state.controlValues[flexItem.attribute].formError}
                 alignment={alignment}
                 hidden={flexItem.hidden}
                 attribute={flexItem.attribute}
                 attributeName={flexItem.attributeName}
                 options={flexItem.options}
                 fieldValue={flexItem.defaultValue}
-                checked={this.state.controlValues[flexItem.attribute] == flexItem.defaultValue}
+                checked={this.state.controlValues[flexItem.attribute].value == flexItem.defaultValue}
                 handleChange={this.handleChange}
               />)
               break;
               case "select":
                 return (<FormSelect 
                   key={i}
+                  valid={this.state.controlValues[flexItem.attribute].valid}
+                  pristine={this.state.controlValues[flexItem.attribute].pristine}
+                  formError={this.state.controlValues[flexItem.attribute].formError}
                   alignment={alignment}
                   autofocus={flexItem.autofocus}
                   hidden={flexItem.hidden}
@@ -434,7 +600,7 @@ var Form = React.createClass({
                   attributeName={flexItem.attributeName}
                   options={flexItem.options}
                   controlUrl={flexItem.controlUrl}
-                  fieldValue={this.state.controllers[flexItem.attribute] !== undefined ? this.state.controllers[flexItem.attribute].fieldValue : this.state.controlValues[flexItem.attribute]}
+                  fieldValue={this.state.controllers[flexItem.attribute] !== undefined ? this.state.controllers[flexItem.attribute].fieldValue : this.state.controlValues[flexItem.attribute].value}
                   handleChange={this.handleChange}
               />)
               break;
@@ -445,6 +611,9 @@ var Form = React.createClass({
         case "file":
           return (<FormFileUpload
             key={i}
+            valid={this.state.controlValues[item.attribute].valid}
+            pristine={this.state.controlValues[item.attribute].pristine}
+            formError={this.state.controlValues[item.attribute].formError}
             autofocus={item.autofocus}
             hidden={item.hidden}
             attribute={item.attribute}
@@ -472,7 +641,7 @@ var Form = React.createClass({
         case "text_noLabel":
           return (
             <div className="input-container">
-              <input key={i} type="text" name={item.attribute} defaultValue={this.state.controlValues[item.attribute]} onChange={this.handleChange}/>
+              <input key={i} formError={item.formError || []} type="text" name={item.attribute} defaultValue={this.state.controlValues[item.attribute].value} onChange={this.handleChange}/>
             </div>
           )
         break;
@@ -485,6 +654,9 @@ var Form = React.createClass({
         case "textarea":
           return (<FormTextarea
             key={i}
+            valid={this.state.controlValues[item.attribute].valid}
+            pristine={this.state.controlValues[item.attribute].pristine}
+            formError={this.state.controlValues[item.attribute].formError}
             autofocus={item.autofocus}
             hidden={item.hidden}
             fieldType={item.fieldType}
@@ -492,13 +664,16 @@ var Form = React.createClass({
             attributeName={item.attributeName}
             placeholder=""
             handleChange={this.handleChange}      
-            value={this.state.controlValues[item.attribute]}      
-            defaultValue={this.state.controlValues[item.attribute]}
+            value={this.state.controlValues[item.attribute].value}      
+            defaultValue={this.state.controlValues[item.attribute].value}
           />)
         break;
         default:
           return (<FormField
             key={i}
+            valid={this.state.controlValues[item.attribute].valid}
+            pristine={this.state.controlValues[item.attribute].pristine}
+            formError={this.state.controlValues[item.attribute].formError}
             autofocus={item.autofocus}
             hidden={item.hidden}
             fieldType={item.fieldType}
@@ -508,21 +683,18 @@ var Form = React.createClass({
             handleChange={this.handleChange}      
             handleBlur={this.handleBlur}
             dataBlurHandler={item.handleBlur}
-            value={this.state.controlValues[item.attribute]}      
-            defaultValue={this.state.controlValues[item.attribute]}
+            value={this.state.controlValues[item.attribute].value}      
+            defaultValue={this.state.controlValues[item.attribute].value}
           />)
         break;
       }
     }, this)
-    var flash = this.props.flash !== undefined ? this.props.flash.map(function(error, i) {
-      return <span key={i} className={"alert alert-" + error[0]}>{error[1]}</span>
-    }) : null;
     return (
-      <form className="full-width" acceptCharset="UTF-8" action={this.props.action} method="post">
+      <form className="full-width" acceptCharset="UTF-8" action={this.props.action} method="post" onSubmit={this.validateForm}>
         <input type="hidden" name="authenticity_token" defaultValue={this.props.authenticity_token} />
         {this.props.method == "patch" ? <input name="_method" value="patch" type="hidden" /> : null}
         <h3>{this.props.title}</h3>
-        {flash}
+        {this.props.formErrorHeading != null ? <div className="alert alert-danger">{this.props.formErrorHeading}</div> : null}
         {fields}
       </form>
     )
@@ -549,6 +721,7 @@ var FormField = React.createClass({
           required={this.props.hidden == true}
         />
         <label htmlFor={idName}>{this.props.attributeName}</label>
+        {this.props.pristine || this.props.valid ? null : <div className="formError">{this.props.formError}</div>}
       </div>
     )
   }
@@ -571,6 +744,7 @@ var FormTextarea = React.createClass({
           placeholder={this.props.placeholder}
           required={this.props.hidden == true}
         />
+        {this.props.pristine || this.props.valid ? null : <div className="formError">{this.props.formError}</div>}
       </div>
     )
   }
@@ -595,6 +769,7 @@ var FormSelect = React.createClass({
           onChange={this.props.handleChange}>
             {options}
         </select>
+        {this.props.pristine || this.props.valid ? null : <div className="formError">{this.props.formError}</div>}
       </div>
       : null
     )
@@ -632,6 +807,7 @@ var FormCheckbox = React.createClass({
           onChange={this.props.handleChange}
         />
         <label htmlFor={this.props.attribute}><Svg />{this.props.attributeName}</label>
+        {this.props.pristine || this.props.valid ? null : <div className="formError">{this.props.formError}</div>}
       </div>
     )
   }
@@ -648,6 +824,7 @@ var FormFileUpload = React.createClass({
           onChange={this.props.handleChange}
         />
         <label htmlFor={this.props.attribute}>{this.props.attributeName}</label>
+        {this.props.pristine || this.props.valid ? null : <div className="formError">{this.props.formError}</div>}
       </div>
     )
   }  

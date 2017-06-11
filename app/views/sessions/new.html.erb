@@ -3,17 +3,32 @@
 authenticity_token: form_authenticity_token, 
 title: "Log in",
 action: login_path,
+formErrorHeading: flash[:danger],
 fields: [
   {
     fieldType: "email",
     attribute: "session[email]",
     attributeName: "Email",
+    validations: [
+      {
+        type: "email",
+        message: "Enter a valid email address."
+      },
+    ],
+    defaultValue: @temp[:email] || "",
     autofocus: true
   },
   {
     fieldType: "password",
     attribute: "session[password]",
     attributeName: "Password",
+    validations: [
+      {
+        type: "presence",
+        message: "Enter your password."
+      }
+    ],
+    defaultValue: ""
   },
   {
     fieldType: "a",
@@ -24,13 +39,13 @@ fields: [
     fieldType: "checkbox",
     attribute: "session[remember_me]",
     attributeName: "Remember me",
-    defaultValue: true,
+    defaultValue: @temp[:remember_me],
   },
   {
     fieldType: "submit",
     attributeName: "Log in"
   }
-],
-flash: flash
- %>
+]
+
+%>
 <p class="centered">Don't have an account? <%= link_to "Sign up here", signup_path %></p>

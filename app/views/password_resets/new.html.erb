@@ -3,12 +3,19 @@
 authenticity_token: form_authenticity_token, 
 title: "Forgot password",
 action: password_resets_path,
+formErrorHeading: flash[:danger],
 fields: [
   {
     fieldType: "email",
     attribute: "password_reset[email]",
     attributeName: "Email",
-    autofocus: true
+    autofocus: true,
+    validations: [
+      {
+        type: "email",
+        message: "Enter a valid email address."
+      }
+    ]
   },
   {
     fieldType: "submit",
@@ -16,4 +23,4 @@ fields: [
   }
 ],
 flash: flash
- %>
+%>

@@ -3,6 +3,7 @@
 authenticity_token: form_authenticity_token, 
 title: "Reset password",
 action: password_reset_path(params[:id]),
+formErrorHeading: flash[:danger],
 method: "patch",
 fields: [
   {
@@ -14,12 +15,29 @@ fields: [
     fieldType: "password",
     attribute: "member[password]",
     attributeName: "New password",
+    validations: [
+      {
+        type: "presence",
+        message: "Please enter a password."
+      },
+      {
+        type: "length>",
+        limit: 6,
+        message: "Password must contain more than 6 characters."
+      }
+    ],
     autofocus: true
   },
   {
     fieldType: "password",
     attribute: "member[password_confirmation]",
     attributeName: "Confirm password",
+    validations: [
+      {
+        type: "presence",
+        message: "Enter your password again."
+      }
+    ],
   },
   {
     fieldType: "submit",

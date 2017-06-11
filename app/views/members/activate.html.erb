@@ -21,6 +21,12 @@ fields: [
     fieldType: "text",
     attribute: "activation_link",
     attributeName: "Paste link here",
+    validations: [
+      {
+        type: "presence",
+        message: "The field is empty"
+      }
+    ],
   },
   {
     fieldType: "submit",

@@ -47,8 +47,15 @@ class PasswordResetsController < ApplicationController
     end
 
     def valid_member
-      unless (@member && @member.activated? && @member.authenticated?(:reset, params[:id]))
-        redirect_to root_url
+      unless (@member && @member.authenticated?(:reset, params[:id]))
+        redirect_to root_path
+      else
+        if @member.activated?
+
+        else
+          # Member exists but is not activated yet
+          flash[:danger] = "You have to activate your account before you can reset your password."
+        end          
       end
     end
 

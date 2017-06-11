@@ -5,17 +5,35 @@
     fieldType: "text",
     attribute: "member[first_name]",
     attributeName: "First name",
+    validations: [
+      {
+        type: "presence",
+        message: "Please enter first name."
+      }
+    ],
     autofocus: true
   },
   {
     fieldType: "text",
     attribute: "member[last_name]",
     attributeName: "Last name",
+    validations: [
+      {
+        type: "presence",
+        message: "Please enter last name."
+      }
+    ],
   },
   {
     fieldType: "email",
     attribute: "member[email]",
     attributeName: "Email",
+    validations: [
+      {
+        type: "email",
+        message: "Please enter a valid email address."
+      }
+    ],
   },
   {
     fieldType: "checkbox",
@@ -36,6 +54,12 @@ create_new_fields = [
     attribute: "project[name]",
     attributeName: "Project name",
     isVisibleIfChecked: "new_or_existing#new",
+    validations: [
+      {
+        type: "presence",
+        message: "Enter a name for your Project."
+      }
+    ],
   },
   {
     fieldType: "date",
@@ -50,6 +74,13 @@ create_new_fields = [
     attributeName: "Monthly rent",
     defaultValue: 0,
     isVisibleIfChecked: "new_or_existing#new",
+    validations: [
+      {
+        type: "value>",
+        limit: 0,
+        message: "Monthly rent can not be zero."
+      }
+    ],
   },
   {
     fieldType: "textarea",
@@ -119,6 +150,13 @@ fields.concat(
       isVisibleIfChecked: "new_or_existing#existing",
       defaultValue: @projects.count == 1 ? @projects.first.id : 0,
       options: @projects.map { |p| [p.id, p.name] }.unshift([0, "Choose Project"]),
+      validations: [
+        {
+          type: "value>",
+          limit: 0,
+          message: "You must select a project."
+        }
+      ],
     },
     {
       fieldType: "p",

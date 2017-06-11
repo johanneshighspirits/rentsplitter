@@ -1,6 +1,10 @@
 class SessionsController < ApplicationController
 
   def new
+    @temp = {
+      email: "",
+      remember_me: true
+    }
   end
 
   # Creating a session == Login
@@ -26,6 +30,7 @@ class SessionsController < ApplicationController
       # Error when logging in
       flash.now[:danger] = "Invalid email or password"
       puts "Invalid email or password"
+      @temp = params[:session]
       render 'new'
     end
   end

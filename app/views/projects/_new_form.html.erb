@@ -11,7 +11,13 @@ fields: [
   {
     fieldType: "text",
     attribute: "project[name]",
-    attributeName: "New Project name",
+    attributeName: "Project name",
+    validations: [
+      {
+        type: "presence",
+        message: "Enter a name for your Project."
+      }
+    ],
   },
   {
     fieldType: "date",
@@ -23,6 +29,13 @@ fields: [
     fieldType: "number",
     attribute: "monthly_rent",
     attributeName: "Monthly rent",
+    validations: [
+      {
+        type: "value>",
+        limit: 0,
+        message: "Monthly rent must be more than zero."
+      }
+    ],
     defaultValue: 0,
   },
   {

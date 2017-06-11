@@ -32,7 +32,7 @@ fields: [
     fieldType: "number",
     attribute: "transfers[0][amount]",
     attributeName: "Amount",
-    defaultValue: ""
+    defaultValue: 0
   },
   {
     fieldType: "date",
@@ -54,6 +54,13 @@ fields: [
     attribute: "project_id",
     attributeName: "Select a project to add the transfer to",
     options: [],
+    validations: [
+      {
+        type: "value>",
+        limit: 0,
+        message: "Select a Project."
+      }
+    ],
   },
   {
     fieldType: "submit",

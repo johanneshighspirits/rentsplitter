@@ -8,33 +8,73 @@ fields: [
     fieldType: "text",
     attribute: "member[first_name]",
     attributeName: "First name",
+    validations: [
+      {
+        type: "presence",
+        message: "Please enter your first name."
+      }
+    ],
+    defaultValue: @member[:first_name] || "",
     autofocus: true
   },
   {
     fieldType: "text",
     attribute: "member[last_name]",
     attributeName: "Last name",
+    validations: [
+      {
+        type: "presence",
+        message: "Please enter your last name."
+      }
+    ],
+    defaultValue: @member[:last_name] || "",
   },
   {
     fieldType: "email",
     attribute: "member[email]",
     attributeName: "Email",
+    validations: [
+      {
+        type: "email",
+        message: "Enter a valid email address."
+      },
+    ],
+    defaultValue: @member[:email] || "",
   },
   {
     fieldType: "password",
     attribute: "member[password]",
     attributeName: "Password",
+    validations: [
+      {
+        type: "presence",
+        message: "Choose a password."
+      },
+      {
+        type: "length>",
+        limit: 6,
+        message: "Password must be longer than 6 characters."
+      }
+    ],
     defaultValue: "",
   },
   {
     fieldType: "password",
     attribute: "member[password_confirmation]",
     attributeName: "Confirm",
+    validations: [
+      {
+        type: "presence",
+        message: "Confirm your password, please."
+      }
+    ],
     defaultValue: "",
   },
   {
     fieldType: "submit",
     attributeName: "Sign up"
   }
-] %>
+],
+flash: flash
+%>
 <p class="centered">Already a member? <%= link_to "Log in here", login_path %></p>
