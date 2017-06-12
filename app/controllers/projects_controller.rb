@@ -65,7 +65,7 @@ class ProjectsController < ApplicationController
           membership = member.memberships.where(project_id: @project.id).first
           info = {
             sender: current_member,
-            project_name: @project.name
+            project: @project
           }
           puts "________________________\n|    Sending invoice to:\n|    === #{member.name} ===\n|    who joined at #{membership.joined_at}"
           rent_total = project_rents_and_discounts[:rents].inject(0) do |sum, r|

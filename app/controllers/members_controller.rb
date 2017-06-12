@@ -120,10 +120,10 @@ class MembersController < ApplicationController
 
       # Member saved to db. Send invitiation email.
       if params[:send_invitation]
-        @member.send_invitation_email sender: current_member, project_name: project_name
+        @member.send_invitation_email sender: current_member, project: project
         flash[:info] = "Invitation email sent to #{@member.email} from #{current_member.name}. Invited to project #{project_name}."
       end
-      set_current_project_id Project.find_by(name: project_name).id
+      set_current_project_id project.id
       redirect_to root_path
     else
       flash[:danger] = "#{@member.name} could not be saved."

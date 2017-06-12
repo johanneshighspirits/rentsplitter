@@ -7,19 +7,28 @@ class MemberMailer < ApplicationMailer
   #
   def invitation(member, info)
     @sender = info[:sender]
-    @project_name = info[:project_name]
+    project = info[:project]
     @member = member
 
     @content = {
       heading1: "Inbjudan",
       greeting: "Hej #{@member.first_name}",
       body: [
-        "<b>#{@sender.name}</b> har bjudit in dig till RentSplitter-projektet <i>#{@project_name}</i>.",
+        "<b>#{@sender.name}</b> har bjudit in dig till RentSplitter-projektet <i>#{project.name}</i>.",
         "För att acceptera, klicka på länken nedan:"
       ],
       call_to_action_href: (edit_invitation_url(@member.invitation_token, email: @member.email, set_password: true)),
       call_to_action_title: "Acceptera inbjudan"
     }
+
+    smtp_headers = {
+      category: "Invitation",
+      unique_args: {
+        project_id: project.id
+      }
+    }
+    headers['X-SMTPAPI'] = smtp_headers.to_json
+
     mail to: @member.email, subject: "RentSplitter Invitation"
     puts "ACTIVATION LINK for #{@member.name}:"
     puts edit_invitation_url(@member.invitation_token, email: @member.email, set_password: true)
@@ -40,6 +49,7 @@ class MemberMailer < ApplicationMailer
       call_to_action_href: (edit_invitation_url(@member.invitation_token, email: @member.email, set_password: true)),
       call_to_action_title: "#{@member.name}'s activation link"
     }
+
     mail to: @project_admin.email, subject: "#{@member.first_name} has been invited to #{@project_name}."
   end
 
@@ -58,6 +68,15 @@ class MemberMailer < ApplicationMailer
     mail to: @project_admin.email, subject: "#{@member.first_name} accepted your invitation."
   end
 
+  def information(recipient, subject, message)
+    @content = {
+      heading1: subject,
+      greeting: "Hi #{recipient.first_name}",
+      body: message
+    }
+    mail to: recipient.email, subject: subject
+  end
+
   def activation(member)
     @member = member
 
@@ -71,6 +90,7 @@ class MemberMailer < ApplicationMailer
       call_to_action_href: edit_invitation_url(@member.invitation_token, email: @member.email),
       call_to_action_title: "Aktivera"
     }
+
     mail to: member.email, subject: "RentSplitter Activation"
     puts "INVITATION LINK for #{@member.name}:"
     puts edit_invitation_url(@member.invitation_token, email: @member.email)
@@ -101,7 +121,8 @@ class MemberMailer < ApplicationMailer
   def invoice(member, info)
     @template = "invoice"
     @sender = info[:sender]
-    @project_name = info[:project_name]
+    project = info[:project]
+    @project_name = project.name
     @debt = info[:debt].round()
     @due_date = info[:due_date]
 
@@ -121,6 +142,15 @@ class MemberMailer < ApplicationMailer
       call_to_action_href: root_url,
       call_to_action_title: "#{@project_name}"
     }
+
+    smtp_headers = {
+      category: "Invoice",
+      unique_args: {
+        project_id: project.id
+      }
+    }
+    headers['X-SMTPAPI'] = smtp_headers.to_json
+
     mail to: @member.email, subject: "#{@project_name} | #{info[:for_month]}"
   end
 

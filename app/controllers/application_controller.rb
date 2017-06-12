@@ -18,25 +18,4 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def mail_report
-    case params['event']
-    when "bounce"
-      process_bounce(params)
-    when "spamreport"
-      process_spam(params)
-    end
-    return 200
-  end
-
-  private
-    def process_bounce(params)
-      puts "MAIL BOUNCED:"
-      p params
-    end
-
-    def process_spam(params)
-      puts "MAIL REPORTED AS SPAM:"
-      p params
-    end
-
 end
