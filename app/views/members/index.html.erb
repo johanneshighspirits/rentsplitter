@@ -1,9 +1,9 @@
 <% provide :page_title, "List all members" %>
 <section>
-  <article class="bright">
+  <article>
     <ul>
     <% @members.each do |member| %>
-      <li>
+      <li class="memberInfo">
         <%= form_for member do |f| %>
           <%= f.hidden_field :edited_by, value: "admin" %>
           <h3><%= member.name %><span><%= member.email %></span></h3>
@@ -18,22 +18,21 @@
 
         <% if member.invited? %>
           <% if member.activated? %>
-            <p>Member account is active and confirmed</p>
+            <span class="green"><p>Member account is active and confirmed</p></span>
           <% else %>
-            <p>Member has <b>not activated</b> account.<br>
-            Invitation was sent <%= time_ago_in_words(member.updated_at, include_seconds: true) %> ago</p>
-            <p><%= button_to 'Send invite again', invitations_path, method: :post, params: { member: member, project_name: @project.name } unless member.updated_at > 24.hours.ago %></p>
+            <span class="red"><p>Member has <b>not activated</b> account. Invitation was sent <%= time_ago_in_words(member.updated_at, include_seconds: true) %> ago</p></span>
+            <%= button_to 'Send invite again', invitations_path, class: "btn-primary", method: :post, params: { member: member, project_name: @project.name } unless member.updated_at > 24.hours.ago %>
           <% end %>
         <% else %>
-        <p><%= button_to 'Send invite', invitations_path, method: :post, params: { member: member, project_name: @project.name } %></p>
+        <%= button_to 'Send invite', invitations_path, class: "btn-primary", method: :post, params: { member: member, project_name: @project.name } %>
         <% end %>
         <% if member.id != current_member.id %>
-        <%= link_to "Remove from project", member.memberships.where(project_id: @project.id).first,
+        <div class="paddedLeftRight"><%= link_to "Remove from project", member.memberships.where(project_id: @project.id).first, class: "btn-primary initial-width red",
           method: :delete,
           data: {
             confirm: "This will remove #{member.name} from #{@project.name}. WARNING: All member's transactions will be deleted as well. This will affect every member's debt.\nIf the member only has left the project, set end date instead."
           }
-          %>
+          %></div>
         <br>
         <% link_to "Delete", member,
           method: :delete,

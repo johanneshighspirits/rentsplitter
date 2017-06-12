@@ -276,6 +276,14 @@ footer {
   overflow: hidden;
   vertical-align: top;
   animation: fade-in 400ms ease-out backwards;
+  .paddedTopBottom {
+    padding-top: 1.5em;
+    padding-bottom: 1.5em;
+  }
+  .paddedLeftRight, .button_to {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
   &.currentMember {
     display: block;
     margin: 0.5em auto;
@@ -303,6 +311,9 @@ footer {
     padding: 1.25em 20px 0.5em;
     color: #FFF;
     margin: 0;
+    &.initial-width {
+      padding: 0.8em 20px;
+    }
   }
   .green {
     @include green-gradient;
@@ -332,7 +343,6 @@ footer {
 table {
   margin: 0;
   width: 100%;
-  padding: 1.5em 15px;
   background: #f7f7f7;
   td {
     padding-right: 1em;
@@ -399,7 +409,7 @@ form.full-width .input-container .btn-primary,
 .btn-primary {
   display: block;
   margin: 0.8em auto;
-  padding: 0.5em 0;
+  padding: 0.8em 0;
   width: 100%;
   background: rgba(255,255,255,0.7);
   color: #537879;
@@ -812,7 +822,9 @@ form.full-width {
 //     }
 //   }
 // }
-
+.initial-width {
+  width: initial !important;
+}
 .footer {
   color: rgba(0,0,0,0.5);
   font-size: 8px;

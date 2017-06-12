@@ -25,6 +25,24 @@ class MemberMailer < ApplicationMailer
     puts edit_invitation_url(@member.invitation_token, email: @member.email, set_password: true)
   end
 
+  def invitation_sent(member)
+    @member = member
+    project = Project.find(@member.current_project_id)
+    @project_admin = Member.find(project.admin_id)
+    @project_name = project.name
+    @content = {
+      heading1: "Invitation sent",
+      greeting: "Hej #{@project_admin.first_name}",
+      body: [
+        "<b>#{@member.name}</b> has been invited to your Project <i>#{@project_name}</i>.",
+        "Below is the activation link, don't click it unless #{@member.first_name} never gets an invitation."
+      ],
+      call_to_action_href: (edit_invitation_url(@member.invitation_token, email: @member.email, set_password: true)),
+      call_to_action_title: "#{@member.name}'s activation link"
+    }
+    mail to: @project_admin.email, subject: "#{@member.first_name} has been invited to #{@project_name}."
+  end
+
   def invitation_accepted(member)
     @member = member
     project = Project.find(@member.current_project_id)

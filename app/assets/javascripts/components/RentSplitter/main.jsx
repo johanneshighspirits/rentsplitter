@@ -168,7 +168,7 @@ var MemberInfo = React.createClass({
           <span className="displayNumbers right counter" data-amount={totalAmountToPay * -1}>{totalAmountToPay * -1}:-</span>
         </span>
         }
-        <table>
+        <table className="paddedTopBottom paddedLeftRight">
           <thead>
             <tr>
               <th colSpan="3" style={{paddingBottom: "0.7em", fontSize: "1.2em"}}>Alla transaktioner</th>

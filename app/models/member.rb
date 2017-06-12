@@ -46,8 +46,11 @@ class Member < ApplicationRecord
   # Sends invitation email
   def send_invitation_email(info)
     create_invitation_digest
+    # Invite member
     MemberMailer.invitation(self, info).deliver_now
     update(invited: true)
+    # Notice project admin that an invitation has been sent
+    MemberMailer.invitation_sent(self).deliver_now
   end
 
   # Sends activation email

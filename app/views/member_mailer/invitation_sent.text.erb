@@ -1,0 +1,16 @@
+<%= @content[:heading1] %>.
+
+<%= @content[:greeting] %>,
+
+<%= @member.name %> has been invited to your Project <%= @project_name %>.
+Below is the activation link, don't click it unless <%= @member.first_name %> never gets an invitation.
+
+<%= edit_invitation_url(@member.invitation_token, email: @member.email, set_password: true) %>
+
+<% unless @sender.nil? %>
+//<%= @sender.name %>
+<% end %>
+Thank you for using RentSplitter
+
+RentSplitter
+https://rentsplitter.herokuapp.com
