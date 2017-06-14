@@ -2,7 +2,8 @@ class InvitationsController < ApplicationController
 
   def create
     member = Member.find(params[:member])
-    member.send_invitation_email(sender: current_member, project: params[:project])
+    project = Project.find(params[:project_id])
+    member.send_invitation_email(sender: current_member, project: project)
     flash[:success] = "Invitation sent to #{member.name}"
     redirect_to members_path
   end
