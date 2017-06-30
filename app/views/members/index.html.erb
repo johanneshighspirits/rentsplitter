@@ -18,9 +18,9 @@
 
         <% if member.invited? %>
           <% if member.activated? %>
-            <span class="green"><p>Member account is active and confirmed</p></span>
+            <span class="green marginedTopBottom"><p>Member account is active and confirmed</p></span>
           <% else %>
-            <span class="red"><p>Member has <b>not activated</b> account. Invitation was sent <%= time_ago_in_words(member.updated_at, include_seconds: true) %> ago</p></span>
+            <span class="red marginedTopBottom"><p>Member has <b>not activated</b> account. Invitation was sent <%= time_ago_in_words(member.updated_at, include_seconds: true) %> ago</p></span>
             <%= button_to 'Send invite again', invitations_path, class: "btn-primary", method: :post, params: { member: member, project_id: @project.id } unless member.updated_at > 24.hours.ago %>
           <% end %>
         <% else %>

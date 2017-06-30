@@ -30,6 +30,7 @@ class Project < ApplicationRecord
       rents: [],
       discounts: [],
     }
+
     # Loop through all project's months and add the rent to project_rents
     m = 0
     result[:rents] = project_months.map do |date|

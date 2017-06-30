@@ -276,14 +276,6 @@ footer {
   overflow: hidden;
   vertical-align: top;
   animation: fade-in 400ms ease-out backwards;
-  .paddedTopBottom {
-    padding-top: 1.5em;
-    padding-bottom: 1.5em;
-  }
-  .paddedLeftRight, .button_to {
-    padding-left: 15px;
-    padding-right: 15px;
-  }
   &.currentMember {
     display: block;
     margin: 0.5em auto;
@@ -336,6 +328,22 @@ footer {
     .green, .red, .totalRentTable {
       display: none;
     }
+  }
+  .paddedTopBottom {
+    padding-top: 1.5em;
+    padding-bottom: 1.5em;
+  }
+  .paddedLeftRight, .button_to {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+  .marginedTopBottom {
+    margin-top: 1.5em;
+    margin-bottom: 1.5em;
+  }
+  .marginedLeftRight {
+    margin-left: 1.5em;
+    margin-right: 1.5em;
   }
 }
 
