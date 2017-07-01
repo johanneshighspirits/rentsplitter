@@ -16,6 +16,8 @@ class Member < ApplicationRecord
 
   has_secure_password
   has_many :memberships, dependent: :destroy
+  has_many :calendar_events, dependent: :destroy
+
   has_many :projects, through: :memberships
   has_many :transfers, through: :memberships
   accepts_nested_attributes_for :memberships

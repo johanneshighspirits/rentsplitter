@@ -1,0 +1,76 @@
+// Place all the styles related to the CalendarEvents controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+.calendar {
+  margin: auto;
+  width: 700px;
+}
+.calendarDays {
+  display: flex;
+  flex-flow: row wrap;
+  li {
+    margin: auto;
+    width: 100px;
+    height: 100px;
+    a {
+      display: block;
+      position: relative;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      .number {
+        text-align: center;
+        position: absolute;
+        top: 50%;
+        left: 0;
+        margin: -0.5em 0 0 0;
+        padding: 0;
+        width: 100%;
+        color: #EEE;
+        line-height: 1em;
+      }
+      &:before {
+        display: block;
+        position: absolute;
+        content: "";
+        margin: 15%;
+        padding: 0;
+        height: 70%;
+        width: 70%;
+        border-radius: 50%;
+        background: #555;
+        transition: all 250ms ease-out;
+      }
+      &.sunday:before {
+        background: #533;
+      }
+      &.today {
+        &:before {
+          box-shadow: 0 0 0 2px #555 inset, 0 0 20px 5px #FFF inset;
+          background: #DDD;
+        }
+        .number {
+          color: #555;
+        }
+      }
+      &:hover {
+        &:before {
+          box-shadow: none;
+          background: #000;
+          margin: 10%;
+          padding: 0;
+          height: 80%;
+          width: 80%;
+        }
+        &.sunday:before {
+          background: #300;
+        }
+        .number {
+          color: #FFF;
+        }
+      }
+    }
+  }
+}

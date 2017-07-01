@@ -1,0 +1,19 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>From:</strong>
+  <%= @calendar_event.from %>
+</p>
+
+<p>
+  <strong>To:</strong>
+  <%= @calendar_event.to %>
+</p>
+
+<p>
+  <strong>Booked by:</strong>
+  <%= @calendar_event.booked_by %>
+</p>
+
+<%= link_to 'Edit', edit_calendar_event_path(@calendar_event) %> |
+<%= link_to 'Back', calendar_events_path %>

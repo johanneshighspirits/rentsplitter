@@ -1,0 +1,36 @@
+<%= react_component 'Calendar', events: @calendar_events %>
+
+
+<hr>
+
+<p id="notice"><%= notice %></p>
+
+<h1>Calendar Events</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>From</th>
+      <th>To</th>
+      <th>Booked by</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @calendar_events.each do |calendar_event| %>
+      <tr>
+        <td><%= calendar_event.from %></td>
+        <td><%= calendar_event.to %></td>
+        <td><%= calendar_event.booked_by %></td>
+        <td><%= link_to 'Show', calendar_event %></td>
+        <td><%= link_to 'Edit', edit_calendar_event_path(calendar_event) %></td>
+        <td><%= link_to 'Destroy', calendar_event, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Calendar Event', new_calendar_event_path %>

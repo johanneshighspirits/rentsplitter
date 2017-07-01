@@ -1,6 +1,5 @@
 Rails.application.routes.draw do
 
-  resources :rent_discounts
   root 'application#index'
 
   get     '/login',   to: 'sessions#new'
@@ -21,11 +20,15 @@ Rails.application.routes.draw do
 
   post    '/mail/reports', to: 'mail_reports#mail_report'
 
+  get     '/calendar',  to: 'calendar_events#index'
+
   resources :members
   resources :projects
   resources :transfers
+  resources :rent_discounts
   resources :invitations, only: [:create, :edit]
   resources :memberships, only: [:destroy]
   resources :password_resets, only: [:new, :edit, :create, :update]
+  resources :calendar_events
 
 end
