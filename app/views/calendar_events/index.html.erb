@@ -1,36 +1,33 @@
-<%= react_component 'Calendar', events: @calendar_events %>
+<%= react_component 'Calendar',
+  events: @calendar_events,
+  monthNames: (0..11).map {|m| Date::MONTHNAMES[m]},
+  dayNames: (0..6).map {|m| Date::DAYNAMES[m]},
+  displayDate: {
+    year: Date.current.year,
+    month: {
+      # Zero based, January = 0
+      nr: Date.current.month - 1,
+      name: Date::MONTHNAMES[Date.current.month - 1]
+    },
+    day: {
+      nr: Date.current.day,
+      name: Date::DAYNAMES[Date.current.wday]
+    }
+  }
+    
+%>
 
+<% # link_to 'Show', calendar_event %>
+<% # link_to 'Edit', edit_calendar_event_path(calendar_event) %>
+<% # link_to 'Destroy', calendar_event, method: :delete, data: { confirm: 'Are you sure?' } %>
+<% # link_to 'New Calendar Event', new_calendar_event_path %>
 
-<hr>
-
-<p id="notice"><%= notice %></p>
-
-<h1>Calendar Events</h1>
-
-<table>
-  <thead>
-    <tr>
-      <th>From</th>
-      <th>To</th>
-      <th>Booked by</th>
-      <th colspan="3"></th>
-    </tr>
-  </thead>
-
-  <tbody>
-    <% @calendar_events.each do |calendar_event| %>
-      <tr>
-        <td><%= calendar_event.from %></td>
-        <td><%= calendar_event.to %></td>
-        <td><%= calendar_event.booked_by %></td>
-        <td><%= link_to 'Show', calendar_event %></td>
-        <td><%= link_to 'Edit', edit_calendar_event_path(calendar_event) %></td>
-        <td><%= link_to 'Destroy', calendar_event, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
-
-<br>
-
-<%= link_to 'New Calendar Event', new_calendar_event_path %>
+<style type="text/css">
+.content, footer {
+  background: #222;
+}
+footer {
+  text-shadow: none !important;
+  color: #333 !important;
+}
+</style>
