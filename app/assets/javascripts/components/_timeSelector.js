@@ -2,8 +2,8 @@
 *   Store a timespan. 
 */
 function HourSelection() {
-  this.from;
-  this.to;
+  this.from = undefined;
+  this.to = undefined;
 }
 
 HourSelection.prototype.getSelectedHours = function() {
@@ -191,14 +191,14 @@ TimeSelector.prototype.drawHourNumbers = function() {
 */
 TimeSelector.prototype.drawDate = function() {
   // Date
-  this.ctx.font = "700 36px 'Quicksand', Quicksand, 'HelveticaNeue', Helvetica, Arial, sans-serif"
+  this.ctx.font = "700 36px 'Quicksand', Quicksand, 'HelveticaNeue', Helvetica, Arial, sans-serif";
   this.ctx.fillStyle = this.colors.dateText;
   this.ctx.fillText(this.date, this.center.x, this.center.y - 98);
-  this.ctx.font = "300 18px 'Quicksand', Quicksand, 'HelveticaNeue', Helvetica, Arial, sans-serif"
+  this.ctx.font = "300 18px 'Quicksand', Quicksand, 'HelveticaNeue', Helvetica, Arial, sans-serif";
   // Weekday
   this.ctx.fillText(this.day.substr(0,3).toUpperCase(), this.center.x, this.center.y - 123);
   // Month
-  this.ctx.font = "400 18px 'Quicksand', Quicksand, 'HelveticaNeue', Helvetica, Arial, sans-serif"
+  this.ctx.font = "400 18px 'Quicksand', Quicksand, 'HelveticaNeue', Helvetica, Arial, sans-serif";
   this.ctx.fillText(this.month.substr(0,3).toUpperCase(), this.center.x, this.center.y - 72);
 }
 
@@ -253,7 +253,9 @@ TimeSelector.prototype.hourFromPoint = function(x, y) {
 }
 
 TimeSelector.prototype.mouseIsAboveSubmit = function(x, y) {
-  var isAboveSubmit = ((x - this.center.x) ** 2) + ((y - this.center.y) ** 2) < 50 ** 2;
+  var xPos = x - this.center.x;
+  var yPos = y - this.center.y;
+  var isAboveSubmit = (xPos * xPos) + (yPos * yPos) < 50 * 50;
   return isAboveSubmit;
 }
 
