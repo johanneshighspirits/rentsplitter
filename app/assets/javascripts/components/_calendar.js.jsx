@@ -1,4 +1,24 @@
 var Calendar = React.createClass({
+  componentDidMount: function() {
+    window.addEventListener("resize", this.updateCalendarDaySize);
+    this.updateCalendarDaySize();
+  },
+  componentWillUnmount: function() {
+    window.removeEventListener("resize", this.updateCalendarDaySize);
+  },
+  updateCalendarDaySize: function() {
+    var calendarWidth = document.querySelector('.calendarDays').offsetWidth;
+    if (calendarWidth < 700) {
+      var size = calendarWidth / 7;
+      var days = document.getElementsByClassName('calendarDay');
+      Array.prototype.forEach.call(days, function(day) {
+        day.style.width = size + "px";
+        day.style.height = size + "px";
+      });
+      document.getElementById('timeSelector').width = calendarWidth;
+      document.getElementById('timeSelector').height = calendarWidth;
+    }
+  },
   getInitialState: function() {
     return ({
       shouldDisplayTimeSelector: false,
@@ -45,6 +65,7 @@ var Calendar = React.createClass({
           })
         }.bind(this)
       );
+      timeSelector.enterFrom(100, 200);
     });
   },
   daysInMonth: function(date) {
@@ -110,7 +131,7 @@ var Day = React.createClass({
     if (this.props.today) classNames.push("today");
 
     return this.props.day > 0 ? (
-      <li>
+      <li className="calendarDay">
         <a
           onClick={this.props.handleClick}
           href="#"
@@ -121,7 +142,7 @@ var Day = React.createClass({
         </a>
       </li>
     ) : (
-      <li></li>
+      <li className="calendarDay"></li>
     )
   }
 });

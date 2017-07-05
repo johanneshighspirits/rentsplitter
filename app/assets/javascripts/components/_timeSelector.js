@@ -59,12 +59,8 @@ function TimeSelector(canvasId, date, day, month, callback) {
   this.day = day;
   this.month = month;
   this.submitBooking = callback;
-  this.width = this.canvas.width;
-  this.height = this.canvas.height;
-  this.center = {
-    x: this.width / 2,
-    y: this.height / 2
-  }
+  this.animationCompletion = 0;
+  this.hourOffset = -6;
   this.ctx = this.canvas.getContext('2d');
   this.highlightedHour;
   this.selectedHours = new HourSelection();
@@ -84,28 +80,60 @@ function TimeSelector(canvasId, date, day, month, callback) {
   // Text defaults
   this.ctx.textAlign = "center";
   this.ctx.textBaseline = "middle";
-  // Draw first frame
-  this.draw();
   // Register listeners
   this.handleMouseDownRef = this.handleMouseDown.bind(this);
   this.handleHoverRef = this.handleHover.bind(this);
   this.canvas.addEventListener("mousedown", this.handleMouseDownRef);
   this.canvas.addEventListener("mousemove", this.handleHoverRef);
+  // Update sizes and draw first frame
+  this.updateCanvasSize();
+  window.addEventListener("resize", this.updateCanvasSize.bind(this));
+}
+
+TimeSelector.prototype.updateCanvasSize = function() {
+  this.width = this.canvas.width;
+  this.height = this.canvas.height;
+  this.radius = (this.width - 20) / 2;
+  this.center = {
+    x: this.width / 2,
+    y: this.height / 2
+  }
+  this.draw();
 }
 
 /**
-*   Draw background items, then save context.
+*   Shows TimeSelector by scaling UI from a point.
+*/
+TimeSelector.prototype.enterFrom = function(x, y) {
+  requestAnimationFrame(this.growFromPoint.bind(this));
+}
+
+/**
+*
+*/
+TimeSelector.prototype.growFromPoint = function() {
+  this.animationCompletion += 0.05;
+  this.draw();
+  if (this.animationCompletion < 1) {
+    requestAnimationFrame(this.growFromPoint.bind(this));
+  } else {
+    this.animationCompletion = 1;
+  }
+}
+
+/**
+*   Draw background items.
 */
 TimeSelector.prototype.drawBackground = function() {
   this.ctx.clearRect(0, 0, this.width, this.height);
   // Draw Night half of clock
   this.ctx.beginPath();
-  this.ctx.arc(this.center.x, this.center.y, (this.width - 100) / 2, 0, Math.PI);
+  this.ctx.arc(this.center.x, this.center.y, this.radius * this.animationCompletion, 0, Math.PI);
   this.ctx.fillStyle = this.colors.night;
   this.ctx.fill();
   // Draw Day half of clock
   this.ctx.beginPath();
-  this.ctx.arc(this.center.x, this.center.y, (this.width - 100) / 2, Math.PI, 2 * Math.PI);
+  this.ctx.arc(this.center.x, this.center.y, this.radius * this.animationCompletion, Math.PI, 2 * Math.PI);
   this.ctx.fillStyle = this.colors.day;
   this.ctx.fill();
 }
@@ -123,18 +151,20 @@ TimeSelector.prototype.drawHourPie = function(from, to, color, stroke) {
   var stroke = stroke || false;
   // Draw hour pie
   var hourRadian = (2* Math.PI) / 24;
-  var startAngle = from * hourRadian;
-  var endAngle = to * hourRadian;
+  var startAngle = (from - this.hourOffset) * hourRadian;
+  var endAngle = (to - this.hourOffset) * hourRadian;
     
-  this.ctx.beginPath();
-  this.ctx.arc(this.center.x, this.center.y, (this.width - 100) / 2, startAngle, endAngle);
-  this.ctx.arc(this.center.x, this.center.y, (this.width - 300) / 2, endAngle, startAngle, true);
   if (stroke) {
     this.ctx.strokeStyle = color;
-    this.ctx.lineWidth = 2;
-    this.ctx.closePath();
+    this.ctx.lineWidth = 10;
+    this.ctx.beginPath();
+    this.ctx.arc(this.center.x, this.center.y, (this.radius + 5 * this.animationCompletion), startAngle, endAngle);
+//    this.ctx.arc(this.center.x, this.center.y, ((this.radius - 100) * this.animationCompletion), endAngle, startAngle, true);
     this.ctx.stroke();
   } else {
+    this.ctx.beginPath();
+    this.ctx.arc(this.center.x, this.center.y, (this.radius * this.animationCompletion), startAngle, endAngle);
+    this.ctx.arc(this.center.x, this.center.y, ((this.radius - (this.radius * 0.4)) * this.animationCompletion), endAngle, startAngle, true);
     this.ctx.fillStyle = color;
     this.ctx.fill();
   }
@@ -160,8 +190,9 @@ TimeSelector.prototype.drawHourLines = function() {
     this.ctx.translate(this.center.x, this.center.y);
     this.ctx.rotate((h * angle) * Math.PI / 180);
     this.ctx.beginPath();
-    this.ctx.moveTo(250 - lineLength, 0);
-    this.ctx.lineTo(250, 0);
+    this.ctx.moveTo((this.radius - lineLength) * this.animationCompletion, 0);
+    this.ctx.lineTo(this.radius * this.animationCompletion, 0);
+    this.ctx.closePath();
     this.ctx.stroke();
     this.ctx.setTransform(1, 0, 0, 1, 0, 0);
   }
@@ -171,25 +202,83 @@ TimeSelector.prototype.drawHourLines = function() {
 *
 */
 TimeSelector.prototype.drawHourNumbers = function() {
-  var radius = 200.0;
   var hour = 0;
   this.ctx.font = "400 12px 'Quicksand', Quicksand, 'HelveticaNeue', Helvetica, Arial, sans-serif"
-  this.ctx.fillStyle = this.colors.nightText;
   for (var h = 0; h < (2 * Math.PI); h += ((2 * Math.PI) / 24)) {
-    if (hour >= 12) this.ctx.fillStyle = this.colors.dayText;
-    var x = this.center.x + (radius * Math.cos(h));
-    var y = this.center.y + (radius * Math.sin(h));
-    if (hour > 0) {
-      this.ctx.fillText(hour, x, y);
+    var x = this.center.x + (((this.radius - this.radius / 5) * this.animationCompletion) * Math.cos(h));
+    var y = this.center.y + (((this.radius - this.radius / 5) * this.animationCompletion) * Math.sin(h));
+    this.ctx.fillStyle = hour >= 12 ? this.colors.dayText : this.colors.nightText;
+    // Mark start and end selection if any
+    var selectedHourCircle = false;
+    if (this.selectedHours.hasSelection()) {
+      var correctedHour = this.offsetCorrectedHour(hour);      
+      if (correctedHour == this.selectedHours.from || correctedHour == this.selectedHours.from + 24 || correctedHour == this.selectedHours.to) {
+//        this.drawHourCircle(correctedHour);
+        selectedHourCircle = true;
+        var r = 25;
+        this.ctx.save();
+        this.ctx.beginPath();
+        this.ctx.fillStyle = this.colors.day; //hour >= 12 ? this.colors.day : this.colors.night;
+        this.ctx.shadowBlur = 10;
+        this.ctx.shadowOffsetX = 0;
+        this.ctx.shadowOffsetY = 0;
+        this.ctx.shadowColor = hour < 12 ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.25)';
+        this.ctx.arc(x, y, r, 0, 2 * Math.PI);
+        this.ctx.closePath();
+        this.ctx.fill();        
+        this.ctx.restore();
+      }
     }
+    
+
+//    var display = undefined;
+//    if (hour + this.hourOffset > 0) {
+//      display = hour + this.hourOffset;
+//    } else {
+//      display = hour + this.hourOffset + 24;
+//    }
+    var display = this.offsetCorrectedHour(hour);
+    if (this.highlightedHour < 12 && hour + this.hourOffset === 0) display = "0";
+    if (selectedHourCircle) this.ctx.fillStyle = this.colors.dayText;
+    if (display) this.ctx.fillText(display, x, y);
     hour++;
   }
 }
 
 /**
+*   Returns hour with offset applied
+*/
+TimeSelector.prototype.offsetCorrectedHour = function(hour) {
+  return hour + this.hourOffset > 0 ? hour + this.hourOffset : hour + this.hourOffset + 24;
+}
+/**
+*   Circle hour number
+*/
+//TimeSelector.prototype.drawHourCircle = function(hour) {
+//  var h = hour * ((2 * Math.PI) / 24);
+//  var x = this.center.x + (200 * Math.cos(h));
+//  var y = this.center.y + (200 * Math.sin(h));
+//  var r = 25;
+//  this.ctx.save();
+//  this.ctx.beginPath();
+//  this.ctx.fillStyle = hour >= 12 ? this.colors.day : this.colors.night;
+//  this.ctx.shadowBlur = 10;
+//  this.ctx.shadowOffsetX = 0;
+//  this.ctx.shadowOffsetY = 0;
+//  this.ctx.shadowColor = hour < 12 ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.25)';
+//  this.ctx.arc(x, y, r, 0, 2 * Math.PI);
+//  this.ctx.closePath();
+//  this.ctx.fill();
+//  this.ctx.restore();
+//}
+
+/**
 *   Draw todays date
 */
 TimeSelector.prototype.drawDate = function() {
+  this.ctx.save();
+  this.ctx.translate(this.center.x * (1 - this.animationCompletion), this.center.y * (1 - this.animationCompletion));
+  this.ctx.scale(this.animationCompletion, this.animationCompletion);
   // Date
   this.ctx.font = "700 36px 'Quicksand', Quicksand, 'HelveticaNeue', Helvetica, Arial, sans-serif";
   this.ctx.fillStyle = this.colors.dateText;
@@ -200,6 +289,7 @@ TimeSelector.prototype.drawDate = function() {
   // Month
   this.ctx.font = "400 18px 'Quicksand', Quicksand, 'HelveticaNeue', Helvetica, Arial, sans-serif";
   this.ctx.fillText(this.month.substr(0,3).toUpperCase(), this.center.x, this.center.y - 72);
+  this.ctx.restore();
 }
 
 /**
@@ -208,7 +298,7 @@ TimeSelector.prototype.drawDate = function() {
 TimeSelector.prototype.drawSubmit = function() {
   // Draw circle
   this.ctx.beginPath();
-  this.ctx.arc(this.center.x, this.center.y, 50, 0, 2 * Math.PI);
+  this.ctx.arc(this.center.x, this.center.y, (50 * this.animationCompletion), 0, 2 * Math.PI);
   this.ctx.fillStyle = this.highlightSubmit ? this.colors.bookingText : "#FFF";    
   this.ctx.save();
   this.ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
@@ -218,7 +308,10 @@ TimeSelector.prototype.drawSubmit = function() {
   this.ctx.fill();
   this.ctx.restore();
   // Draw 'OK'
-  this.ctx.font = "100 36px 'Helvetica Neue', 'HelveticaNeue-Light', Helvetica, Arial, sans-serif"
+  var fontSize = 36 * this.animationCompletion;
+  this.ctx.font = "100 " + fontSize + "px 'Helvetica Neue', 'HelveticaNeue-Light', Helvetica, Arial, sans-serif";
+  this.ctx.textAlign = "center";
+  this.ctx.textBaseline = "middle";
   this.ctx.fillStyle = this.highlightSubmit ? "#EEE" : "#000";
   this.ctx.fillText("OK", this.center.x, this.center.y);
 }
@@ -227,6 +320,9 @@ TimeSelector.prototype.drawSubmit = function() {
 *
 */
 TimeSelector.prototype.drawTimeRange = function() {
+  this.ctx.save();
+  this.ctx.translate(this.center.x * (1 - this.animationCompletion), this.center.y * (1 - this.animationCompletion));
+  this.ctx.scale(this.animationCompletion, this.animationCompletion);
   this.ctx.font = "100 36px 'Quicksand', Quicksand, 'Helvetica Neue', Helvetica, Arial, sans-serif";
   this.ctx.fillStyle = this.colors.bookingText;
   var text = "Choose time";
@@ -234,6 +330,7 @@ TimeSelector.prototype.drawTimeRange = function() {
     text = this.selectedHours.from + ":00-" + this.selectedHours.to + ":00";
   }
   this.ctx.fillText(text, this.center.x, this.center.y + 84);
+  this.ctx.restore();
 }
 /**
 *   Find which hour a point belongs to
@@ -249,7 +346,8 @@ TimeSelector.prototype.hourFromPoint = function(x, y) {
   // Return which hour the point is in.
   // 0 means the hour between 00:00-01:00 (am)
   // 1 means 01:00-02:00 and so on
-  return Math.floor((degree / 360) * 24);
+  var hour = Math.floor((degree / 360) * 24) + this.hourOffset;
+  return hour >= 0 ? hour : hour + 24;
 }
 
 TimeSelector.prototype.mouseIsAboveSubmit = function(x, y) {
@@ -278,13 +376,15 @@ TimeSelector.prototype.draw = function() {
   this.prepare();
   // Draw selected hours if any
   this.selectedHours.getSelectedHours().forEach(function(hour) {
-    this.drawHourPie(hour, hour + 1, hour >= 12 ? this.colors.selectedDay : this.colors.selectedNight);
+    var color = hour >= 12 + this.hourOffset && hour < 24 + this.hourOffset ? this.colors.selectedDay : this.colors.selectedNight;
+    this.drawHourPie(hour, hour + 1, color);
   }, this);
 
   // Draw highlighted hour if user hovers on canvas
   if (this.highlightedHour !== undefined) {
     var color = this.colors.bookingText; // this.highlightedHour >= 12 ? this.colors.highlightedDay : this.colors.highlightedNight;
     this.drawHourPie(this.highlightedHour, this.highlightedHour + 1, color, true);
+//    this.drawHourCircle(this.offsetCorrectedHour(this.highlightedHour));
   };
   // Display selected time range
   this.drawTimeRange();
