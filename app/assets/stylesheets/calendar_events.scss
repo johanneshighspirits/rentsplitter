@@ -78,50 +78,74 @@
         margin: -0.5em 0 0 0;
         padding: 0;
         width: 100%;
-        color: #EEE;
+        color: #d7d7d7;
         line-height: 1em;
+        font-weight: 100;
+      }
+      .booking {
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        opacity: 0.6;
+        transition: all 250ms ease-out;
       }
       &:before {
         display: block;
         position: absolute;
         content: "";
-        margin: 15%;
+        margin: 24%;
         padding: 0;
-        height: 70%;
-        width: 70%;
+        height: 52%;
+        width: 52%;
         border-radius: 50%;
-        background: #506269;
+        background: none;
         transition: all 250ms ease-out;
-      }
-      &.sunday:before {
-        background: #533;
-      }
-      &.today {
-        &:before {
-          box-shadow: 0 0 0 2px #EEE inset;
-          background: #DDD;
-        }
-        .number {
-          color: #555;
-        }
       }
       &:hover {
         &:before {
-          box-shadow: none;
-          background: #000;
-          margin: 10%;
-          padding: 0;
-          height: 80%;
-          width: 80%;
+          background: #555;
         }
-        &.sunday:before {
-          background: #300;
+        .number {
+          color: #000;
+        }
+      }
+      &.sunday .number {
+        font-weight: bold;
+        color: #d05959;
+      }
+      &.today {
+        .number {
+          color: #333;
+        }
+        &:before {
+          background: #EEE;
+        }
+        &:hover {
+          &:before {
+            background: #FFF;
+          }
+          .number {
+            color: #000;
+          }
+        }
+      }
+      &:hover {
+        .booking {
+          opacity: 1;
         }
         .number {
           color: #FFF;
         }
       }
     }
+  }
+}
+.todaysBookings {
+  margin: 2em auto;
+  width: 90%;
+  p {
+    padding: 0 2em;
   }
 }
 
@@ -131,7 +155,7 @@
   }
 }
 @media screen and (min-width: 700px) {
-  .calendarDays {
+  .calendarDays, .todaysBookings {
     width: 700px;
     .calendarDay {
       width: 100px;

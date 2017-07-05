@@ -23,7 +23,38 @@ var Calendar = React.createClass({
     return ({
       shouldDisplayTimeSelector: false,
       displayDate: this.props.displayDate,
-      events: {
+      bookings: {
+        "2017_5": [
+          {
+            from: 12,
+            to: 13,
+            bookedBy: {
+              firstName: "Tony",
+              id: 5
+            },
+            color: "#50d99a"
+          }
+        ],
+        "2017_6": [
+          {
+            from: 9,
+            to: 17,
+            bookedBy: {
+              firstName: "Johannes",
+              id: 4
+            },
+            color: "#d9507b"
+          },
+          {
+            from: 20,
+            to: 24,
+            bookedBy: {
+              firstName: "Bertil",
+              id: 6
+            },
+            color: "#e3a927"
+          }
+        ]
 //        "20176": [
 //          {
 //            from: new Date(Date.UTC(2017, 6, 1, 13, 0, 0)),
@@ -53,6 +84,7 @@ var Calendar = React.createClass({
         this.state.displayDate.day.nr,
         this.state.displayDate.day.name,
         this.state.displayDate.month.name,
+        this.state.bookings[this.state.displayDate.year + "_" + this.state.displayDate.day.nr],
         function(from, to) {
           if (from === false) {
             // User cancelled booking
@@ -96,15 +128,17 @@ var Calendar = React.createClass({
         dayName={this.props.dayNames[weekDay.getDay()]}
         today={day == today.getDate()}
         sunday={(1 + i) % 7 === 0}
+        bookings={this.state.bookings[displayDate.year + "_" + day] || []}
         handleClick={this.showTimeSelector}
       />;
     }, this);
   },
   render: function() {
     var days = this.daysFor(this.state.displayDate);
-    var todaysEvents = [];
-    if (this.state.events[this.state.displayDate.year + "" + this.state.displayDate.month.nr] !== undefined) {
-      todaysEvents = this.state.events[this.state.displayDate.year + "" + this.state.displayDate.month.nr].map(function(event, i) {
+    var todaysDate = new Date().getDate();
+    var todaysBookings = [];
+    if (this.state.bookings[this.state.displayDate.year + "_" + todaysDate] !== undefined) {
+      todaysBookings = this.state.bookings[this.state.displayDate.year + "_" + todaysDate].map(function(event, i) {
         return <p key={i}>{event.from.toLocaleString()}-{event.to.toLocaleString()}<br />{event.bookedBy.firstName}</p>
       })
     }
@@ -114,8 +148,10 @@ var Calendar = React.createClass({
         <ul className="calendarDays">
           {days}
         </ul>
-        {todaysEvents.length > 0 ? <h2>Today</h2> : null }
-        {todaysEvents.length > 0 ? todaysEvents : null}
+        <div className="todaysBookings">
+          {todaysBookings.length > 0 ? <h2>Today</h2> : null }
+          {todaysBookings.length > 0 ? todaysBookings : null}
+        </div>
         <div className={this.state.shouldDisplayTimeSelector ? "timeSelectorContainer visible" : "timeSelectorContainer invisible"} >
           <canvas id="timeSelector" width="600" height="600"/>
         </div>
@@ -138,6 +174,10 @@ var Day = React.createClass({
           data-datenr={this.props.day}
           data-dayname={this.props.dayName}
           className={classNames.join(" ")}>
+          <CalendarDayThumbnail
+            day={this.props.day}
+            bookings={this.props.bookings}
+          />
           <span className="number">{this.props.day}</span>
         </a>
       </li>
@@ -147,6 +187,44 @@ var Day = React.createClass({
   }
 });
 
+var CalendarDayThumbnail = React.createClass({
+  render: function() {
+    var circles = this.props.bookings.map(function(booking, i) {
+      var hour = 190 / 24;
+      var range = booking.to - booking.from;
+      return <circle
+          key={i}
+          cx="50%"
+          cy="50%"
+          r="30%"
+          style={
+            {
+              strokeDasharray: (range * hour) + "," + (190 - (range * hour)),
+              strokeDashoffset: (-6 * hour) + (-booking.from * hour),
+              stroke: booking.color,
+              fill: "none",
+              strokeWidth: "8"
+            }
+          }
+        />
+    })
+    return (
+      <svg
+        className="booking"
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        xmlnsXlink="http://www.w3.org/1999/xlink"
+        x="0px"
+        y="0px"
+        viewBox="0 0 100 100"
+        style={{enableBackground:"new 0 0 100 100"}}
+        xmlSpace="preserve"
+      >
+        {circles}        
+      </svg>
+    )
+  }
+})
 
 
 
