@@ -70,6 +70,7 @@ var Calendar = React.createClass({
   },
   showTimeSelector: function(e) {
     e.preventDefault();
+    var thumbnailRect = e.currentTarget.getBoundingClientRect();
     var displayDate = this.state.displayDate;
     displayDate.day = {
       nr: e.currentTarget.dataset.datenr,
@@ -86,18 +87,40 @@ var Calendar = React.createClass({
         this.state.displayDate.month.name,
         this.state.bookings[this.state.displayDate.year + "_" + this.state.displayDate.day.nr],
         function(from, to) {
+          var bookings = this.state.bookings;
           if (from === false) {
             // User cancelled booking
             console.log("User cancelled booking");
           } else {
+            // User selected hours
             console.log("Please, make a booking from " + from + ":00 to " + to + ":00 on " + this.state.displayDate.day.nr + "/" + this.state.displayDate.month.nr);
+            
+            var booking = {
+              from: from,
+              to: to,
+              bookedBy: {
+                firstName: "Johannes",
+                id: 4
+              },
+              color: "#50d99a"
+            };
+            var dayKey = this.state.displayDate.year + "_" + this.state.displayDate.day.nr;
+            if (bookings[dayKey] === undefined) {
+              bookings[dayKey] = [booking];
+            } else {
+              bookings[dayKey].push(booking);
+            }
           }
           this.setState({
-            shouldDisplayTimeSelector: false
-          })
+            shouldDisplayTimeSelector: false,
+            bookings: bookings
+          }, function() {
+            var thumbnail = document.querySelector("a[data-datenr='" + this.state.displayDate.day.nr + "'] svg.booking");
+            thumbnail.style.transform = "rotateZ(360deg)";
+          }.bind(this))
         }.bind(this)
       );
-      timeSelector.enterFrom(100, 200);
+      timeSelector.enterFrom(thumbnailRect.left, thumbnailRect.top);
     });
   },
   daysInMonth: function(date) {

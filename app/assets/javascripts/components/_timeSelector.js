@@ -25,7 +25,7 @@ HourSelection.prototype.getSelectedHours = function() {
 HourSelection.prototype.selectHour = function(hour) {
   if (this.isFreeToBook(hour)) {
     // This hour is not already booked
-    if (!this.from) {
+    if (this.from == undefined) {
       // No selection exists
       this.from = hour;
       this.to = hour + 1;
@@ -43,6 +43,33 @@ HourSelection.prototype.selectHour = function(hour) {
       }
     }
   }
+  // Make sure this.from is less than this.to
+  if (this.from > this.to) {
+    // Swap values
+    var to = this.from;
+    this.to = this.from;
+    this.from = to;
+  }
+}
+
+HourSelection.prototype.selectFrom = function(hour) {
+  if (hour == this.to) {
+    this.removeSelection();
+  } else {
+    this.from = hour;
+  }
+}
+
+HourSelection.prototype.selectTo = function(hour) {
+  if (hour == this.from) {
+    this.removeSelection();
+  } else {
+    this.to = hour;
+  }
+}
+
+HourSelection.prototype.removeSelection = function() {
+  this.from = undefined;
 }
 
 HourSelection.prototype.deselectHour = function(hour) {
@@ -124,9 +151,6 @@ function TimeSelector(canvasId, date, day, month, bookings, callback) {
   this.animationCompletion = 0;
   this.hourOffset = -6;
   
-  this.cancelBtnMargin = 20;
-  this.cancelBtnSize = 30;
-
   this.ctx = this.canvas.getContext('2d');
   this.highlightedHour;
   // Colors
@@ -142,9 +166,7 @@ function TimeSelector(canvasId, date, day, month, bookings, callback) {
     highlightedDay:   'rgba(0, 0, 0, 0.2)',
     highlightedNight: 'rgba(255, 255, 255, 0.2)',
   }
-  // Text defaults
-  this.ctx.textAlign = "center";
-  this.ctx.textBaseline = "middle";
+
   // Register listeners
   this.handleMouseDownRef = this.handleMouseDown.bind(this);
   this.handleHoverRef = this.handleHover.bind(this);
@@ -164,7 +186,34 @@ TimeSelector.prototype.updateCanvasSize = function() {
   this.center = {
     x: this.width / 2,
     y: this.height / 2
+  };
+  
+  if (this.width > 480) {
+    // Default
+    this.cancelBtnMargin = 20;
+    this.cancelBtnSize = 30;
+    this.fontSizes = {
+      timeRange: 36,
+      dateDisplay: 18
+    };  
+  } else if (this.width > 320) {
+    // Mid size
+    this.cancelBtnMargin = 20;
+    this.cancelBtnSize = 20;
+    this.fontSizes = {
+      timeRange: 24,
+      dateDisplay: this.width * 0.03
+    };
+  } else {
+    // Small
+    this.cancelBtnMargin = 10;
+    this.cancelBtnSize = 20;
+    this.fontSizes = {
+      timeRange: 12,
+      dateDisplay: 10
+    };
   }
+
   this.draw();
 }
 
@@ -172,19 +221,52 @@ TimeSelector.prototype.updateCanvasSize = function() {
 *   Shows TimeSelector by scaling UI from a point.
 */
 TimeSelector.prototype.enterFrom = function(x, y) {
-  requestAnimationFrame(this.growFromPoint.bind(this));
+  this.thumbnailX = x;
+  this.thumbnailY = y;
+  var xMargin = (window.innerWidth - 700) / 2;
+  requestAnimationFrame(this.growFromPoint.bind(this, x, y, xMargin));
+}
+
+/**
+*   Hides TimeSelector by scaling UI to a point.
+*/
+TimeSelector.prototype.discardTo = function(x, y) {
+  var xMargin = (window.innerWidth - 700) / 2;
+  requestAnimationFrame(this.shrinkToPoint.bind(this, x, y, xMargin));
 }
 
 /**
 *
 */
-TimeSelector.prototype.growFromPoint = function() {
+TimeSelector.prototype.growFromPoint = function(x, y, xMargin) {
   this.animationCompletion += 0.05;
-  this.draw();
+  var xPos = (x - this.center.x - xMargin) * (1 - this.animationCompletion);
+  var yPos = (y - this.center.y + 10) * (1 - this.animationCompletion);
   if (this.animationCompletion < 1) {
-    requestAnimationFrame(this.growFromPoint.bind(this));
+    this.canvas.style.transform = "translate(" + xPos + "px, " + yPos + "px)";
+    this.draw();
+    requestAnimationFrame(this.growFromPoint.bind(this, x, y, xMargin));
   } else {
     this.animationCompletion = 1;
+    this.canvas.style.transform = "none";
+    this.draw();
+  }
+}
+
+/**
+*
+*/
+TimeSelector.prototype.shrinkToPoint = function(x, y, xMargin) {
+  this.animationCompletion -= 0.075;
+  var xPos = (x - this.center.x - xMargin) * (this.animationCompletion - 1);
+  var yPos = (y - this.center.y + 10) * (this.animationCompletion - 1);
+  if (this.animationCompletion > 0) {
+    this.canvas.style.transform = "translate(" + (-1 * xPos) + "px, " + (-1 * yPos) + "px)";
+    this.draw();
+    requestAnimationFrame(this.shrinkToPoint.bind(this, x, y, xMargin));
+  } else {
+    this.animationCompletion = 0;
+    this.draw();
   }
 }
 
@@ -252,10 +334,10 @@ TimeSelector.prototype.drawHourLines = function() {
     if (h >= 24) this.ctx.strokeStyle = this.colors.dayText;
     if (h % 2 === 0) {
       // Hour
-      lineLength = 25;
+      lineLength *= 2.5;
     } else {
       // Half hour
-      lineLength = 10;
+      lineLength = this.width / 60;
     }
     this.ctx.translate(this.center.x, this.center.y);
     this.ctx.rotate((h * angle) * Math.PI / 180);
@@ -273,6 +355,8 @@ TimeSelector.prototype.drawHourLines = function() {
 */
 TimeSelector.prototype.drawHourNumbers = function() {
   var hour = 0;
+  this.ctx.textAlign = "center";
+  this.ctx.textBaseline = "middle";
   this.ctx.font = "400 12px 'Quicksand', Quicksand, 'HelveticaNeue', Helvetica, Arial, sans-serif"
   for (var h = 0; h < (2 * Math.PI); h += ((2 * Math.PI) / 24)) {
     var x = this.center.x + (((this.radius - this.radius / 5) * this.animationCompletion) * Math.cos(h));
@@ -285,7 +369,7 @@ TimeSelector.prototype.drawHourNumbers = function() {
       if (correctedHour == this.selectedHours.from || correctedHour == this.selectedHours.from + 24 || correctedHour == this.selectedHours.to) {
 //        this.drawHourCircle(correctedHour);
         selectedHourCircle = true;
-        var r = 25;
+        var r = this.width * 0.041;
         this.ctx.save();
         this.ctx.beginPath();
         this.ctx.fillStyle = this.colors.day; //hour >= 12 ? this.colors.day : this.colors.night;
@@ -319,7 +403,7 @@ TimeSelector.prototype.offsetCorrectedHour = function(hour) {
 *   Draw cancel button
 */
 TimeSelector.prototype.drawCancelBtn = function() {
-  this.ctx.strokeStyle = this.highlightCancel ? "#FFF" : "#DDD";
+  this.ctx.strokeStyle = this.highlightCancel ? "#FFF" : "#AAA";
   this.ctx.lineWidth = 2;
   var corners = {
     left: this.width - (this.cancelBtnMargin + this.cancelBtnSize),
@@ -344,18 +428,20 @@ TimeSelector.prototype.drawCancelBtn = function() {
 */
 TimeSelector.prototype.drawDate = function() {
   this.ctx.save();
+  this.ctx.textAlign = "center";
+  this.ctx.textBaseline = "middle";
   this.ctx.translate(this.center.x * (1 - this.animationCompletion), this.center.y * (1 - this.animationCompletion));
   this.ctx.scale(this.animationCompletion, this.animationCompletion);
   // Date
-  this.ctx.font = "700 36px 'Quicksand', Quicksand, 'HelveticaNeue', Helvetica, Arial, sans-serif";
+  this.ctx.font = "700 " + this.fontSizes.timeRange + "px 'Quicksand', Quicksand, 'HelveticaNeue', Helvetica, Arial, sans-serif";
   this.ctx.fillStyle = this.colors.dateText;
-  this.ctx.fillText(this.date, this.center.x, this.center.y - 98);
-  this.ctx.font = "300 18px 'Quicksand', Quicksand, 'HelveticaNeue', Helvetica, Arial, sans-serif";
+  this.ctx.fillText(this.date, this.center.x, this.center.y * 0.67);
+  this.ctx.font = "300 " + this.fontSizes.dateDisplay + "px 'Quicksand', Quicksand, 'HelveticaNeue', Helvetica, Arial, sans-serif";
   // Weekday
-  this.ctx.fillText(this.day.substr(0,3).toUpperCase(), this.center.x, this.center.y - 123);
+  this.ctx.fillText(this.day.substr(0,3).toUpperCase(), this.center.x, this.center.y * 0.59);
   // Month
-  this.ctx.font = "400 18px 'Quicksand', Quicksand, 'HelveticaNeue', Helvetica, Arial, sans-serif";
-  this.ctx.fillText(this.month.substr(0,3).toUpperCase(), this.center.x, this.center.y - 72);
+  this.ctx.font = "400 " + this.fontSizes.dateDisplay + "px 'Quicksand', Quicksand, 'HelveticaNeue', Helvetica, Arial, sans-serif";
+  this.ctx.fillText(this.month.substr(0,3).toUpperCase(), this.center.x, this.center.y * 0.76);
   this.ctx.restore();
 }
 
@@ -365,7 +451,7 @@ TimeSelector.prototype.drawDate = function() {
 TimeSelector.prototype.drawSubmit = function() {
   // Draw circle
   this.ctx.beginPath();
-  this.ctx.arc(this.center.x, this.center.y, (50 * this.animationCompletion), 0, 2 * Math.PI);
+  this.ctx.arc(this.center.x, this.center.y, ((this.width / 12) * this.animationCompletion), 0, 2 * Math.PI);
   this.ctx.fillStyle = this.highlightSubmit ? this.colors.bookingText : "#FFF";    
   this.ctx.save();
   this.ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
@@ -375,10 +461,8 @@ TimeSelector.prototype.drawSubmit = function() {
   this.ctx.fill();
   this.ctx.restore();
   // Draw 'OK'
-  var fontSize = 36 * this.animationCompletion;
+  var fontSize = this.fontSizes.timeRange * this.animationCompletion;
   this.ctx.font = "100 " + fontSize + "px 'Helvetica Neue', 'HelveticaNeue-Light', Helvetica, Arial, sans-serif";
-  this.ctx.textAlign = "center";
-  this.ctx.textBaseline = "middle";
   this.ctx.fillStyle = this.highlightSubmit ? "#EEE" : "#000";
   this.ctx.fillText("OK", this.center.x, this.center.y);
 }
@@ -390,15 +474,16 @@ TimeSelector.prototype.drawTimeRange = function() {
   this.ctx.save();
   this.ctx.translate(this.center.x * (1 - this.animationCompletion), this.center.y * (1 - this.animationCompletion));
   this.ctx.scale(this.animationCompletion, this.animationCompletion);
-  this.ctx.font = "100 36px 'Quicksand', Quicksand, 'Helvetica Neue', Helvetica, Arial, sans-serif";
+  this.ctx.font = "100 " + this.fontSizes.timeRange + "px 'Quicksand', Quicksand, 'Helvetica Neue', Helvetica, Arial, sans-serif";
   this.ctx.fillStyle = this.colors.bookingText;
   var text = "Choose time";
   if (this.selectedHours.hasSelection()) {
     text = this.selectedHours.from + ":00-" + this.selectedHours.to + ":00";
   }
-  this.ctx.fillText(text, this.center.x, this.center.y + 84);
+  this.ctx.fillText(text, this.center.x, this.center.y * 1.28);
   this.ctx.restore();
 }
+
 /**
 *   Find which hour a point belongs to
 *   @param {Number} x - The x coordinate of the point
@@ -487,6 +572,16 @@ TimeSelector.prototype.clear = function() {
   this.ctx.clearRect(0, 0, this.width, this.height);
 }
 
+
+TimeSelector.prototype.clearListeners = function() {
+  this.canvas.removeEventListener("mousedown", this.handleMouseDownRef);
+  this.canvas.removeEventListener("mousemove", this.handleHoverRef);
+  this.canvas.removeEventListener("touchstart", this.handleMouseDownRef);
+  this.canvas.removeEventListener("touchmove", this.handleHoverRef);
+}
+
+
+
 /**
 *   Handle mouse click on canvas
 *   If hour is not selected, select it.
@@ -495,36 +590,41 @@ TimeSelector.prototype.clear = function() {
 *   If mouse is over cancel button - cancel
 */
 TimeSelector.prototype.handleMouseDown = function(e) {
-  // Check mouse position
+  // Prevent default to cancel click events
   e.preventDefault();
-  if (this.mouseIsAboveSubmit(e.pageX - this.canvas.offsetLeft, e.pageY - this.canvas.offsetTop)) {
-    // Submit
+  // Check mouse position
+  if (this.mouseIsAboveSubmit(e.pageX - this.canvas.offsetLeft, e.pageY - this.canvas.offsetTop - document.body.scrollTop)) {
+    // Submit booking
     if (this.selectedHours.hasSelection()) {
       // Remove event listeners
       this.clearListeners();
+      // Hide time selector
+      this.discardTo(this.thumbnailX, this.thumbnailY);
       // Envoke callback to submit booking
       this.submitBooking(this.selectedHours.from, this.selectedHours.to);
     } else {
       var ok = confirm("Nothing selected.\nPlease click (or drag) on the hours you want to book.\n\nPress cancel to close without making a booking.");
       if (!ok) {
         this.clearListeners();
+        // Hide time selector
+        this.discardTo(this.thumbnailX, this.thumbnailY);
         this.submitBooking(false);
       }
     }
-  } else if (this.mouseIsAboveCancel(e.pageX - this.canvas.offsetLeft, e.pageY - this.canvas.offsetTop)) {
+  } else if (this.mouseIsAboveCancel(e.pageX - this.canvas.offsetLeft, e.pageY - this.canvas.offsetTop - document.body.scrollTop)) {
+    // Cancel booking
     // Remove event listeners
     this.clearListeners();
+    // Hide time selector
+    this.discardTo(this.thumbnailX, this.thumbnailY);
     // Cancel
     this.submitBooking(false);
   } else {
-    // Select hour(s)
-    var hour = this.hourFromPoint(e.pageX - this.canvas.offsetLeft, e.pageY - this.canvas.offsetTop);
-    this.isSelecting = !this.selectedHours.hourIsSelected(hour);
-    if (this.isSelecting) {
-      this.selectedHours.selectHour(hour);
-    } else {
-      this.selectedHours.deselectHour(hour);
-    }
+    // Select/Deselect hour(s)
+    var hour = this.hourFromPoint(e.pageX - this.canvas.offsetLeft, e.pageY - this.canvas.offsetTop - document.body.scrollTop);
+    this.dragStartHandle = hour == this.selectedHours.from && this.selectedHours.to > hour + 1;
+    this.selectedHours.selectHour(hour);
+
     // Attach event listener to canvas
     this.dragSelectHoursRef = this.dragSelectHours.bind(this);
     this.hoursSelectedRef = this.hoursSelected.bind(this);
@@ -536,49 +636,27 @@ TimeSelector.prototype.handleMouseDown = function(e) {
   this.draw();
 }
 
-
-TimeSelector.prototype.clearListeners = function() {
-  this.canvas.removeEventListener("mousedown", this.handleMouseDownRef);
-  this.canvas.removeEventListener("mousemove", this.handleHoverRef);
-  this.canvas.removeEventListener("touchstart", this.handleMouseDownRef);
-  this.canvas.removeEventListener("touchmove", this.handleHoverRef);
-}
-
-
-/**
-*   Handle mouse hover over canvas
-*/
-TimeSelector.prototype.handleHover = function(e) {
-  if (this.mouseIsAboveSubmit(e.pageX - this.canvas.offsetLeft, e.pageY - this.canvas.offsetTop)) {
-    this.canvas.style.cursor = "pointer";
-    this.highlightSubmit = true;
-    this.highlightedHour = undefined;
-    this.highlightCancel = false;
-  } else if (this.mouseIsAboveCancel(e.pageX - this.canvas.offsetLeft, e.pageY - this.canvas.offsetTop)) {
-    this.canvas.style.cursor = "pointer";
-    this.highlightSubmit = false;
-    this.highlightedHour = undefined;
-    this.highlightCancel = true;
-  } else {
-    this.canvas.style.cursor = "default";
-    var hour = this.hourFromPoint(e.pageX - this.canvas.offsetLeft, e.pageY - this.canvas.offsetTop);
-    this.highlightSubmit = false;
-    this.highlightedHour = hour;    
-    this.highlightCancel = false;
-  }
-  this.draw();
-}
-
 /**
 *   Handle mouse dragging over hours to select/book
 */
 TimeSelector.prototype.dragSelectHours = function(e) {
-  var hour = this.hourFromPoint(e.pageX - this.canvas.offsetLeft, e.pageY - this.canvas.offsetTop);
-  if (this.isSelecting && hour >= this.selectedHours.to - 1) {
-    this.selectedHours.selectHour(hour);
+  var hour = this.hourFromPoint(e.pageX - this.canvas.offsetLeft, e.pageY - this.canvas.offsetTop - document.body.scrollTop);
+  if (this.dragStartHandle) {
+    // User drags start point
+    if (hour < this.selectedHours.from) {
+      this.selectedHours.selectHour(hour);
+    } else {
+      this.selectedHours.selectFrom(hour);
+    }
   } else {
-    this.selectedHours.deselectHour(hour);
+    // User drags end point
+    if (hour < this.selectedHours.to - 1) {
+      this.selectedHours.selectTo(hour);
+    } else {
+      this.selectedHours.selectHour(hour);
+    }
   }
+  
   this.draw();
 }
 
@@ -592,6 +670,28 @@ TimeSelector.prototype.hoursSelected = function(e) {
   e.target.removeEventListener("touchend", this.hoursSelectedRef);
 }
 
-
+/**
+*   Handle mouse hover over canvas
+*/
+TimeSelector.prototype.handleHover = function(e) {
+  if (this.mouseIsAboveSubmit(e.pageX - this.canvas.offsetLeft, e.pageY - this.canvas.offsetTop - document.body.scrollTop)) {
+    this.canvas.style.cursor = "pointer";
+    this.highlightSubmit = true;
+    this.highlightedHour = undefined;
+    this.highlightCancel = false;
+  } else if (this.mouseIsAboveCancel(e.pageX - this.canvas.offsetLeft, e.pageY - this.canvas.offsetTop - document.body.scrollTop)) {
+    this.canvas.style.cursor = "pointer";
+    this.highlightSubmit = false;
+    this.highlightedHour = undefined;
+    this.highlightCancel = true;
+  } else {
+    this.canvas.style.cursor = "default";
+    var hour = this.hourFromPoint(e.pageX - this.canvas.offsetLeft, e.pageY - this.canvas.offsetTop - document.body.scrollTop);
+    this.highlightSubmit = false;
+    this.highlightedHour = hour;    
+    this.highlightCancel = false;
+  }
+  this.draw();
+}
 
 

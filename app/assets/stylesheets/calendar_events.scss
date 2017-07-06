@@ -29,7 +29,7 @@
       margin: 40px auto;
     }
     &.visible {
-      animation: fade-in-hidden 400ms;
+      animation: fade-in-hidden 200ms;
       canvas {
 //        animation: grow 400ms;
       }
@@ -88,7 +88,7 @@
         top: 0;
         left: 0;
         opacity: 0.6;
-        transition: all 250ms ease-out;
+        transition: all 250ms ease-out, transform 400ms 200ms ease-out;
       }
       &:before {
         display: block;
