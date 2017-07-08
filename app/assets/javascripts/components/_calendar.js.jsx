@@ -2,6 +2,50 @@ var Calendar = React.createClass({
   componentDidMount: function() {
     window.addEventListener("resize", this.updateCalendarDaySize);
     this.updateCalendarDaySize();
+    // Assign color to every member
+    // Predefined colors to choose from
+    var colors = [
+      "#50d99a",
+      "#e3a927",
+      "#d9507b",
+      "#2daee8",
+      "#985ae0",
+      "#e86e2d",
+      "#3cd4bd"
+    ];
+    var assignedColors = {};
+    // Assign colors to members
+    this.props.members.forEach(function(member, i) {
+      assignedColors[member.id] = colors.length > 0 ? colors.shift() : "#9b9b9b";
+    });
+    // Prepare previous bookings
+    var bookings = {};
+    // Store only member id's that has previous bookings
+    this.memberIdsWithBookings = [];
+    this.props.bookings.forEach(function(booking, i) {
+      if (!this.memberIdsWithBookings.includes(booking.member_id)) {
+        this.memberIdsWithBookings.push(booking.member_id);
+      }
+      var fromDate = new Date(booking.from);
+      var dayKey = fromDate.getFullYear() + "_" + fromDate.getDate();
+      var oldBooking = {
+          from: fromDate.getHours(),
+          to: new Date(booking.to).getHours(),
+          bookedBy: {
+            name: "Name for id: " + booking.member_id,
+            id: booking.member_id
+          },
+          color: assignedColors[booking.member_id]
+        };
+      if (bookings[dayKey] === undefined) {
+        bookings[dayKey] = [];
+      }
+      bookings[dayKey].push(oldBooking);
+    }, this);
+    this.setState({
+      bookings: bookings,
+      assignedColors: assignedColors
+    })
   },
   componentWillUnmount: function() {
     window.removeEventListener("resize", this.updateCalendarDaySize);
@@ -23,49 +67,9 @@ var Calendar = React.createClass({
     return ({
       shouldDisplayTimeSelector: false,
       displayDate: this.props.displayDate,
-      bookings: {
-        "2017_5": [
-          {
-            from: 12,
-            to: 13,
-            bookedBy: {
-              firstName: "Tony",
-              id: 5
-            },
-            color: "#50d99a"
-          }
-        ],
-        "2017_6": [
-          {
-            from: 9,
-            to: 17,
-            bookedBy: {
-              firstName: "Johannes",
-              id: 4
-            },
-            color: "#d9507b"
-          },
-          {
-            from: 20,
-            to: 24,
-            bookedBy: {
-              firstName: "Bertil",
-              id: 6
-            },
-            color: "#e3a927"
-          }
-        ]
-//        "20176": [
-//          {
-//            from: new Date(Date.UTC(2017, 6, 1, 13, 0, 0)),
-//            to: new Date(Date.UTC(2017, 6, 1, 17, 30, 0)),
-//            bookedBy: {
-//              firstName: "Johannes",
-//              id: 3
-//            }
-//          }
-//        ]
-      }
+      assignedColors: {},
+      bookings: {},
+      membersWithBookings: []
     });
   },
   showTimeSelector: function(e) {
@@ -91,18 +95,19 @@ var Calendar = React.createClass({
           if (from === false) {
             // User cancelled booking
             console.log("User cancelled booking");
+            this.setState({
+              shouldDisplayTimeSelector: false
+            });
           } else {
-            // User selected hours
-            console.log("Please, make a booking from " + from + ":00 to " + to + ":00 on " + this.state.displayDate.day.nr + "/" + this.state.displayDate.month.nr);
-            
+            // User selected hours, store booking
             var booking = {
               from: from,
               to: to,
               bookedBy: {
-                firstName: "Johannes",
-                id: 4
+                name: this.props.currentMember.name,
+                id: this.props.currentMember.id
               },
-              color: "#50d99a"
+              color: this.state.assignedColors[44]
             };
             var dayKey = this.state.displayDate.year + "_" + this.state.displayDate.day.nr;
             if (bookings[dayKey] === undefined) {
@@ -110,14 +115,26 @@ var Calendar = React.createClass({
             } else {
               bookings[dayKey].push(booking);
             }
+            this.setState({
+              shouldDisplayTimeSelector: false,
+              bookings: bookings
+            }, function() {
+              var thumbnail = document.querySelector("a[data-datenr='" + this.state.displayDate.day.nr + "'] svg.booking");
+              thumbnail.style.transform = thumbnail.style.transform == "rotateZ(360deg)" ? "rotateZ(0deg)" : "rotateZ(360deg)";
+              // Talk to server
+              $.post('/calendar_events', {
+                calendar_event: {
+                  from: new Date(displayDate.year, displayDate.month.nr, displayDate.day.nr, booking.from),
+                  to: new Date(displayDate.year, displayDate.month.nr, displayDate.day.nr, booking.to),
+                  project_id: this.props.projectId,
+                  member_id: this.props.currentMember.id
+                },
+                authenticity_token: this.props.authenticity_token
+              }, function(response) {
+                console.log(response);
+              })
+            }.bind(this))
           }
-          this.setState({
-            shouldDisplayTimeSelector: false,
-            bookings: bookings
-          }, function() {
-            var thumbnail = document.querySelector("a[data-datenr='" + this.state.displayDate.day.nr + "'] svg.booking");
-            thumbnail.style.transform = "rotateZ(360deg)";
-          }.bind(this))
         }.bind(this)
       );
       timeSelector.enterFrom(thumbnailRect.left, thumbnailRect.top);
@@ -152,9 +169,13 @@ var Calendar = React.createClass({
         today={day == today.getDate()}
         sunday={(1 + i) % 7 === 0}
         bookings={this.state.bookings[displayDate.year + "_" + day] || []}
+        assignedColors={this.state.assignedColors}
         handleClick={this.showTimeSelector}
       />;
     }, this);
+  },
+  assignedColorFor: function(id) {
+    return this.state.assignedColors[id];
   },
   render: function() {
     var days = this.daysFor(this.state.displayDate);
@@ -162,8 +183,17 @@ var Calendar = React.createClass({
     var todaysBookings = [];
     if (this.state.bookings[this.state.displayDate.year + "_" + todaysDate] !== undefined) {
       todaysBookings = this.state.bookings[this.state.displayDate.year + "_" + todaysDate].map(function(event, i) {
-        return <p key={i}>{event.from.toLocaleString()}-{event.to.toLocaleString()}<br />{event.bookedBy.firstName}</p>
+        return <p key={i}>{event.from.toLocaleString()}-{event.to.toLocaleString()}<br />{event.bookedBy.name}</p>
       })
+    }
+    
+    var membersWithBookings = [];
+    if (this.memberIdsWithBookings !== undefined) {
+      this.props.members.forEach(function(member, i) {
+        if (this.memberIdsWithBookings.includes(member.id)) {
+          return membersWithBookings.push(member);
+        }
+      }, this);
     }
     return (
       <div className="calendar">
@@ -171,12 +201,22 @@ var Calendar = React.createClass({
         <ul className="calendarDays">
           {days}
         </ul>
+        {this.memberIdsWithBookings !== undefined ?
+          <MemberLegend
+            membersWithBookings={membersWithBookings}
+            assignedColors={this.state.assignedColors}
+          /> : null }
         <div className="todaysBookings">
           {todaysBookings.length > 0 ? <h2>Today</h2> : null }
           {todaysBookings.length > 0 ? todaysBookings : null}
         </div>
         <div className={this.state.shouldDisplayTimeSelector ? "timeSelectorContainer visible" : "timeSelectorContainer invisible"} >
           <canvas id="timeSelector" width="600" height="600"/>
+          {this.memberIdsWithBookings !== undefined ?
+            <MemberLegend
+              membersWithBookings={membersWithBookings}
+              assignedColors={this.state.assignedColors}
+            /> : null }
         </div>
       </div>
     )
@@ -200,6 +240,7 @@ var Day = React.createClass({
           <CalendarDayThumbnail
             day={this.props.day}
             bookings={this.props.bookings}
+            assignedColors={this.props.assignedColors}
           />
           <span className="number">{this.props.day}</span>
         </a>
@@ -220,17 +261,18 @@ var CalendarDayThumbnail = React.createClass({
           cx="50%"
           cy="50%"
           r="30%"
+          className={"circle bookedBy" + booking.bookedBy.id}
           style={
             {
               strokeDasharray: (range * hour) + "," + (190 - (range * hour)),
               strokeDashoffset: (-6 * hour) + (-booking.from * hour),
-              stroke: booking.color,
+              stroke: this.props.assignedColors[booking.bookedBy.id],
               fill: "none",
               strokeWidth: "8"
             }
           }
         />
-    })
+    }, this)
     return (
       <svg
         className="booking"
@@ -245,6 +287,53 @@ var CalendarDayThumbnail = React.createClass({
       >
         {circles}        
       </svg>
+    )
+  }
+})
+
+var MemberLegend = React.createClass({
+  handleMouseOver: function(e) {
+    e.preventDefault();
+    var membersBookings = document.getElementsByClassName(e.target.dataset.id);
+    Array.prototype.forEach.call(membersBookings, function(circle) {
+      circle.style.opacity = 1;
+      if (circle.parentNode.parentNode.className.indexOf("highlighted") == -1) {
+        circle.parentNode.parentNode.className += "highlighted";
+      }
+    })
+  },
+  handleMouseOut: function(e) {
+    var membersBookings = document.getElementsByClassName(e.target.dataset.id);
+    Array.prototype.forEach.call(membersBookings, function(circle) {
+      circle.style.opacity = null;
+      circle.parentNode.parentNode.className = circle.parentNode.parentNode.className.replace("highlighted", "");
+    })
+  },
+  render: function() {
+    var membersWithBookings = this.props.membersWithBookings.map(function(member, i) {
+      return (
+        <li
+          key={i}
+          onMouseOver={this.handleMouseOver}
+          onMouseOut={this.handleMouseOut}
+          onTouchStart={this.handleMouseOver}
+          onTouchEnd={this.handleMouseOut}
+          data-id={"bookedBy" + member.id}
+        >
+          <span
+            className="legendColorBox"
+            style={{backgroundColor: this.props.assignedColors[member.id]}}
+          ></span>
+          {member.name}
+        </li>
+      )
+    }, this)
+    return (
+      <div className="memberLegend">
+        <ul>
+          {membersWithBookings}
+        </ul>
+      </div>
     )
   }
 })

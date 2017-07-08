@@ -1,10 +1,18 @@
 class CalendarEventsController < ApplicationController
+  
+  include SessionsHelper
+  include ProjectsHelper
+
+  before_action :logged_in_member
   before_action :set_calendar_event, only: [:show, :edit, :update, :destroy]
 
   # GET /calendar_events
   # GET /calendar_events.json
   def index
     @calendar_events = CalendarEvent.all
+#    @calendar_event = current_member.calendar_events.build
+    @project_id = current_project_id
+    @members = Project.find(current_project_id).members.sort { |m| m.id == current_member.id ? -1 : 1}
   end
 
   # GET /calendar_events/1
@@ -24,16 +32,14 @@ class CalendarEventsController < ApplicationController
   # POST /calendar_events
   # POST /calendar_events.json
   def create
-    @calendar_event = CalendarEvent.new(calendar_event_params)
-
-    respond_to do |format|
-      if @calendar_event.save
-        format.html { redirect_to @calendar_event, notice: 'Calendar event was successfully created.' }
-        format.json { render :show, status: :created, location: @calendar_event }
-      else
-        format.html { render :new }
-        format.json { render json: @calendar_event.errors, status: :unprocessable_entity }
-      end
+    project = current_member.projects.where(id: current_project_id).first
+    @calendar_event = project.calendar_events.build(calendar_event_params)
+    if project.save 
+      render json: { success: "Funkar det" }
+    else
+      p project.errors
+      p @calendar_event.errors
+      render json: { error: "#{@calendar_event.errors}" }
     end
   end
 
@@ -69,6 +75,6 @@ class CalendarEventsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def calendar_event_params
-      params.require(:calendar_event).permit(:from, :to, :booked_by)
+      params.require(:calendar_event).permit(:from, :to, :project_id, :member_id)
     end
 end

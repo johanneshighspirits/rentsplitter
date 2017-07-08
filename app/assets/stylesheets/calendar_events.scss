@@ -53,6 +53,32 @@
 //      }
 //    }
   }
+  .memberLegend {
+    margin: 2em auto;
+    width: 100%;
+    font-size: 0.8em;
+    ul {
+      padding: 0 2em;
+    }
+    li {
+      padding: 0.3em 1.8em;
+      position: relative;
+      cursor: pointer;
+      opacity: 0.6;
+      &:hover {
+        opacity: 1;
+      }
+      .legendColorBox {
+        width: 1em;
+        height: 5px;
+        display: block;
+        position: absolute;
+        top: 0.75em;
+        left: 0;
+        border-radius: 2px;
+      }
+    }
+  }
 }
 .calendarDays {
   display: flex;
@@ -87,8 +113,11 @@
         position: absolute;
         top: 0;
         left: 0;
-        opacity: 0.6;
         transition: all 250ms ease-out, transform 400ms 200ms ease-out;
+        .circle {
+          opacity: 0.6;
+          transition: all 250ms ease-out, transform 400ms 200ms ease-out;
+        }
       }
       &:before {
         display: block;
@@ -130,8 +159,11 @@
           }
         }
       }
+      &.highlighted:before {
+        background: #171717;
+      }
       &:hover {
-        .booking {
+        .booking .circle {
           opacity: 1;
         }
         .number {
@@ -155,7 +187,7 @@
   }
 }
 @media screen and (min-width: 700px) {
-  .calendarDays, .todaysBookings {
+  .calendarDays, .todaysBookings, .calendar .memberLegend {
     width: 700px;
     .calendarDay {
       width: 100px;

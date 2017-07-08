@@ -1,4 +1,11 @@
 <%= react_component 'Calendar',
+  authenticity_token: form_authenticity_token,
+  currentMember: {
+      name: current_member.name,
+      id: current_member.id
+    },
+  projectId: @project_id,
+  members: @members.map {|m| {name: m.name, id: m.id}},
   bookings: @calendar_events,
   monthNames: (0..11).map {|m| Date::MONTHNAMES[m]},
   dayNames: (0..6).map {|m| Date::DAYNAMES[m]},
@@ -16,6 +23,7 @@
   }
     
 %>
+
 
 <% # link_to 'Show', calendar_event %>
 <% # link_to 'Edit', edit_calendar_event_path(calendar_event) %>

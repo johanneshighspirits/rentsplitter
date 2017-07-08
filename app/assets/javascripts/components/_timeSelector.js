@@ -223,7 +223,7 @@ TimeSelector.prototype.updateCanvasSize = function() {
 TimeSelector.prototype.enterFrom = function(x, y) {
   this.thumbnailX = x;
   this.thumbnailY = y;
-  var xMargin = (window.innerWidth - 700) / 2;
+  var xMargin = Math.max((window.innerWidth - 700) / 2, 0);
   requestAnimationFrame(this.growFromPoint.bind(this, x, y, xMargin));
 }
 
@@ -231,7 +231,7 @@ TimeSelector.prototype.enterFrom = function(x, y) {
 *   Hides TimeSelector by scaling UI to a point.
 */
 TimeSelector.prototype.discardTo = function(x, y) {
-  var xMargin = (window.innerWidth - 700) / 2;
+  var xMargin = Math.max((window.innerWidth - 700) / 2, 0);
   requestAnimationFrame(this.shrinkToPoint.bind(this, x, y, xMargin));
 }
 
@@ -403,6 +403,7 @@ TimeSelector.prototype.offsetCorrectedHour = function(hour) {
 *   Draw cancel button
 */
 TimeSelector.prototype.drawCancelBtn = function() {
+  if (this.animationCompletion < 1) return;
   this.ctx.strokeStyle = this.highlightCancel ? "#FFF" : "#AAA";
   this.ctx.lineWidth = 2;
   var corners = {
@@ -531,14 +532,17 @@ TimeSelector.prototype.draw = function() {
   // Prepare for drawing
   this.prepare();
   // Draw previous bookings if any
+  this.ctx.globalAlpha = 0.5;
   this.selectedHours.bookings.forEach(function(booking) {
-    var color = "#d04141";
+    var color = booking.color;
     var hour = booking.from;
     while (hour < booking.to) {
       this.drawHourPie(hour, hour + 1, color);
       hour++;
     }
   }, this);
+  this.ctx.globalAlpha = 1;
+  
   // Draw selected hours if any
   this.selectedHours.getSelectedHours().forEach(function(hour) {
     var color = hour >= 12 + this.hourOffset && hour < 24 + this.hourOffset ? this.colors.selectedDay : this.colors.selectedNight;
