@@ -11,44 +11,51 @@ var Calendar = React.createClass({
       "#2daee8",
       "#985ae0",
       "#e86e2d",
-      "#3cd4bd"
+      "#3cd4bd",
+      "#9ac9da"
     ];
-    var assignedColors = {};
-    // Assign colors to members
+    var members = {};
+    // Prepare members
     this.props.members.forEach(function(member, i) {
-      assignedColors[member.id] = colors.length > 0 ? colors.shift() : "#9b9b9b";
+      var newMember = member;
+      newMember.color = colors.length > 0 ? colors.shift() : "#9b9b9b";
+      newMember.bookings = [];
+      members[member.id] = newMember;
     });
-    // Prepare previous bookings
-    var bookings = {};
-    // Store only member id's that has previous bookings
-    this.memberIdsWithBookings = [];
+    // Check previous bookings and add to members
     this.props.bookings.forEach(function(booking, i) {
-      if (!this.memberIdsWithBookings.includes(booking.member_id)) {
-        this.memberIdsWithBookings.push(booking.member_id);
-      }
       var fromDate = new Date(booking.from);
+      var toDate = new Date(booking.to);
       var dayKey = fromDate.getFullYear() + "_" + fromDate.getDate();
-      var oldBooking = {
-          from: fromDate.getHours(),
-          to: new Date(booking.to).getHours(),
-          bookedBy: {
-            name: "Name for id: " + booking.member_id,
-            id: booking.member_id
-          },
-          color: assignedColors[booking.member_id]
-        };
-      if (bookings[dayKey] === undefined) {
-        bookings[dayKey] = [];
-      }
-      bookings[dayKey].push(oldBooking);
+      var existingBooking = {
+        id: booking.id,
+        from: fromDate.getHours(),
+        fromDate: fromDate,
+        to: toDate.getHours(),
+        toDate: toDate,
+        bookedBy: {
+          name: members[booking.member_id].name,
+          id: booking.member_id
+        },
+        color: members[booking.member_id].color
+      };
+      members[booking.member_id].bookings.push(existingBooking);
     }, this);
     this.setState({
-      bookings: bookings,
-      assignedColors: assignedColors
+      members: members
     })
   },
   componentWillUnmount: function() {
     window.removeEventListener("resize", this.updateCalendarDaySize);
+  },
+  getInitialState: function() {
+    var displayDate = this.props.displayDate;
+    displayDate.date = new Date(this.props.displayDate.year, this.props.displayDate.month.nr, this.props.displayDate.day.nr);
+    return ({
+      shouldDisplayTimeSelector: false,
+      displayDate: displayDate,
+      members: {}
+    });
   },
   updateCalendarDaySize: function() {
     var calendarWidth = document.querySelector('.calendarDays').offsetWidth;
@@ -63,14 +70,52 @@ var Calendar = React.createClass({
       document.getElementById('timeSelector').height = calendarWidth;
     }
   },
-  getInitialState: function() {
-    return ({
-      shouldDisplayTimeSelector: false,
-      displayDate: this.props.displayDate,
-      assignedColors: {},
-      bookings: {},
-      membersWithBookings: []
-    });
+  timeSelected: function(action, from, to, bookingId) {
+    var members = this.state.members;
+    switch (action) {
+      case "cancel":
+        // User cancelled booking
+        console.log("User cancelled booking");
+        this.setState({
+          shouldDisplayTimeSelector: false
+        });
+      break;
+      case "create":
+        // User selected hours, store booking
+        var booking = {
+          from: from,
+          to: to,
+          bookedBy: {
+            name: this.props.currentMember.name,
+            id: this.props.currentMember.id
+          },
+          color: this.state.members[this.props.currentMember.id].color
+        };
+        members[this.props.currentMember.id].bookings.push(booking);
+        this.setState({
+          shouldDisplayTimeSelector: false,
+          members: members
+        }, function() {
+          var thumbnail = document.querySelector("a[data-datenr='" + this.state.displayDate.day.nr + "'] svg.booking");
+          thumbnail.style.transform = thumbnail.style.transform == "rotateZ(360deg)" ? "rotateZ(0deg)" : "rotateZ(360deg)";
+          // Talk to server
+          $.post('/calendar_events', {
+            calendar_event: {
+              from: new Date(this.state.displayDate.year, this.state.displayDate.month.nr, this.state.displayDate.day.nr, booking.from),
+              to: new Date(this.state.displayDate.year, this.state.displayDate.month.nr, this.state.displayDate.day.nr, booking.to),
+              project_id: this.props.projectId,
+              member_id: this.props.currentMember.id
+            },
+            authenticity_token: this.props.authenticity_token
+          }, function(response) {
+            console.log(response);
+          })
+        }.bind(this))
+      break;
+      case "edit":
+        console.log("Edit: ", from, to, bookingId);
+      break;
+    }
   },
   showTimeSelector: function(e) {
     e.preventDefault();
@@ -80,65 +125,38 @@ var Calendar = React.createClass({
       nr: e.currentTarget.dataset.datenr,
       name: e.currentTarget.dataset.dayname
     };
+    displayDate.date = new Date(this.state.displayDate.year, this.state.displayDate.month.nr, e.currentTarget.dataset.datenr);
+
     this.setState({
       shouldDisplayTimeSelector: true,
       displayDate: displayDate
     }, function() {
+      var clickedDate = new Date(this.state.displayDate.year, this.state.displayDate.month.nr, this.state.displayDate.day.nr);
       var timeSelector = new TimeSelector(
         'timeSelector',
         this.state.displayDate.day.nr,
         this.state.displayDate.day.name,
         this.state.displayDate.month.name,
-        this.state.bookings[this.state.displayDate.year + "_" + this.state.displayDate.day.nr],
-        function(from, to) {
-          var bookings = this.state.bookings;
-          if (from === false) {
-            // User cancelled booking
-            console.log("User cancelled booking");
-            this.setState({
-              shouldDisplayTimeSelector: false
-            });
-          } else {
-            // User selected hours, store booking
-            var booking = {
-              from: from,
-              to: to,
-              bookedBy: {
-                name: this.props.currentMember.name,
-                id: this.props.currentMember.id
-              },
-              color: this.state.assignedColors[44]
-            };
-            var dayKey = this.state.displayDate.year + "_" + this.state.displayDate.day.nr;
-            if (bookings[dayKey] === undefined) {
-              bookings[dayKey] = [booking];
-            } else {
-              bookings[dayKey].push(booking);
-            }
-            this.setState({
-              shouldDisplayTimeSelector: false,
-              bookings: bookings
-            }, function() {
-              var thumbnail = document.querySelector("a[data-datenr='" + this.state.displayDate.day.nr + "'] svg.booking");
-              thumbnail.style.transform = thumbnail.style.transform == "rotateZ(360deg)" ? "rotateZ(0deg)" : "rotateZ(360deg)";
-              // Talk to server
-              $.post('/calendar_events', {
-                calendar_event: {
-                  from: new Date(displayDate.year, displayDate.month.nr, displayDate.day.nr, booking.from),
-                  to: new Date(displayDate.year, displayDate.month.nr, displayDate.day.nr, booking.to),
-                  project_id: this.props.projectId,
-                  member_id: this.props.currentMember.id
-                },
-                authenticity_token: this.props.authenticity_token
-              }, function(response) {
-                console.log(response);
-              })
-            }.bind(this))
-          }
-        }.bind(this)
+        this.getBookingsFor(clickedDate),
+        this.timeSelected
       );
       timeSelector.enterFrom(thumbnailRect.left, thumbnailRect.top);
     });
+  },
+  getBookingsFor: function(date) {
+    var bookings = [];
+    for (var memberId in this.state.members) {
+      if (!this.state.members.hasOwnProperty(memberId)) continue;
+      var member = this.state.members[memberId];
+      if (member.bookings.length > 0) {
+        member.bookings.forEach(function(booking) {
+          if (booking.fromDate.toDateString() === date.toDateString()) {
+            bookings.push(booking);
+          }
+        })
+      }
+    }
+    return bookings;
   },
   daysInMonth: function(date) {
     var firstOfPrevMonth = new Date(date); 
@@ -168,55 +186,38 @@ var Calendar = React.createClass({
         dayName={this.props.dayNames[weekDay.getDay()]}
         today={day == today.getDate()}
         sunday={(1 + i) % 7 === 0}
-        bookings={this.state.bookings[displayDate.year + "_" + day] || []}
-        assignedColors={this.state.assignedColors}
+        bookings={this.getBookingsFor(weekDay)}
+        members={this.state.members}
         handleClick={this.showTimeSelector}
       />;
     }, this);
   },
-  assignedColorFor: function(id) {
-    return this.state.assignedColors[id];
-  },
   render: function() {
     var days = this.daysFor(this.state.displayDate);
-    var todaysDate = new Date().getDate();
-    var todaysBookings = [];
-    if (this.state.bookings[this.state.displayDate.year + "_" + todaysDate] !== undefined) {
-      todaysBookings = this.state.bookings[this.state.displayDate.year + "_" + todaysDate].map(function(event, i) {
-        return <p key={i}>{event.from.toLocaleString()}-{event.to.toLocaleString()}<br />{event.bookedBy.name}</p>
-      })
-    }
-    
-    var membersWithBookings = [];
-    if (this.memberIdsWithBookings !== undefined) {
-      this.props.members.forEach(function(member, i) {
-        if (this.memberIdsWithBookings.includes(member.id)) {
-          return membersWithBookings.push(member);
-        }
-      }, this);
-    }
+    var now = new Date();
+    var todaysDate = now.getDate();
+    var todaysBookings = this.getBookingsFor(now).map(function(event, i) {
+      return <p key={i}>{event.from.toLocaleString()}-{event.to.toLocaleString()}<br />{event.bookedBy.name}</p>
+    })    
     return (
       <div className="calendar">
         <h1>{this.state.displayDate.month.name}</h1>
         <ul className="calendarDays">
           {days}
         </ul>
-        {this.memberIdsWithBookings !== undefined ?
-          <MemberLegend
-            membersWithBookings={membersWithBookings}
-            assignedColors={this.state.assignedColors}
-          /> : null }
+        <MemberLegend
+          members={this.state.members}
+        />
         <div className="todaysBookings">
           {todaysBookings.length > 0 ? <h2>Today</h2> : null }
           {todaysBookings.length > 0 ? todaysBookings : null}
         </div>
         <div className={this.state.shouldDisplayTimeSelector ? "timeSelectorContainer visible" : "timeSelectorContainer invisible"} >
           <canvas id="timeSelector" width="600" height="600"/>
-          {this.memberIdsWithBookings !== undefined ?
-            <MemberLegend
-              membersWithBookings={membersWithBookings}
-              assignedColors={this.state.assignedColors}
-            /> : null }
+          <MemberLegend
+            members={this.state.members}
+            bookings={this.getBookingsFor(this.state.displayDate.date)}
+          />
         </div>
       </div>
     )
@@ -240,7 +241,7 @@ var Day = React.createClass({
           <CalendarDayThumbnail
             day={this.props.day}
             bookings={this.props.bookings}
-            assignedColors={this.props.assignedColors}
+            members={this.props.members}
           />
           <span className="number">{this.props.day}</span>
         </a>
@@ -266,7 +267,7 @@ var CalendarDayThumbnail = React.createClass({
             {
               strokeDasharray: (range * hour) + "," + (190 - (range * hour)),
               strokeDashoffset: (-6 * hour) + (-booking.from * hour),
-              stroke: this.props.assignedColors[booking.bookedBy.id],
+              stroke: this.props.members[booking.bookedBy.id].color,
               fill: "none",
               strokeWidth: "8"
             }
@@ -298,7 +299,7 @@ var MemberLegend = React.createClass({
     Array.prototype.forEach.call(membersBookings, function(circle) {
       circle.style.opacity = 1;
       if (circle.parentNode.parentNode.className.indexOf("highlighted") == -1) {
-        circle.parentNode.parentNode.className += "highlighted";
+        circle.parentNode.parentNode.className += " highlighted";
       }
     })
   },
@@ -310,10 +311,23 @@ var MemberLegend = React.createClass({
     })
   },
   render: function() {
-    var membersWithBookings = this.props.membersWithBookings.map(function(member, i) {
-      return (
+    var items = [];
+    for (var memberId in this.props.members) {
+      if (!this.props.members.hasOwnProperty(memberId)) continue;
+      var member = this.props.members[memberId];
+      if (member.bookings.length === 0) continue;
+      if (this.props.bookings) {
+        var hasBookings = false;
+        this.props.bookings.forEach(function(booking, i) {
+          if (booking.bookedBy.id == memberId) {
+            hasBookings = true; 
+          }
+        }, this)
+        if (!hasBookings) continue;
+      }
+      items.push(
         <li
-          key={i}
+          key={memberId}
           onMouseOver={this.handleMouseOver}
           onMouseOut={this.handleMouseOut}
           onTouchStart={this.handleMouseOver}
@@ -322,16 +336,16 @@ var MemberLegend = React.createClass({
         >
           <span
             className="legendColorBox"
-            style={{backgroundColor: this.props.assignedColors[member.id]}}
+            style={{backgroundColor: member.color}}
           ></span>
           {member.name}
         </li>
-      )
-    }, this)
+      );
+    }      
     return (
       <div className="memberLegend">
         <ul>
-          {membersWithBookings}
+          {items}
         </ul>
       </div>
     )

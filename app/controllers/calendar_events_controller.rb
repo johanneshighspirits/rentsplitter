@@ -35,7 +35,10 @@ class CalendarEventsController < ApplicationController
     project = current_member.projects.where(id: current_project_id).first
     @calendar_event = project.calendar_events.build(calendar_event_params)
     if project.save 
-      render json: { success: "Funkar det" }
+      render json: {
+        success: true,
+        message: "Booking successfully saved."
+      }
     else
       p project.errors
       p @calendar_event.errors

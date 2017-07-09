@@ -159,8 +159,22 @@
           }
         }
       }
-      &.highlighted:before {
-        background: #171717;
+      &.highlighted {
+        .number {
+          color: #FFF;
+        }
+        &:before {
+          background: #171717;
+        }
+        &.today {
+          .number {
+            color: #000
+          }
+          &:before {
+            background: #FFF;
+            box-shadow: 0 0 10px 3px #000;
+          }
+        }
       }
       &:hover {
         .booking .circle {

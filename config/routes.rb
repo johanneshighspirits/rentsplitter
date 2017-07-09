@@ -20,7 +20,7 @@ Rails.application.routes.draw do
 
   post    '/mail/reports', to: 'mail_reports#mail_report'
 
-  get     '/calendar',  to: 'calendar_events#index'
+  get     '/calendar',  to: 'calendar_events#index', as: :calendar_events
 
   resources :members
   resources :projects
