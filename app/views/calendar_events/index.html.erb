@@ -14,9 +14,8 @@
   displayDate: {
     year: Date.current.year,
     month: {
-      # Zero based, January = 0
       nr: Date.current.month - 1,
-      name: Date::MONTHNAMES[Date.current.month - 1]
+      name: Date::MONTHNAMES[Date.current.month]
     },
     day: {
       nr: Date.current.day,

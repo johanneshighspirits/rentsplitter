@@ -84,7 +84,9 @@ var Calendar = React.createClass({
         // User selected hours, store booking
         var booking = {
           from: from,
+          fromDate: new Date(this.state.displayDate.year, this.state.displayDate.month.nr, this.state.displayDate.day.nr, from),
           to: to,
+          toDate: new Date(this.state.displayDate.year, this.state.displayDate.month.nr, this.state.displayDate.day.nr, to),
           bookedBy: {
             name: this.props.currentMember.name,
             id: this.props.currentMember.id
