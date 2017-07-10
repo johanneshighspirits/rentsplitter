@@ -131,14 +131,6 @@
         background: none;
         transition: all 250ms ease-out;
       }
-      &:hover {
-        &:before {
-          background: #555;
-        }
-        .number {
-          color: #000;
-        }
-      }
       &.sunday .number {
         font-weight: bold;
         color: #d05959;
@@ -150,38 +142,59 @@
         &:before {
           background: #EEE;
         }
+      }
+    }
+    &.past {
+      opacity: 0.5;
+      a {
+        cursor: default;
+      }
+    }
+    &.future {
+      cursor: pointer;
+      a {
         &:hover {
           &:before {
-            background: #FFF;
+            background: #555;
           }
           .number {
             color: #000;
           }
         }
-      }
-      &.highlighted {
-        .number {
-          color: #FFF;
-        }
-        &:before {
-          background: #171717;
-        }
         &.today {
+          &:hover {
+            &:before {
+              background: #FFF;
+            }
+            .number {
+              color: #000;
+            }
+          }
+        }
+        &:hover {
+          .booking .circle {
+            opacity: 1;
+          }
           .number {
-            color: #000
+            color: #FFF;
+          }
+        }
+        &.highlighted {
+          .number {
+            color: #FFF;
           }
           &:before {
-            background: #FFF;
-            box-shadow: 0 0 10px 3px #000;
+            background: #171717;
           }
-        }
-      }
-      &:hover {
-        .booking .circle {
-          opacity: 1;
-        }
-        .number {
-          color: #FFF;
+          &.today {
+            .number {
+              color: #000
+            }
+            &:before {
+              background: #FFF;
+              box-shadow: 0 0 10px 3px #000;
+            }
+          }
         }
       }
     }
@@ -189,9 +202,23 @@
 }
 .todaysBookings {
   margin: 2em auto;
+  padding: 1em 3em 1.8em;
+  background: #1e272d;
+  box-sizing: border-box;
+  border-radius: 10px;
   width: 90%;
   p {
+    position: relative;
     padding: 0 2em;
+    color: #ddd;
+    .time {
+      border-bottom: 2px;
+      border-bottom-style: solid;
+    }
+    .name {
+      position: absolute;
+      left: 33%;
+    }
   }
 }
 

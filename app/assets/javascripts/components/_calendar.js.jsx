@@ -121,6 +121,7 @@ var Calendar = React.createClass({
   },
   showTimeSelector: function(e) {
     e.preventDefault();
+    if (e.currentTarget.parentNode.className.indexOf('past') !== -1) return false;
     var thumbnailRect = e.currentTarget.getBoundingClientRect();
     var displayDate = this.state.displayDate;
     displayDate.day = {
@@ -187,6 +188,7 @@ var Calendar = React.createClass({
         day={day}
         dayName={this.props.dayNames[weekDay.getDay()]}
         today={day == today.getDate()}
+        future={weekDay > today || weekDay.toLocaleDateString() == today.toLocaleDateString()}
         sunday={(1 + i) % 7 === 0}
         bookings={this.getBookingsFor(weekDay)}
         members={this.state.members}
@@ -198,9 +200,6 @@ var Calendar = React.createClass({
     var days = this.daysFor(this.state.displayDate);
     var now = new Date();
     var todaysDate = now.getDate();
-    var todaysBookings = this.getBookingsFor(now).map(function(event, i) {
-      return <p key={i}>{event.from.toLocaleString()}-{event.to.toLocaleString()}<br />{event.bookedBy.name}</p>
-    })    
     return (
       <div className="calendar">
         <h1>{this.state.displayDate.month.name}</h1>
@@ -210,10 +209,7 @@ var Calendar = React.createClass({
         <MemberLegend
           members={this.state.members}
         />
-        <div className="todaysBookings">
-          {todaysBookings.length > 0 ? <h2>Today</h2> : null }
-          {todaysBookings.length > 0 ? todaysBookings : null}
-        </div>
+        <Schedule bookings={this.getBookingsFor(now)} />
         <div className={this.state.shouldDisplayTimeSelector ? "timeSelectorContainer visible" : "timeSelectorContainer invisible"} >
           <canvas id="timeSelector" width="600" height="600"/>
           <MemberLegend
@@ -226,14 +222,33 @@ var Calendar = React.createClass({
   }
 });
 
+var Schedule = React.createClass({
+  render: function() {
+    var todaysBookings = this.props.bookings.map(function(event, i) {
+      console.log(event);
+      return (
+        <p key={i}>
+          <span className="time" style={{ borderColor: event.color }}>{event.from.toLocaleString()}:00 - {event.to.toLocaleString()}:00</span>
+          <span className="name">{event.bookedBy.name}</span>
+        </p>
+      )
+    })
+    return (
+      <div className="todaysBookings">
+        {todaysBookings.length > 0 ? <h2>Today</h2> : null }
+        {todaysBookings.length > 0 ? todaysBookings : null}
+      </div>
+    )
+  }
+})
+
 var Day = React.createClass({
   render: function() {
     var classNames = [];
     if (this.props.sunday) classNames.push("sunday");
     if (this.props.today) classNames.push("today");
-
     return this.props.day > 0 ? (
-      <li className="calendarDay">
+      <li className={"calendarDay" + (this.props.future ? " future" : " past")}>
         <a
           onClick={this.props.handleClick}
           href="#"
@@ -249,7 +264,7 @@ var Day = React.createClass({
         </a>
       </li>
     ) : (
-      <li className="calendarDay"></li>
+      <li className={"calendarDay" + (this.props.future ? " future" : " past")}></li>
     )
   }
 });
