@@ -30,14 +30,14 @@ class CalendarEventsController < ApplicationController
   end
 
   # POST /calendar_events
-  # POST /calendar_events.json
   def create
     project = current_member.projects.where(id: current_project_id).first
     @calendar_event = project.calendar_events.build(calendar_event_params)
     if project.save 
       render json: {
         success: true,
-        message: "Booking successfully saved."
+        message: "Booking successfully saved.",
+        bookingId: @calendar_event.id
       }
     else
       p project.errors
@@ -64,10 +64,10 @@ class CalendarEventsController < ApplicationController
   # DELETE /calendar_events/1.json
   def destroy
     @calendar_event.destroy
-    respond_to do |format|
-      format.html { redirect_to calendar_events_url, notice: 'Calendar event was successfully destroyed.' }
-      format.json { head :no_content }
-    end
+    render json: {
+      success: true,
+      message: "Booking successfully removed."
+    }
   end
 
   private

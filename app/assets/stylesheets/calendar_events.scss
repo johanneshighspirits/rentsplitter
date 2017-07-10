@@ -202,22 +202,63 @@
 }
 .todaysBookings {
   margin: 2em auto;
-  padding: 1em 3em 1.8em;
+  padding: 1em 0.5em 3em;
   background: #1e272d;
   box-sizing: border-box;
   border-radius: 10px;
-  width: 90%;
+  width: 100%;
   p {
     position: relative;
-    padding: 0 2em;
+    padding: 0 1em;
     color: #ddd;
+    span {
+      display: block;
+      text-align: center;
+      padding: 0.5em 0;
+    }
     .time {
       border-bottom: 2px;
       border-bottom-style: solid;
     }
-    .name {
-      position: absolute;
-      left: 33%;
+  }
+}
+
+.userInfoBackground {
+  display: flex;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background: rgba(0,0,0,0.8);
+  transition: opacity 200ms ease-out;
+  animation: fade-in 200ms ease-out;
+  .userInfoContainer {
+    display: flex;
+    flex-direction: column;
+    margin: auto auto 60% auto;
+    background: #262626;
+    padding: 2em;
+    border-radius: 4px;
+    animation: grow 250ms ease-out;
+    .row {
+      margin: auto;
+      &.buttons {
+        display: flex;
+        flex-direction: row;
+        a {
+          margin: 1em 0.4em 0;
+          color: #333;
+          background: #FFF;
+          border-radius: 4px;
+          padding: 0.5em 2em;
+          transition: all 300ms ease-out;
+          &:hover {
+            color: #FFF;
+            background: rgb(202, 170, 71);
+          }
+        }
+      }
     }
   }
 }
@@ -226,13 +267,39 @@
   .calendar {
     font-size: 18px;
   }
+  .todaysBookings {
+    p {
+      font-size: 0.8em;
+      span {
+        display: inline-block;
+        text-align: left;
+      }
+      .name {
+        position: absolute;
+        left: 33%;
+      }
+    }
+  }
+}
+@media screen and (min-width: 480px) {
+  .todaysBookings p {
+    font-size: 1em;
+  }
 }
 @media screen and (min-width: 700px) {
-  .calendarDays, .todaysBookings, .calendar .memberLegend {
+  .calendarDays, .calendar .memberLegend {
     width: 700px;
     .calendarDay {
       width: 100px;
       height: 100px;
+    }
+  }
+  .todaysBookings {
+    width: 700px;
+    padding: 1em 3em 1.8em;
+    border-radius: 10px;
+    p {
+      padding: 0 2em;
     }
   }
 }

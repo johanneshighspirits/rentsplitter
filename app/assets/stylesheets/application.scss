@@ -275,7 +275,7 @@ footer {
   border-radius: 10px;
   overflow: hidden;
   vertical-align: top;
-  animation: fade-in 400ms ease-out backwards;
+  animation: fade-in-and-scale 400ms ease-out backwards;
   &.currentMember {
     display: block;
     margin: 0.5em auto;

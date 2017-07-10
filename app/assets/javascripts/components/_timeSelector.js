@@ -1,4 +1,70 @@
 /**
+*   Display a custom alert/confirm/prompt to user
+*   @param {string} text - The info text to display
+*   @param {string} btnText1 - Text to display on first button
+*   @param {function} okAction - invoked when user presses first button
+*   @param {string} [btnText2] - Text to display on second button
+*   @param {function} [cancelAction] - invoked when user presses second button
+*/
+function UserInfo(text, btnText1, okAction, btnText2, cancelAction) {
+  this.backgroundPlate = document.createElement('div');
+  var container = document.createElement('div');
+  var infoText = document.createElement('p');
+  var buttons = document.createElement('div');
+  var okButton = document.createElement('a');
+  var cancelButton = document.createElement('a');
+  
+  this.backgroundPlate.className = "userInfoBackground";
+  container.className = "userInfoContainer";
+  infoText.className = "row";
+  buttons.className = "row buttons";
+  
+  infoText.innerHTML = text;
+  okButton.innerHTML = btnText1;
+  okButton.setAttribute("id", "btn1");
+  okButton.setAttribute("href", "#");
+  buttons.appendChild(okButton);
+
+  if (btnText2 !== undefined) {
+    cancelButton.innerHTML = btnText2;
+    cancelButton.setAttribute("id", "btn2");
+    cancelButton.setAttribute("href", "#");
+    buttons.appendChild(cancelButton);
+  }
+  
+  buttons.addEventListener("click", function(e) {
+    e.preventDefault();
+    switch (e.target.id) {
+      case "btn1":
+        this.dismiss();
+        if (typeof(okAction) == 'function') okAction();
+      break;
+      case "btn2":
+        this.dismiss();
+        if (typeof(cancelAction) == 'function') cancelAction();
+      break;
+    }
+  }.bind(this));
+  
+  container.appendChild(infoText);
+  container.appendChild(buttons);
+  this.backgroundPlate.appendChild(container);
+}
+
+UserInfo.prototype.present = function(parent) {
+  parent.appendChild(this.backgroundPlate);
+}
+
+UserInfo.prototype.dismiss = function() {
+  this.backgroundPlate.querySelector(".userInfoContainer").style.animation = "shrink 190ms ease-in";
+  this.backgroundPlate.style.opacity = 0;
+  setTimeout(function () {
+    this.backgroundPlate.parentNode.removeChild(this.backgroundPlate);
+  }.bind(this), 200);
+}
+
+
+/**
 *   Store a timespan. 
 */
 function HourSelection() {
@@ -42,10 +108,6 @@ HourSelection.prototype.selectHour = function(hour) {
         this.to = h;
       }
     }
-  } else {
-    var prevBooking = this.bookingFor(hour);
-    console.log("Already booked by ", prevBooking);
-    alert(prevBooking.from + ":00-" + prevBooking.to + ":00 is already booked by " + prevBooking.bookedBy.name);
   }
   // Make sure this.from is less than this.to
   if (this.from > this.to) {
@@ -157,11 +219,12 @@ HourSelection.prototype.hasSelection = function() {
 /**
 *   Display a 24-hour clock where user can choose a time span.
 */
-function TimeSelector(canvasId, date, day, month, bookings, callback) {
+function TimeSelector(canvasId, date, day, month, bookings, currentMember, callback) {
   this.canvas = document.getElementById(canvasId);
   this.date = date;
   this.day = day;
   this.month = month;
+  this.currentMember = currentMember;
   this.selectedHours = new HourSelection();
   this.selectedHours.registerBookings(bookings);
   this.submitBooking = callback;
@@ -519,13 +582,19 @@ TimeSelector.prototype.drawTimeRange = function() {
 }
 
 /**
-*
+*   Draw info text to give user feedback. 
+*   @params {array/string} info - Single string or array of strings.
 */
 TimeSelector.prototype.drawInfo = function(info) {
   this.ctx.font = "100 " + this.fontSizes.info + "px 'Quicksand', Quicksand, 'Helvetica Neue', Helvetica, Arial, sans-serif";
   this.ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-  var text = info;
-  this.ctx.fillText(text, this.center.x, this.center.y * 1.4);
+  if (Array.isArray(info)) {
+    info.forEach(function(line, i) {
+      this.ctx.fillText(line, this.center.x, (this.center.y * 1.4) + (i * this.fontSizes.info * 1.2));
+    }, this)
+  } else {
+    this.ctx.fillText(info, this.center.x, this.center.y * 1.4);
+  }
 }
 
 /**
@@ -581,6 +650,9 @@ TimeSelector.prototype.draw = function() {
     if (this.highlightBooking !== undefined && this.highlightBooking.id == booking.id) {
       this.ctx.globalAlpha = 0.8;
       info = booking.bookedBy.name;
+      if (booking.bookedBy.id == this.currentMember.id) {
+        info = [info, "(click to delete)"];
+      }
     } else {
       this.ctx.globalAlpha = 0.5;
     }
@@ -665,13 +737,12 @@ TimeSelector.prototype.handleMouseDown = function(e) {
       // Envoke callback to submit booking
       this.submitBooking("create", this.selectedHours.from, this.selectedHours.to);
     } else {
-      var ok = confirm("Nothing selected.\nPlease click (or drag) on the hours you want to book.\n\nPress cancel to close without making a booking.");
-      if (!ok) {
+      var userConfirm = new UserInfo("Nothing selected.\nPlease click (or drag) on the hours you want to book.\n\nPress cancel to close without making a booking.", "OK", undefined, "Cancel", function() {
         this.clearListeners();
         // Hide time selector
         this.discardTo(this.thumbnailX, this.thumbnailY);
         this.submitBooking("cancel");
-      }
+      }.bind(this));
     }
   } else if (this.mouseIsAboveCancel(e.pageX - this.canvas.offsetLeft, e.pageY - this.canvas.offsetTop - document.body.scrollTop)) {
     // Cancel booking
@@ -684,8 +755,39 @@ TimeSelector.prototype.handleMouseDown = function(e) {
   } else {
     // Select/Deselect hour(s)
     var hour = this.hourFromPoint(e.pageX - this.canvas.offsetLeft, e.pageY - this.canvas.offsetTop - document.body.scrollTop);
+    this.startHour = hour;
+    this.startHourIsSelected = this.selectedHours.hourIsSelected(hour);
     this.dragStartHandle = hour == this.selectedHours.from && this.selectedHours.to > hour + 1;
-    this.selectedHours.selectHour(hour);
+    // Check if current member has booked, if so, edit booking, else
+    // let HourSelection decide what to do
+    var prevBooking = this.selectedHours.bookingFor(hour);
+    if (prevBooking !== undefined) {
+      // Remove event listeners and update canvas
+      this.hoursSelected(e);
+      this.draw();
+      if (prevBooking.bookedBy.id == this.currentMember.id) {
+        // Member has booked
+        var userConfirm = new UserInfo("Press DELETE to remove this booking.", "DELETE", function() {
+          // User pressed first button (DELETE)
+          // Remove event listeners
+          this.clearListeners();
+          // Hide time selector
+          this.discardTo(this.thumbnailX, this.thumbnailY);
+          // Delete booking
+          this.submitBooking("destroy", 0, 0, prevBooking.id);
+        }.bind(this), "Cancel");
+        userConfirm.present(this.canvas.parentNode);
+  //      this.canvas.parentNode.appendChild(userConfirm.backgroundPlate);
+        return false;
+      } else {
+        // Someone else has booked
+        var userAlert = new UserInfo(prevBooking.bookedBy.name + " has already booked " + prevBooking.from + ":00 - " + prevBooking.to + ":00.", "OK")
+        userAlert.present(this.canvas.parentNode);
+        return false;
+      }
+    } else {
+      this.selectedHours.selectHour(hour);
+    }
 
     // Attach event listener to canvas
     this.dragSelectHoursRef = this.dragSelectHours.bind(this);
@@ -704,6 +806,11 @@ TimeSelector.prototype.handleMouseDown = function(e) {
 TimeSelector.prototype.dragSelectHours = function(e) {
   var hour = this.hourFromPoint(e.pageX - this.canvas.offsetLeft, e.pageY - this.canvas.offsetTop - document.body.scrollTop);
   if (this.dragStartHandle) {
+    // User is dragging the first hour of the selection
+    // Prevent mouse up to deselect starting hour
+    if (hour !== this.startHour) {
+      this.startHour = undefined;
+    }
     // User drags start point
     if (hour < this.selectedHours.from) {
       this.selectedHours.selectHour(hour);
@@ -711,6 +818,11 @@ TimeSelector.prototype.dragSelectHours = function(e) {
       this.selectedHours.selectFrom(hour);
     }
   } else {
+    // User is dragging the last hour of the selection
+    // Prevent mouse up to deselect starting hour
+    if (hour !== this.startHour) {
+      this.startHour = undefined;
+    }
     // User drags end point
     if (hour < this.selectedHours.to - 1) {
       this.selectedHours.selectTo(hour);
@@ -726,6 +838,17 @@ TimeSelector.prototype.dragSelectHours = function(e) {
 *   User has finished selecting hours
 */
 TimeSelector.prototype.hoursSelected = function(e) {
+  var hour = this.hourFromPoint(e.pageX - this.canvas.offsetLeft, e.pageY - this.canvas.offsetTop - document.body.scrollTop);
+  if (hour == this.startHour) {
+    if (this.startHourIsSelected) {
+      console.log("deselect")
+      this.selectedHours.deselectHour(hour);
+    } else {
+      console.log("select")
+      this.selectedHours.selectHour(hour);
+    }
+  }
+  this.draw();
   e.target.removeEventListener("mousemove", this.dragSelectHoursRef);
   e.target.removeEventListener("mouseup", this.hoursSelectedRef);
   e.target.removeEventListener("touchmove", this.dragSelectHoursRef);

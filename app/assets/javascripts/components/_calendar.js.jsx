@@ -75,7 +75,6 @@ var Calendar = React.createClass({
     switch (action) {
       case "cancel":
         // User cancelled booking
-        console.log("User cancelled booking");
         this.setState({
           shouldDisplayTimeSelector: false
         });
@@ -98,8 +97,7 @@ var Calendar = React.createClass({
           shouldDisplayTimeSelector: false,
           members: members
         }, function() {
-          var thumbnail = document.querySelector("a[data-datenr='" + this.state.displayDate.day.nr + "'] svg.booking");
-          thumbnail.style.transform = thumbnail.style.transform == "rotateZ(360deg)" ? "rotateZ(0deg)" : "rotateZ(360deg)";
+          this.thumbnailUpdated(this.state.displayDate.day.nr);
           // Talk to server
           $.post('/calendar_events', {
             calendar_event: {
@@ -110,14 +108,51 @@ var Calendar = React.createClass({
             },
             authenticity_token: this.props.authenticity_token
           }, function(response) {
-            console.log(response);
-          })
+            // TODO: Catch errors here
+            // Set id on booking so we can retrieve it from database later
+            var members = this.state.members;
+            var membersBookings = members[this.props.currentMember.id].bookings;
+            for (var i = membersBookings.length - 1; i >= 0; i--) {
+              if (membersBookings[i].id === undefined && membersBookings[i].fromDate == booking.fromDate) {
+                membersBookings[i].id = response.bookingId;
+                break;
+              }
+            }
+          }.bind(this))
         }.bind(this))
       break;
       case "edit":
         console.log("Edit: ", from, to, bookingId);
       break;
+      case "destroy":
+        var members = this.state.members;
+        var membersBookings = members[this.props.currentMember.id].bookings.filter(function(booking) {
+          return booking.id !== bookingId;
+        });
+        members[this.props.currentMember.id].bookings = membersBookings;
+        this.setState({
+          shouldDisplayTimeSelector: false,
+          members: members
+        }, function() {
+          this.thumbnailUpdated(this.state.displayDate.day.nr);
+          $.post('/calendar_events/' + bookingId, {
+            _method: "delete",
+            authenticity_token: this.props.authenticity_token
+          }, function(response) {
+          // TODO: Catch errors here
+//            console.log(response);
+          });
+        });
+      break;
     }
+  },
+  thumbnailUpdated: function(id) {
+    var thumbnail = document.querySelector("a[data-datenr='" + id + "'] svg.booking");
+    var transition = thumbnail.style.transition;
+    thumbnail.style.transition = 'none';
+    thumbnail.style.transform = "rotateZ(0deg)";
+    thumbnail.style.transition = transition;
+    thumbnail.style.transform = "rotateZ(360deg)";
   },
   showTimeSelector: function(e) {
     e.preventDefault();
@@ -141,6 +176,7 @@ var Calendar = React.createClass({
         this.state.displayDate.day.name,
         this.state.displayDate.month.name,
         this.getBookingsFor(clickedDate),
+        this.props.currentMember,
         this.timeSelected
       );
       timeSelector.enterFrom(thumbnailRect.left, thumbnailRect.top);
@@ -225,7 +261,6 @@ var Calendar = React.createClass({
 var Schedule = React.createClass({
   render: function() {
     var todaysBookings = this.props.bookings.map(function(event, i) {
-      console.log(event);
       return (
         <p key={i}>
           <span className="time" style={{ borderColor: event.color }}>{event.from.toLocaleString()}:00 - {event.to.toLocaleString()}:00</span>
