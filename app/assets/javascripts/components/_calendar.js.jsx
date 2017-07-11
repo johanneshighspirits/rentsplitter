@@ -31,7 +31,7 @@ var Calendar = React.createClass({
         id: booking.id,
         from: fromDate.getHours(),
         fromDate: fromDate,
-        to: toDate.getHours(),
+        to: toDate.getHours() == 0 ? 24 : toDate.getHours(),
         toDate: toDate,
         bookedBy: {
           name: members[booking.member_id].name,
