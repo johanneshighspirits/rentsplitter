@@ -443,6 +443,8 @@ TimeSelector.prototype.drawHourNumbers = function() {
   this.ctx.textAlign = "center";
   this.ctx.textBaseline = "middle";
   this.ctx.font = "400 12px 'Quicksand', Quicksand, 'HelveticaNeue', Helvetica, Arial, sans-serif"
+  this.startHandle = undefined;
+  this.endHandle = undefined;
   for (var h = 0; h < (2 * Math.PI); h += ((2 * Math.PI) / 24)) {
     var x = this.center.x + (((this.radius - this.radius / 5) * this.animationCompletion) * Math.cos(h));
     var y = this.center.y + (((this.radius - this.radius / 5) * this.animationCompletion) * Math.sin(h));
@@ -452,23 +454,32 @@ TimeSelector.prototype.drawHourNumbers = function() {
     if (this.selectedHours.hasSelection()) {
       var correctedHour = this.offsetCorrectedHour(hour);      
       if (correctedHour == this.selectedHours.from || correctedHour == this.selectedHours.from + 24 || correctedHour == this.selectedHours.to) {
-//        this.drawHourCircle(correctedHour);
         selectedHourCircle = true;
-        var r = this.width * 0.041;
+        var handle = {
+          r: this.width * 0.041,
+          x: x,
+          y: y
+        }
+        if (correctedHour == this.selectedHours.to) {
+          this.endHandle = handle;
+        } else {
+          this.startHandle = handle;
+        }
+        
         this.ctx.save();
         this.ctx.beginPath();
-        this.ctx.fillStyle = this.colors.day; //hour >= 12 ? this.colors.day : this.colors.night;
+        this.ctx.fillStyle = this.colors.day;
         this.ctx.shadowBlur = 10;
         this.ctx.shadowOffsetX = 0;
         this.ctx.shadowOffsetY = 0;
         this.ctx.shadowColor = hour < 12 ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.25)';
-        this.ctx.arc(x, y, r, 0, 2 * Math.PI);
+        this.ctx.arc(x, y, handle.r, 0, 2 * Math.PI);
         this.ctx.closePath();
         this.ctx.fill();        
         this.ctx.restore();
       }
     }
-
+    
     var display = this.offsetCorrectedHour(hour);
     if (this.highlightedHour < 12 && hour + this.hourOffset === 0) display = "0";
     if (selectedHourCircle) this.ctx.fillStyle = this.colors.dayText;
@@ -612,6 +623,7 @@ TimeSelector.prototype.hourFromPoint = function(x, y) {
   // 0 means the hour between 00:00-01:00 (am)
   // 1 means 01:00-02:00 and so on
   var hour = Math.floor((degree / 360) * 24) + this.hourOffset;
+  
   return hour >= 0 ? hour : hour + 24;
 }
 
@@ -686,6 +698,7 @@ TimeSelector.prototype.draw = function() {
   // Display selected time range
   this.drawTimeRange();
   // Display user feedback
+  if (this.highlightCancel) info = "Click to cancel booking";
   this.drawInfo(info);
   // Draw hour lines
   this.drawHourLines();
@@ -755,6 +768,12 @@ TimeSelector.prototype.handleMouseDown = function(e) {
   } else {
     // Select/Deselect hour(s)
     var hour = this.hourFromPoint(e.pageX - this.canvas.offsetLeft, e.pageY - this.canvas.offsetTop - document.body.scrollTop);
+    
+    if (this.startHandle !== undefined) {
+      // TODO:
+      console.log("Check start and end handle");
+    }
+
     this.startHour = hour;
     this.startHourIsSelected = this.selectedHours.hourIsSelected(hour);
     this.dragStartHandle = hour == this.selectedHours.from && this.selectedHours.to > hour + 1;

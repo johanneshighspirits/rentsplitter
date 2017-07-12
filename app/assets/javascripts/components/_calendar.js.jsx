@@ -301,7 +301,9 @@ var Calendar = React.createClass({
 
 var Schedule = React.createClass({
   render: function() {
-    var todaysBookings = this.props.bookings.map(function(event, i) {
+    // Sort bookings by start time, so early bookings appear first.
+    var todaysBookings = this.props.bookings.sort(function(a, b) { return a.from > b.from });
+    todaysBookings = this.props.bookings.map(function(event, i) {
       return (
         <p key={i}>
           <span className="time" style={{ borderColor: event.color }}>{event.from.toLocaleString()}:00 - {event.to.toLocaleString()}:00</span>
