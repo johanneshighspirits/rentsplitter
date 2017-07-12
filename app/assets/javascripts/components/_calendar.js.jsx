@@ -100,7 +100,7 @@ var Calendar = React.createClass({
           shouldDisplayTimeSelector: false,
           members: members
         }, function() {
-          this.thumbnailUpdated(this.state.displayDate.getDay());
+          this.thumbnailUpdated(this.state.displayDate.getDate());
           
           var fromDate = new Date(this.state.displayDate);
           fromDate.setHours(booking.from);
@@ -142,7 +142,7 @@ var Calendar = React.createClass({
           shouldDisplayTimeSelector: false,
           members: members
         }, function() {
-          this.thumbnailUpdated(this.state.displayDate.getDay());
+          this.thumbnailUpdated(this.state.displayDate.getDate());
           $.post('/calendar_events/' + bookingId, {
             _method: "delete",
             authenticity_token: this.props.authenticity_token
@@ -156,14 +156,12 @@ var Calendar = React.createClass({
   },
   thumbnailUpdated: function(id) {
     var thumbnail = document.querySelector("a[data-datenr='" + id + "'] svg.booking");
-    var transition = thumbnail.style.transition;
-    thumbnail.style.transition = 'none';
-    thumbnail.style.transform = "rotateZ(0deg)";
-    thumbnail.style.transition = transition;
     thumbnail.style.transform = "rotateZ(360deg)";
   },
   showTimeSelector: function(e) {
     e.preventDefault();
+    e.currentTarget.getElementsByClassName('booking')[0].style.transform = "rotateZ(0deg)";
+
     if (e.currentTarget.parentNode.className.indexOf('past') !== -1) return false;
     var thumbnailRect = e.currentTarget.getBoundingClientRect();
     var displayDate = new Date(this.state.displayDate);
@@ -185,15 +183,32 @@ var Calendar = React.createClass({
       timeSelector.enterFrom(thumbnailRect.left, thumbnailRect.top);
     });
   },
-  getBookingsFor: function(date) {
+/**
+*   Returns all bookings for specified date or date range.
+*   If optional second parameter is present, return bookings from
+*   startDate to endDate
+*   @param {date} startDate - Return all bookings for this date
+*   @param {date} [endDate] - If provided, this is the last date to
+*                             return bookings for. 
+*/
+  getBookingsFor: function(startDate, endDate) {
     var bookings = [];
     for (var memberId in this.state.members) {
       if (!this.state.members.hasOwnProperty(memberId)) continue;
       var member = this.state.members[memberId];
       if (member.bookings.length > 0) {
         member.bookings.forEach(function(booking) {
-          if (booking.fromDate.toDateString() === date.toDateString()) {
-            bookings.push(booking);
+          if (endDate !== undefined) {
+            // Date range. Collect all bookings from startDate
+            // to endDate (inclusive)
+            if (booking.fromDate >= startDate && booking.fromDate <= endDate || booking.fromDate.toDateString() === startDate.toDateString() || booking.fromDate.toDateString() === endDate.toDateString()) {
+              bookings.push(booking);
+            }
+          } else {
+            // Single day. Collect all bookings from startDate only
+            if (booking.fromDate.toDateString() === startDate.toDateString()) {
+              bookings.push(booking);
+            }
           }
         })
       }
@@ -272,19 +287,27 @@ var Calendar = React.createClass({
     var days = this.daysFor(this.state.displayDate);
     var now = new Date();
     var todaysDate = now.getDate();
+    var firstOfMonth = new Date(this.state.displayDate);
+    firstOfMonth.setDate(1);
+    var lastOfMonth = new Date(this.state.displayDate);
+    lastOfMonth.setDate(this.daysInMonth(lastOfMonth));
     var isCurrentMonth = now.getFullYear() == this.state.displayDate.getFullYear() && now.getMonth() == this.state.displayDate.getMonth();
     return (
       <div className="calendar">
-        <h1>
-          {isCurrentMonth ? <div className="prev"></div> : <a className="prev" href="#prev" onClick={this.changeMonth}>&lt;</a>}{this.props.monthNames[this.state.displayDate.getMonth() + 1]}
-          <a className="next" href="#next" onClick={this.changeMonth}>&gt;</a>
-        </h1>
+        <div className="monthDisplay">
+          <h1>
+            {isCurrentMonth ? <div className="prev"></div> : <a className="prev" href="#prev" onClick={this.changeMonth}>&lt;</a>}{this.props.monthNames[this.state.displayDate.getMonth() + 1]}
+            <a className="next" href="#next" onClick={this.changeMonth}>&gt;</a>
+          </h1>
+          <p className="year">{this.state.displayDate.getFullYear()}</p>
+        </div>
         <ul className="calendarDays">
           {dayNames}
           {days}
         </ul>
         <MemberLegend
           members={this.state.members}
+          bookings={this.getBookingsFor(firstOfMonth, lastOfMonth)}
         />
         <Schedule bookings={this.getBookingsFor(now)} />
         <div className={this.state.shouldDisplayTimeSelector ? "timeSelectorContainer visible" : "timeSelectorContainer invisible"} >
@@ -311,11 +334,13 @@ var Schedule = React.createClass({
         </p>
       )
     })
-    return (
+    
+    return (todaysBookings.length > 0 ? 
       <div className="todaysBookings">
-        {todaysBookings.length > 0 ? <h2>Today</h2> : null }
-        {todaysBookings.length > 0 ? todaysBookings : null}
+        <h2>Today</h2>
+        {todaysBookings}
       </div>
+      : null
     )
   }
 })

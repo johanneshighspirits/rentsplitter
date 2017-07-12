@@ -16,28 +16,45 @@
   font-weight: 300;
   font-family: 'Quicksand', 'Helvetica Neue', Helvetica, sans-serif;
   color: #FFF;
-  h1 {
-    display: flex;
-    flex-direction: row;
-    align-items: stretch;
-  }
-  .prev, .next {
-    display: inline-block;
-    margin: auto;
-    width: 100%;
-    color: #AAA;
-    font-weight: 100;
-    &:hover {
-      color: #FFF;
+  .monthDisplay {
+    display: block;
+    text-align: center;
+    h1 {
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      width: 100%;
+      margin: 1em auto 0.5em auto;
+      font-weight: 100;
     }
-  }
-  .prev {
-    text-align: left;
-    padding-left: 1em;
-  }
-  .next {
-    text-align: right;
-    padding-right: 1em
+    .year {
+      text-align: center;
+      font-size: 1em;
+      margin: 0 0 1em 0;
+      position: relative;
+      top: -0.7em;
+      }
+    .year, .prev, .next {
+      color: #61818c;  
+    }
+    .prev, .next {
+      display: inline-block;
+      margin: auto;
+      width: 100%;
+  //    color: #AAA;
+      font-weight: 100;
+      &:hover {
+        color: #FFF;
+      }
+    }
+    .prev {
+      text-align: left;
+      padding-left: 1em;
+    }
+    .next {
+      text-align: right;
+      padding-right: 1em
+    }
   }
   .timeSelectorContainer {
     background: rgba(0, 0, 0, 0.8);
@@ -320,11 +337,13 @@
   }
 }
 @media screen and (min-width: 700px) {
-  .calendarDays, .calendar .memberLegend {
-    width: 700px;
-    .calendarDay {
-      width: 100px;
-      height: 100px;
+  .calendar {
+    .calendarDays, .memberLegend, .monthDisplay h1 {
+      width: 700px;
+      .calendarDay {
+        width: 100px;
+        height: 100px;
+      }
     }
   }
   .todaysBookings {
