@@ -470,11 +470,13 @@ TimeSelector.prototype.drawHourNumbers = function() {
       if (correctedHour == this.selectedHours.from || correctedHour == this.selectedHours.from + 24 || correctedHour == this.selectedHours.to) {
         selectedHourCircle = true;
         var handle = {
+          hour: correctedHour,
           r: this.width * 0.041,
           x: x,
           y: y
         }
         if (correctedHour == this.selectedHours.to) {
+          handle.hour--;
           this.endHandle = handle;
         } else {
           this.startHandle = handle;
@@ -793,12 +795,16 @@ TimeSelector.prototype.handleMouseDown = function(e) {
   } else {
     // Select/Deselect hour(s)
     var hour = this.hourFromPoint(point);
-    
     if (this.startHandle !== undefined) {
-      // User is dragging on the circle (start handle) which
-      // may be outside of the actual hour. Adjust hour so
-      // user can drag in the circle.
-      hour += this.adjustHourByHandle(point);
+      // this.startHandle is set in this.drawHourNumbers() if any hours
+      // are selected.
+      var handle = this.mouseIsOnHandle(point);
+      if (handle == "start") {
+        // User presses on start handle
+        hour = this.startHandle.hour;
+      } else if (handle == "end") {
+        hour = this.endHandle.hour;
+      }
     }
 
     this.startHour = hour;
@@ -848,15 +854,16 @@ TimeSelector.prototype.handleMouseDown = function(e) {
 /**
 *
 */
-TimeSelector.prototype.adjustHourByHandle = function(point) {
+TimeSelector.prototype.mouseIsOnHandle = function(point) {
   this.ctx.beginPath();
   this.ctx.arc(this.startHandle.x, this.startHandle.y, this.startHandle.r, 0, Math.PI * 2);
   this.ctx.closePath();
-  if (this.ctx.isPointInPath(point.x, point.y)) return 1;
+  if (this.ctx.isPointInPath(point.x, point.y)) return "start";
   this.ctx.beginPath();
   this.ctx.arc(this.endHandle.x, this.endHandle.y, this.endHandle.r, 0, Math.PI * 2);
   this.ctx.closePath();
-  if (this.ctx.isPointInPath(point.x, point.y)) return -1;
+  if (this.ctx.isPointInPath(point.x, point.y)) return "end";
+  return false;
 }
 
 /**
