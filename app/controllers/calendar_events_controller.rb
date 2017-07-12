@@ -32,17 +32,28 @@ class CalendarEventsController < ApplicationController
   # POST /calendar_events
   def create
     project = current_member.projects.where(id: current_project_id).first
-    @calendar_event = project.calendar_events.build(calendar_event_params)
-    if project.save 
-      render json: {
-        success: true,
-        message: "Booking successfully saved.",
-        bookingId: @calendar_event.id
-      }
+    p params
+    dayRange = params[:calendar_event][:from]..params[:calendar_event][:to]
+    p dayRange
+    conflicts = CalendarEvent.where("('from' BETWEEN ? AND ?) AND ('to' BETWEEN ? AND ?)", params[:calendar_event][:from], params[:calendar_event][:to], params[:calendar_event][:from], params[:calendar_event][:to]).exists?
+    puts "conflicts:"
+    p conflicts
+    
+    if conflicts
+      render json: { error: "CONFLICT: Booking conflicts with another booking" }
     else
-      p project.errors
-      p @calendar_event.errors
-      render json: { error: "#{@calendar_event.errors}" }
+      @calendar_event = project.calendar_events.build(calendar_event_params)
+      if project.save 
+        render json: {
+          success: true,
+          message: "Booking successfully saved.",
+          bookingId: @calendar_event.id
+        }
+      else
+        p project.errors
+        p @calendar_event.errors
+        render json: { error: "#{@calendar_event.errors}" }
+      end
     end
   end
 

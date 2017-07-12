@@ -49,8 +49,7 @@ var Calendar = React.createClass({
     window.removeEventListener("resize", this.updateCalendarDaySize);
   },
   getInitialState: function() {
-    var displayDate = this.props.displayDate;
-    displayDate.date = new Date(this.props.displayDate.year, this.props.displayDate.month.nr, this.props.displayDate.day.nr);
+    var displayDate = new Date(this.props.displayDate);
     return ({
       shouldDisplayTimeSelector: false,
       displayDate: displayDate,
@@ -81,11 +80,15 @@ var Calendar = React.createClass({
       break;
       case "create":
         // User selected hours, store booking
+        var fromDate = new Date(this.state.displayDate);
+        fromDate.setHours(from);
+        var toDate = new Date(this.state.displayDate);
+        toDate.setHours(to);
         var booking = {
           from: from,
-          fromDate: new Date(this.state.displayDate.year, this.state.displayDate.month.nr, this.state.displayDate.day.nr, from),
+          fromDate: fromDate,
           to: to,
-          toDate: new Date(this.state.displayDate.year, this.state.displayDate.month.nr, this.state.displayDate.day.nr, to),
+          toDate: toDate,
           bookedBy: {
             name: this.props.currentMember.name,
             id: this.props.currentMember.id
@@ -97,12 +100,17 @@ var Calendar = React.createClass({
           shouldDisplayTimeSelector: false,
           members: members
         }, function() {
-          this.thumbnailUpdated(this.state.displayDate.day.nr);
+          this.thumbnailUpdated(this.state.displayDate.getDay());
+          
+          var fromDate = new Date(this.state.displayDate);
+          fromDate.setHours(booking.from);
+          var toDate = new Date(this.state.displayDate);
+          toDate.setHours(booking.to);
           // Talk to server
           $.post('/calendar_events', {
             calendar_event: {
-              from: new Date(this.state.displayDate.year, this.state.displayDate.month.nr, this.state.displayDate.day.nr, booking.from),
-              to: new Date(this.state.displayDate.year, this.state.displayDate.month.nr, this.state.displayDate.day.nr, booking.to),
+              from: fromDate,
+              to: toDate,
               project_id: this.props.projectId,
               member_id: this.props.currentMember.id
             },
@@ -134,7 +142,7 @@ var Calendar = React.createClass({
           shouldDisplayTimeSelector: false,
           members: members
         }, function() {
-          this.thumbnailUpdated(this.state.displayDate.day.nr);
+          this.thumbnailUpdated(this.state.displayDate.getDay());
           $.post('/calendar_events/' + bookingId, {
             _method: "delete",
             authenticity_token: this.props.authenticity_token
@@ -158,23 +166,18 @@ var Calendar = React.createClass({
     e.preventDefault();
     if (e.currentTarget.parentNode.className.indexOf('past') !== -1) return false;
     var thumbnailRect = e.currentTarget.getBoundingClientRect();
-    var displayDate = this.state.displayDate;
-    displayDate.day = {
-      nr: e.currentTarget.dataset.datenr,
-      name: e.currentTarget.dataset.dayname
-    };
-    displayDate.date = new Date(this.state.displayDate.year, this.state.displayDate.month.nr, e.currentTarget.dataset.datenr);
-
+    var displayDate = new Date(this.state.displayDate);
+    displayDate.setDate(e.currentTarget.dataset.datenr);
     this.setState({
       shouldDisplayTimeSelector: true,
       displayDate: displayDate
     }, function() {
-      var clickedDate = new Date(this.state.displayDate.year, this.state.displayDate.month.nr, this.state.displayDate.day.nr);
+      var clickedDate = new Date(this.state.displayDate);
       var timeSelector = new TimeSelector(
         'timeSelector',
-        this.state.displayDate.day.nr,
-        this.state.displayDate.day.name,
-        this.state.displayDate.month.name,
+        this.state.displayDate.getDate(),
+        this.props.dayNames[this.state.displayDate.getDay()],
+        this.props.monthNames[this.state.displayDate.getMonth() + 1],
         this.getBookingsFor(clickedDate),
         this.props.currentMember,
         this.timeSelected
@@ -197,33 +200,60 @@ var Calendar = React.createClass({
     }
     return bookings;
   },
-  daysInMonth: function(date) {
+  changeMonth: function(e) {
+    e.preventDefault();
+    var displayDate = new Date(this.state.displayDate);
+    if (e.target.className == "next") {
+      displayDate.setMonth(displayDate.getMonth() + 1);
+    } else {
+      displayDate.setMonth(displayDate.getMonth() - 1);
+    }
+    this.setState({
+      displayDate: displayDate
+    })
+  },
+  daysInPrevMonth: function(date) {
     var firstOfPrevMonth = new Date(date); 
     firstOfPrevMonth.setDate(0);
     return firstOfPrevMonth.getDate();
   },
-  daysFor: function(displayDate) {
+  daysInMonth: function(date) {
+    var firstOfNextMonth = new Date(date);
+    firstOfNextMonth.setMonth(date.getMonth() + 1);
+    firstOfNextMonth.setDate(0);
+    return firstOfNextMonth.getDate();
+  },
+  daysFor: function(date) {
+    var displayDate = new Date(date);
     // Today's date
     var today = new Date();
-    // Create Date object from displayDate
-    var aDate = new Date(displayDate.year, displayDate.month.nr, displayDate.day.nr);
     // Calculate number of days in displayDate's month
-    var nrOfDays = this.daysInMonth(aDate);
-    var firstWeekDay = new Date(aDate);
+    var nrOfDays = this.daysInMonth(date);
+    var nrOfDaysInPrevMonth = this.daysInPrevMonth(date);
+    var firstWeekDay = new Date(date);
     firstWeekDay.setDate(1);
     var offset = firstWeekDay.getDay() === 0 ? 6 : firstWeekDay.getDay() - 1;
     var days = new Array(offset);
+    // Init array with last month's last days so the first week
+    // is filled with empty spaces if month doesn't start on a
+    // Monday
     days.fill(0, 0, offset);
     for (var i = 1; i <= nrOfDays; i++) {
       days.push(i);
     }
+    // Fill array with remaining days of the last week to make
+    // sure it displays correctly
+    while (days.length % 7 != 0) {
+      days.push(0);
+    }
     return days.map(function(day, i) {
-      var weekDay = new Date(displayDate.year, displayDate.month.nr, day);
+      var weekDay = new Date(displayDate);
+      weekDay.setDate(day);
       return <Day
         key={i}
         day={day}
         dayName={this.props.dayNames[weekDay.getDay()]}
-        today={day == today.getDate()}
+        today={weekDay.toLocaleDateString() == today.toLocaleDateString()}
         future={weekDay > today || weekDay.toLocaleDateString() == today.toLocaleDateString()}
         sunday={(1 + i) % 7 === 0}
         bookings={this.getBookingsFor(weekDay)}
@@ -233,13 +263,24 @@ var Calendar = React.createClass({
     }, this);
   },
   render: function() {
+    var dayNames = this.props.dayNames.slice();
+    // Move Sunday to last position
+    dayNames.push(dayNames.shift(0));
+    dayNames = dayNames.map(function(dayName, i) {
+      return <li key={"d" + i} className={"calendarDay legend" + (i == 6 ? " sunday" : "")}>{dayName.substr(0, 3).toUpperCase()}</li>
+    })
     var days = this.daysFor(this.state.displayDate);
     var now = new Date();
     var todaysDate = now.getDate();
+    var isCurrentMonth = now.getFullYear() == this.state.displayDate.getFullYear() && now.getMonth() == this.state.displayDate.getMonth();
     return (
       <div className="calendar">
-        <h1>{this.state.displayDate.month.name}</h1>
+        <h1>
+          {isCurrentMonth ? <div className="prev"></div> : <a className="prev" href="#prev" onClick={this.changeMonth}>&lt;</a>}{this.props.monthNames[this.state.displayDate.getMonth() + 1]}
+          <a className="next" href="#next" onClick={this.changeMonth}>&gt;</a>
+        </h1>
         <ul className="calendarDays">
+          {dayNames}
           {days}
         </ul>
         <MemberLegend
@@ -250,7 +291,7 @@ var Calendar = React.createClass({
           <canvas id="timeSelector" width="600" height="600"/>
           <MemberLegend
             members={this.state.members}
-            bookings={this.getBookingsFor(this.state.displayDate.date)}
+            bookings={this.getBookingsFor(this.state.displayDate)}
           />
         </div>
       </div>
