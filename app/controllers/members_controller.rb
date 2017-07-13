@@ -50,6 +50,13 @@ class MembersController < ApplicationController
   def invite
     @member = Member.new
     @projects = current_member.projects.where(admin_id: current_member.id)
+    @members = []
+    @projects.each do |p|
+      p.members.each do |m|
+        @members << m
+      end
+    end
+    @members.uniq!
   end
 
   # MEMBER ONLY:
@@ -58,79 +65,89 @@ class MembersController < ApplicationController
   # post /invite
   def create_and_invite
     puts "create_and_invite"
-    # Convert month/year params to date
-    params[:joined_at] = "#{params[:joined_at_y]}-#{params[:joined_at_m]}-1".to_date
-    params[:left_at] = "#{params[:left_at_y]}-#{params[:left_at_m]}-1".to_date.end_of_month
-    # Init Member
-    @member = Member.new(member_params)
-    if @member.save
-      # Saved member (along with project) to database
-      puts "Saved member #{@member.name} to db."
-      # Choose an existing project or create a new?
-      if params[:new_or_existing] == "new" && !params[:project][:name].blank?
-        # Logged in member wants to create a new project
-        project_name = params[:project][:name]
-        params[:project][:admin_id] = current_member.id
-        if current_member.projects.where("admin_id = ? AND name = ?", current_member.id, project_name).empty?
-          # Member is not the admin of a project with this name, create it
-          puts "Will create new Project: '#{project_name}'"
-          # Create project
-          puts "Assign project '#{project_name}' to member '#{@member.name}"
-          puts "Assign project admin privileges to current member '#{current_member.name}"
-          current_member.projects.build(project_params)
-          current_member.save
-        else
-          flash[:danger] = "A project named '#{project_name}' already exists. Choose another name."
-          puts "A project named '#{project_name}' already exists. Choose another name."
-          cancel_invite "PROJECT ALREADY EXISTS"
-          return false
-        end
-      elsif params[:new_or_existing] == "existing" && params[:project_id] != "0"
-        # Add member to existing project
-        existing_project = Project.find(params[:project_id])
-        p existing_project
-        puts "Assign project '#{existing_project.name}' (#{params[:project_id]}) with admin #{existing_project.admin_id}, to member '#{@member.name}'."
-        project_name = existing_project.name
-        if existing_project.admin_id == current_member.id
-          # Make sure that current member is admin of the project.
-          @member.projects << existing_project
-        else
-          cancel_invite "NOT PROJECT ADMIN. Member #{current_member.id} is not #{existing_project.admin_id}."
-          return false
-        end
-      else
-        flash[:danger] = "Enter a name for a new Project or choose an existing one."
-        puts "Enter a name for a new Project or choose an existing one."
-        cancel_invite "NO NEW PROJECT NAME or NO PROJECT SELECTED"
-        return false
-      end
-      @member.current_project_id = params[:project_id]
-      @member.save
-
-      project = @member.projects.find_by(name: project_name)
-      unless project.nil?
-        membership = @member.memberships.where("project_id = ?", project.id)
-        membership.update(joined_at: params[:joined_at], left_at: params[:left_at])
-        @member.save
-        
-        if project.rents.empty?
-          project.rents.create(amount: params[:monthly_rent], due_date: project.start_date.change(day: 25))
-        end
-      end
-
-      # Member saved to db. Send invitiation email.
-      if params[:send_invitation]
-        @member.send_invitation_email sender: current_member, project: project
-        flash[:info] = "Invitation email sent to #{@member.email} from #{current_member.name}. Invited to project #{project_name}."
-      end
-      set_current_project_id project.id
-      redirect_to root_path
+    
+    # Invite a new member or add an existing to a project
+    if params[:invite_or_add] == "add"
+      # Add to existing project
+      @existing_member = Member.find(params[:member][:id])
+      p @existing_member
     else
-      flash[:danger] = "#{@member.name} could not be saved."
-      p @member.errors.messages
-      @projects = current_member.projects.where(admin_id: current_member.id)
-      render 'invite'
+      # Create new and add to existing/newly created project
+      # Convert month/year params to date
+      params[:joined_at] = "#{params[:joined_at_y]}-#{params[:joined_at_m]}-1".to_date
+      params[:left_at] = "#{params[:left_at_y]}-#{params[:left_at_m]}-1".to_date.end_of_month
+      # Init Member
+      @member = Member.new(member_params)
+      if @member.save
+        # Saved member (along with project) to database
+        puts "Saved member #{@member.name} to db."
+        # Choose an existing project or create a new?
+        if params[:new_or_existing] == "new" && !params[:project][:name].blank?
+          # Logged in member wants to create a new project
+          project_name = params[:project][:name]
+          params[:project][:admin_id] = current_member.id
+          if current_member.projects.where("admin_id = ? AND name = ?", current_member.id, project_name).empty?
+            # Member is not the admin of a project with this name, create it
+            puts "Will create new Project: '#{project_name}'"
+            # Create project
+            puts "Assign project '#{project_name}' to member '#{@member.name}"
+            puts "Assign project admin privileges to current member '#{current_member.name}"
+            current_member.projects.build(project_params)
+            current_member.save
+          else
+            flash[:danger] = "A project named '#{project_name}' already exists. Choose another name."
+            puts "A project named '#{project_name}' already exists. Choose another name."
+            cancel_invite "PROJECT ALREADY EXISTS"
+            return false
+          end
+        elsif params[:new_or_existing] == "existing" && params[:project_id] != "0"
+          # Add member to existing project
+          existing_project = Project.find(params[:project_id])
+          p existing_project
+          puts "Assign project '#{existing_project.name}' (#{params[:project_id]}) with admin #{existing_project.admin_id}, to member '#{@member.name}'."
+          project_name = existing_project.name
+          if existing_project.admin_id == current_member.id
+            # Make sure that current member is admin of the project.
+            @member.projects << existing_project
+          else
+            cancel_invite "NOT PROJECT ADMIN. Member #{current_member.id} is not #{existing_project.admin_id}."
+            return false
+          end
+        else
+          flash[:danger] = "Enter a name for a new Project or choose an existing one."
+          puts "Enter a name for a new Project or choose an existing one."
+          cancel_invite "NO NEW PROJECT NAME or NO PROJECT SELECTED"
+          return false
+        end
+        @member.current_project_id = params[:project_id]
+        @member.save
+
+        project = @member.projects.find_by(name: project_name)
+        unless project.nil?
+          membership = @member.memberships.where("project_id = ?", project.id)
+          membership.update(joined_at: params[:joined_at], left_at: params[:left_at])
+          @member.save
+
+          if project.rents.empty?
+            project.rents.create(amount: params[:monthly_rent], due_date: project.start_date.change(day: 25))
+          end
+        end
+
+        # Member saved to db. Send invitiation email.
+        if params[:send_invitation]
+          @member.send_invitation_email sender: current_member, project: project
+          flash[:info] = "Invitation email sent to #{@member.email} from #{current_member.name}. Invited to project #{project_name}."
+        end
+        set_current_project_id project.id
+        redirect_to root_path
+      else
+        flash[:danger] = "#{@member.name} could not be saved."
+        p @member.errors.messages
+        @projects = current_member.projects.where(admin_id: current_member.id)
+        render 'invite'
+      end
     end
+
   end
 
   def edit

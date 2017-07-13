@@ -320,6 +320,7 @@ var Calendar = React.createClass({
           {days}
         </ul>
         <MemberLegend
+          currentMember={this.props.currentMember}
           members={this.state.members}
           bookings={this.getBookingsFor(firstOfMonth, lastOfMonth)}
         />
@@ -330,6 +331,7 @@ var Calendar = React.createClass({
         <div className={this.state.shouldDisplayTimeSelector ? "timeSelectorContainer visible" : "timeSelectorContainer invisible"} >
           <canvas id="timeSelector" width="600" height="600"/>
           <MemberLegend
+            currentMember={this.props.currentMember}
             members={this.state.members}
             bookings={this.getBookingsFor(this.state.displayDate)}
           />
@@ -462,8 +464,7 @@ var MemberLegend = React.createClass({
         }, this)
         if (!hasBookings) continue;
       }
-      items.push(
-        <li
+      var item = <li
           key={memberId}
           onMouseOver={this.handleMouseOver}
           onMouseOut={this.handleMouseOut}
@@ -476,8 +477,12 @@ var MemberLegend = React.createClass({
             style={{backgroundColor: member.color}}
           ></span>
           {member.name}
-        </li>
-      );
+        </li>;
+      if (memberId == this.props.currentMember.id) {
+        items.unshift(item);
+      } else {
+        items.push(item);
+      }
     }      
     return (
       <div className="memberLegend">

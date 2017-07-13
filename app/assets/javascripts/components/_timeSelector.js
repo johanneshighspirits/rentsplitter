@@ -449,7 +449,7 @@ TimeSelector.prototype.mouseIsAboveCancel = function(point) {
 
 TimeSelector.prototype.pointFromEvent = function(e) {
   var x = e.pageX - this.canvas.offsetLeft;
-  var y = e.pageY - this.canvas.offsetTop - document.body.scrollTop;
+  var y = e.pageY - this.canvas.offsetTop - (window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0);
   x *= window.devicePixelRatio;
   y *= window.devicePixelRatio;
   return {

@@ -2,6 +2,24 @@
 <% random_password = Member.new_token %>
 <% fields = [
   {
+    fieldType: "flex-items",
+    items: [
+      {
+        fieldType: "radio",
+        attribute: "invite_or_add",
+        attributeName: "Invite new Member",
+        defaultValue: "invite",
+        checked: true,
+      },
+      {
+        fieldType: "radio",
+        attribute: "invite_or_add",
+        attributeName: "Add existing member",
+        defaultValue: "add",
+      }
+    ]
+  },
+  {
     fieldType: "text",
     attribute: "member[first_name]",
     attributeName: "First name",
@@ -11,7 +29,8 @@
         message: "Please enter first name."
       }
     ],
-    autofocus: true
+    autofocus: true,
+    isVisibleIfChecked: "invite_or_add#invite",
   },
   {
     fieldType: "text",
@@ -23,6 +42,7 @@
         message: "Please enter last name."
       }
     ],
+    isVisibleIfChecked: "invite_or_add#invite",
   },
   {
     fieldType: "email",
@@ -34,17 +54,43 @@
         message: "Please enter a valid email address."
       }
     ],
+    isVisibleIfChecked: "invite_or_add#invite",
   },
   {
     fieldType: "p",
-    text: "Check this to send invitation email to the new member immediately. You might also set up the entire project first and send invitations at a later time from the 'Members' section."
+    text: "Check this to send invitation email to the new member immediately. You might also set up the entire project first and send invitations at a later time from the 'Members' section.",
+    isVisibleIfChecked: "invite_or_add#invite",
   },
   {
     fieldType: "checkbox",
     attribute: "send_invitation",
     attributeName: "Send invitation email",
-    defaultValue: false
-  }
+    defaultValue: false,
+    isVisibleIfChecked: "invite_or_add#invite",
+  },
+  {
+    fieldType: "p",
+    text: "Select a member from one of your other projects",
+    isVisibleIfChecked: "invite_or_add#add",
+  },
+  {
+    fieldType: "select",
+    attribute: "member[id]",
+    attributeName: "Select member",
+    options: @members.map {|m| [m.id, m.name]}.unshift([0, "Choose Member"]),
+#    isControlling: "project_id", # Get member's projects when member is selected
+#    controlType: "select",
+#    controlUrl: "/members/:id/projects.json",
+    validations: [
+      {
+        type: "value>",
+        limit: 0,
+        message: "Please select a member"
+      }
+    ],
+    isVisibleIfChecked: "invite_or_add#add",
+    defaultValue: 0
+  },
 ]
 
 create_new_fields = [
