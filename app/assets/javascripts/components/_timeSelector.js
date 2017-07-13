@@ -19,7 +19,11 @@ function UserInfo(text, btnText1, okAction, btnText2, cancelAction) {
   infoText.className = "row";
   buttons.className = "row buttons";
   
-  infoText.innerHTML = text;
+  var message = text;
+  if (Array.isArray(text)) {
+    message = text.join("<br>");
+  }
+  infoText.innerHTML = message;
   okButton.innerHTML = btnText1;
   okButton.setAttribute("id", "btn1");
   okButton.setAttribute("href", "#");
@@ -139,9 +143,11 @@ HourSelection.prototype.removeSelection = function() {
 }
 
 HourSelection.prototype.deselectHour = function(hour) {
-  if (this.from) {
+  if (this.from !== undefined) {
     // Selection exists
-    if (hour == this.from || this.from == this.to - 1) {
+    if (hour == this.from && hour < this.to - 1) {
+      this.from++;
+    } else if (this.from == this.to - 1) {
       this.from = undefined;
       this.to = undefined;
     } else {
@@ -470,7 +476,7 @@ TimeSelector.prototype.drawHourNumbers = function() {
       if (correctedHour == this.selectedHours.from || correctedHour == this.selectedHours.from + 24 || correctedHour == this.selectedHours.to) {
         selectedHourCircle = true;
         var handle = {
-          hour: correctedHour,
+          hour: correctedHour == 24 ? 0 : correctedHour,
           r: this.width * 0.041,
           x: x,
           y: y
@@ -495,9 +501,11 @@ TimeSelector.prototype.drawHourNumbers = function() {
         this.ctx.restore();
       }
     }
-    
+
     var display = this.offsetCorrectedHour(hour);
-    if (this.highlightedHour < 12 && hour + this.hourOffset === 0) display = "0";
+    if (this.highlightedHour < 12 && hour + this.hourOffset === 0) {
+      display = "0";
+    } 
     if (selectedHourCircle) this.ctx.fillStyle = this.colors.dayText;
     if (display) this.ctx.fillText(display, x, y);
     hour++;
@@ -626,8 +634,8 @@ TimeSelector.prototype.drawInfo = function(info) {
 
 /**
 *   Find which hour a point belongs to
-*   @param {Number} x - The x coordinate of the point
-*   @param {Number} y - The y coordinate of the point
+*   @param {Object} point - An object with properties for
+*   x and y coordinates
 */
 TimeSelector.prototype.hourFromPoint = function(point) {
   // Calculate degree relative from canvas center.
@@ -639,8 +647,16 @@ TimeSelector.prototype.hourFromPoint = function(point) {
   // 0 means the hour between 00:00-01:00 (am)
   // 1 means 01:00-02:00 and so on
   var hour = Math.floor((degree / 360) * 24) + this.hourOffset;
-  
-  return hour >= 0 ? hour : hour + 24;
+  hour = hour >= 0 ? hour : hour + 24;
+  var handle = this.pointIsOnHandle(point);
+  if (handle == "start") {
+    // User presses on start handle
+    hour = this.startHandle.hour;
+  } else if (handle == "end") {
+    // User presses on end handle
+    hour = this.endHandle.hour;
+  }
+  return hour;
 }
 
 TimeSelector.prototype.mouseIsAboveSubmit = function(point) {
@@ -711,7 +727,7 @@ TimeSelector.prototype.draw = function() {
 
   // Draw highlighted hour if user hovers on canvas
   if (this.highlightedHour !== undefined) {
-    var color = this.colors.bookingText; // this.highlightedHour >= 12 ? this.colors.highlightedDay : this.colors.highlightedNight;
+    var color = this.colors.bookingText;
     this.drawHourPie(this.highlightedHour, this.highlightedHour + 1, color, true);
     if (info === "") {
       if (this.selectedHours.hasSelection()) {
@@ -795,17 +811,6 @@ TimeSelector.prototype.handleMouseDown = function(e) {
   } else {
     // Select/Deselect hour(s)
     var hour = this.hourFromPoint(point);
-    if (this.startHandle !== undefined) {
-      // this.startHandle is set in this.drawHourNumbers() if any hours
-      // are selected.
-      var handle = this.mouseIsOnHandle(point);
-      if (handle == "start") {
-        // User presses on start handle
-        hour = this.startHandle.hour;
-      } else if (handle == "end") {
-        hour = this.endHandle.hour;
-      }
-    }
 
     this.startHour = hour;
     this.startHourIsSelected = this.selectedHours.hourIsSelected(hour);
@@ -852,17 +857,20 @@ TimeSelector.prototype.handleMouseDown = function(e) {
 }
 
 /**
-*
+*   Returns a string if point is over start or end handle,
+*   false otherwise
 */
-TimeSelector.prototype.mouseIsOnHandle = function(point) {
-  this.ctx.beginPath();
-  this.ctx.arc(this.startHandle.x, this.startHandle.y, this.startHandle.r, 0, Math.PI * 2);
-  this.ctx.closePath();
-  if (this.ctx.isPointInPath(point.x, point.y)) return "start";
-  this.ctx.beginPath();
-  this.ctx.arc(this.endHandle.x, this.endHandle.y, this.endHandle.r, 0, Math.PI * 2);
-  this.ctx.closePath();
-  if (this.ctx.isPointInPath(point.x, point.y)) return "end";
+TimeSelector.prototype.pointIsOnHandle = function(point) {
+  if (this.startHandle !== undefined && this.endHandle !== undefined) {
+    this.ctx.beginPath();
+    this.ctx.arc(this.startHandle.x, this.startHandle.y, this.startHandle.r, 0, Math.PI * 2);
+    this.ctx.closePath();
+    if (this.ctx.isPointInPath(point.x, point.y)) return "start";
+    this.ctx.beginPath();
+    this.ctx.arc(this.endHandle.x, this.endHandle.y, this.endHandle.r, 0, Math.PI * 2);
+    this.ctx.closePath();
+    if (this.ctx.isPointInPath(point.x, point.y)) return "end";
+  }
   return false;
 }
 
@@ -872,6 +880,7 @@ TimeSelector.prototype.mouseIsOnHandle = function(point) {
 TimeSelector.prototype.dragSelectHours = function(e) {
   var point = this.pointFromEvent(e);
   var hour = this.hourFromPoint(point);
+  
   if (this.dragStartHandle) {
     // User is dragging the first hour of the selection
     // Prevent mouse up to deselect starting hour
@@ -924,13 +933,14 @@ TimeSelector.prototype.hoursSelected = function(e) {
 *   Handle mouse hover over canvas
 */
 TimeSelector.prototype.handleHover = function(e) {
-  if (this.mouseIsAboveSubmit(this.pointFromEvent(e))) {
+  var point = this.pointFromEvent(e);
+  if (this.mouseIsAboveSubmit(point)) {
     this.canvas.style.cursor = "pointer";
     this.highlightSubmit = true;
     this.highlightedHour = undefined;
     this.highlightCancel = false;
     this.highlightBooking = undefined;
-  } else if (this.mouseIsAboveCancel(this.pointFromEvent(e))) {
+  } else if (this.mouseIsAboveCancel(point)) {
     this.canvas.style.cursor = "pointer";
     this.highlightSubmit = false;
     this.highlightedHour = undefined;
@@ -938,7 +948,7 @@ TimeSelector.prototype.handleHover = function(e) {
     this.highlightBooking = undefined;
   } else {
     this.canvas.style.cursor = "default";
-    var hour = this.hourFromPoint(this.pointFromEvent(e));
+    var hour = this.hourFromPoint(point);
     this.highlightSubmit = false;
     this.highlightedHour = hour;    
     this.highlightCancel = false;

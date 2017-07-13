@@ -100,8 +100,6 @@ var Calendar = React.createClass({
           shouldDisplayTimeSelector: false,
           members: members
         }, function() {
-          this.thumbnailUpdated(this.state.displayDate.getDate());
-          
           var fromDate = new Date(this.state.displayDate);
           fromDate.setHours(booking.from);
           var toDate = new Date(this.state.displayDate);
@@ -117,6 +115,10 @@ var Calendar = React.createClass({
             authenticity_token: this.props.authenticity_token
           }, function(response) {
             // TODO: Catch errors here
+            var userConfirm = new UserInfo(["Booking confirmed", fromDate.toLocaleDateString(), booking.from + ":00 - " + booking.to], "OK", function(){
+              this.thumbnailUpdated(this.state.displayDate.getDate());
+            }.bind(this));
+            userConfirm.present(document.querySelector('.calendar'));
             // Set id on booking so we can retrieve it from database later
             var members = this.state.members;
             var membersBookings = members[this.props.currentMember.id].bookings;
