@@ -9,10 +9,10 @@ class CalendarEventsController < ApplicationController
   # GET /calendar_events
   # GET /calendar_events.json
   def index
-    @calendar_events = CalendarEvent.all
-#    @calendar_event = current_member.calendar_events.build
     @project_id = current_project_id
-    @members = Project.find(current_project_id).members.sort { |m| m.id == current_member.id ? -1 : 1}
+    project = Project.find(@project_id)
+    @calendar_events = project.calendar_events
+    @members = project.members.sort { |m| m.id == current_member.id ? -1 : 1}
   end
 
   # GET /calendar_events/1
@@ -52,7 +52,12 @@ class CalendarEventsController < ApplicationController
       else
         p project.errors
         p @calendar_event.errors
-        render json: { error: "#{@calendar_event.errors}" }
+        render json: {
+          error: {
+            code: "#{@calendar_event.errors.messages}",
+            message: "Booking could not be saved. Please try again later."
+          }
+        }
       end
     end
   end

@@ -104,7 +104,7 @@ var Calendar = React.createClass({
           fromDate.setHours(booking.from);
           var toDate = new Date(this.state.displayDate);
           toDate.setHours(booking.to);
-          // Talk to server
+          // Save event to database
           $.post('/calendar_events', {
             calendar_event: {
               from: fromDate,
@@ -114,18 +114,24 @@ var Calendar = React.createClass({
             },
             authenticity_token: this.props.authenticity_token
           }, function(response) {
-            // TODO: Catch errors here
-            var userConfirm = new UserInfo(["Booking confirmed", fromDate.toLocaleDateString(), booking.from + ":00 - " + booking.to], "OK", function(){
-              this.thumbnailUpdated(this.state.displayDate.getDate());
-            }.bind(this));
-            userConfirm.present(document.querySelector('.calendar'));
-            // Set id on booking so we can retrieve it from database later
-            var members = this.state.members;
-            var membersBookings = members[this.props.currentMember.id].bookings;
-            for (var i = membersBookings.length - 1; i >= 0; i--) {
-              if (membersBookings[i].id === undefined && membersBookings[i].fromDate == booking.fromDate) {
-                membersBookings[i].id = response.bookingId;
-                break;
+            var error = undefined;
+            if (error = response.error) {
+              console.error(error.code);
+              var userAlert = new UserInfo(error.message, "OK");
+              userAlert.present(document.querySelector('.calendar'));
+            } else {
+              var userAlert = new UserInfo(["Booking confirmed:", fromDate.toLocaleDateString(), booking.from + ":00 - " + booking.to + ":00"], "OK", function(){
+                this.thumbnailUpdated(this.state.displayDate.getDate());
+              }.bind(this));
+              userAlert.present(document.querySelector('.calendar'));
+              // Set id on booking so we can retrieve it from database later
+              var members = this.state.members;
+              var membersBookings = members[this.props.currentMember.id].bookings;
+              for (var i = membersBookings.length - 1; i >= 0; i--) {
+                if (membersBookings[i].id === undefined && membersBookings[i].fromDate == booking.fromDate) {
+                  membersBookings[i].id = response.bookingId;
+                  break;
+                }
               }
             }
           }.bind(this))
@@ -216,6 +222,12 @@ var Calendar = React.createClass({
       }
     }
     return bookings;
+  },
+  showToday: function(e) {
+    e.preventDefault();
+    this.setState({
+      displayDate: new Date()
+    })
   },
   changeMonth: function(e) {
     e.preventDefault();
@@ -311,7 +323,10 @@ var Calendar = React.createClass({
           members={this.state.members}
           bookings={this.getBookingsFor(firstOfMonth, lastOfMonth)}
         />
-        <Schedule bookings={this.getBookingsFor(now)} />
+        <Schedule
+          bookings={this.getBookingsFor(now)}
+          showToday={this.showToday}  
+        />
         <div className={this.state.shouldDisplayTimeSelector ? "timeSelectorContainer visible" : "timeSelectorContainer invisible"} >
           <canvas id="timeSelector" width="600" height="600"/>
           <MemberLegend
@@ -339,7 +354,7 @@ var Schedule = React.createClass({
     
     return (todaysBookings.length > 0 ? 
       <div className="todaysBookings">
-        <h2>Today</h2>
+        <h2><a href="#" onClick={this.props.showToday}>Today</a></h2>
         {todaysBookings}
       </div>
       : null
