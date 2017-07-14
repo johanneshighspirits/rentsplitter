@@ -1,3 +1,8 @@
+function randomHSLColor() {
+  var hue = Math.floor(Math.random() * 360);
+  return "hsl(" + hue + ", 70%, 60%)";
+}
+
 var Calendar = React.createClass({
   componentDidMount: function() {
     window.addEventListener("resize", this.updateCalendarDaySize);
@@ -5,20 +10,20 @@ var Calendar = React.createClass({
     // Assign color to every member
     // Predefined colors to choose from
     var colors = [
-      "#50d99a",
-      "#e3a927",
-      "#d9507b",
-      "#2daee8",
-      "#985ae0",
-      "#e86e2d",
-      "#3cd4bd",
-      "#9ac9da"
+      "hsl(152, 64%, 58%)",
+      "hsl(41, 77%, 52%)",
+      "hsl(341, 64%, 58%)",
+      "hsl(199, 80%, 54%)",
+      "hsl(268, 68%, 62%)",
+      "hsl(21, 80%, 54%)",
+      "hsl(171, 64%, 53%)",
+      "hsl(196, 46%, 73%)"
     ];
     var members = {};
     // Prepare members
     this.props.members.forEach(function(member, i) {
       var newMember = member;
-      newMember.color = colors.length > 0 ? colors.shift() : "#9b9b9b";
+      newMember.color = colors.length > 0 ? colors.shift() : randomHSLColor();
       newMember.bookings = [];
       members[member.id] = newMember;
     });
