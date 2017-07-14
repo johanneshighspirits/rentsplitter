@@ -8,6 +8,7 @@ class MemberMailer < ApplicationMailer
   def invitation(member, info)
     @sender = info[:sender]
     project = info[:project]
+    @project_name = project.name
     @member = member
 
     @content = {
@@ -17,7 +18,7 @@ class MemberMailer < ApplicationMailer
         "<b>#{@sender.name}</b> har bjudit in dig till RentSplitter-projektet <i>#{project.name}</i>.",
         "För att acceptera, klicka på länken nedan:"
       ],
-      call_to_action_href: (edit_invitation_url(@member.invitation_token, email: @member.email, set_password: true)),
+      call_to_action_href: (edit_invitation_url(@member.invitation_token, email: @member.email, set_password: !@member.activated)),
       call_to_action_title: "Acceptera inbjudan"
     }
 

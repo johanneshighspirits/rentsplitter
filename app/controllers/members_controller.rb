@@ -50,10 +50,15 @@ class MembersController < ApplicationController
   def invite
     @member = Member.new
     @projects = current_member.projects.where(admin_id: current_member.id)
+    # Find all members that current member has invited.
+    # Only show members that belongs to project that current_member
+    # is admin for
     @members = []
     @projects.each do |p|
-      p.members.each do |m|
-        @members << m
+      if p.admin_id == current_member.id
+        p.members.each do |m|
+          @members << m
+        end
       end
     end
     @members.uniq!
@@ -64,18 +69,40 @@ class MembersController < ApplicationController
   # creates a new one. Saves member to db and sends invitation email.
   # post /invite
   def create_and_invite
-    puts "create_and_invite"
+    puts "MembersController#create_and_invite"
+    # Convert month/year params to date
+    params[:joined_at] = "#{params[:joined_at_y]}-#{params[:joined_at_m]}-1".to_date
+    params[:left_at] = "#{params[:left_at_y]}-#{params[:left_at_m]}-1".to_date.end_of_month
     
     # Invite a new member or add an existing to a project
     if params[:invite_or_add] == "add"
       # Add to existing project
-      @existing_member = Member.find(params[:member][:id])
-      p @existing_member
+      @member = Member.find(params[:member][:id])
+      # Add member to existing project
+      existing_project = Project.find(params[:project_id])
+      puts "Assign project '#{existing_project.name}' (#{params[:project_id]}) with admin #{existing_project.admin_id}, to member '#{@member.name}'."
+      project_name = existing_project.name
+      if existing_project.admin_id == current_member.id
+        # Make sure that current member is admin of the project.
+        @member.projects << existing_project
+        membership = @member.memberships.where("project_id = ?", existing_project.id)
+        membership.update(joined_at: params[:joined_at], left_at: params[:left_at])
+        @member.save
+        
+        # Member saved to db. Send invitiation email.
+        if params[:send_invitation]
+          @member.send_invitation_email sender: current_member, project: existing_project
+          flash[:info] = "Invitation email sent to #{@member.email} from #{current_member.name}. Invited to project #{existing_project.name}."
+        end
+
+        set_current_project_id existing_project.id
+        redirect_to root_path and return
+      else
+        cancel_invite "NOT PROJECT ADMIN. Member #{current_member.id} is not #{existing_project.admin_id}."
+        return false
+      end
     else
       # Create new and add to existing/newly created project
-      # Convert month/year params to date
-      params[:joined_at] = "#{params[:joined_at_y]}-#{params[:joined_at_m]}-1".to_date
-      params[:left_at] = "#{params[:left_at_y]}-#{params[:left_at_m]}-1".to_date.end_of_month
       # Init Member
       @member = Member.new(member_params)
       if @member.save
