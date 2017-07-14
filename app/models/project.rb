@@ -85,7 +85,7 @@ class Project < ApplicationRecord
   end
 
   def project_months
-    end_month = Date.current.day < 25 ? Date.current.prev_month.end_of_month : Date.current.end_of_month
+    end_month = Date.current.day < 10 ? Date.current.prev_month.end_of_month : Date.current.end_of_month
     (start_date.prev_month..end_month).select do |date|
       date.day == date.end_of_month.day
     end

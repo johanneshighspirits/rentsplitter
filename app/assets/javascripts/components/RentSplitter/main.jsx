@@ -1,4 +1,3 @@
-
 // Address namespace issue
 window.RentSplitter = React.createClass({
   getInitialState: function(){
@@ -28,7 +27,7 @@ window.RentSplitter = React.createClass({
   render: function() {
     var today = new Date();
     var thisMonth = today.getMonthName();
-    var dueMonth = today.getDate() < 25 ? (new Date(today.getFullYear(), today.getMonth() - 1, 1)).getMonthName() : thisMonth;
+    var dueMonth = today.getDate() < 10 ? (new Date(today.getFullYear(), today.getMonth() - 1, 1)).getMonthName() : thisMonth;
     var members = this.state.members.length === 0 ? <Loader /> : this.state.members.map(function(member, m) {
       return (
         <MemberInfo

@@ -22,7 +22,7 @@ class ProjectsController < ApplicationController
       membership.left_at = 100.years.from_now
       membership.save
       if new_project.reload.rents.empty?
-        new_project.rents.create(amount: params[:monthly_rent], due_date: new_project.start_date.change(day: 25))
+        new_project.rents.create(amount: params[:monthly_rent], due_date: new_project.start_date.change(day: 10))
       end
       flash[:success] = "'#{new_project.name}' successfully created."
       # Open new Project
