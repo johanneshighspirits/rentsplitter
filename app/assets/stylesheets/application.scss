@@ -285,9 +285,14 @@ footer {
     margin: 0.5em 0 1.5em 0;
     font-size: 20px;
   }
-
-  p.noLongerMember {
-    display: none;    
+  &.noLongerMember {
+    opacity: 0.5;
+    p.noLongerMember {
+      text-align: center;
+    }
+    .red, .green {
+      display: none;
+    }
   }
   .displayNumbers {
     font-family: 'Lobster', Lobster, sans-serif;
