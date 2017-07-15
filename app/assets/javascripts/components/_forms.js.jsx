@@ -151,12 +151,11 @@ var Form = React.createClass({
               errorPosition = pos;
             }
             if (errorPosition == pos) {
-              console.log("focus on " + element);
               element.focus();
             }
             isValid = false;
           }
-          console.log("Validating " + key + ": " + controlValues[key].valid);
+//          console.log("Validating " + key + ": " + controlValues[key].valid);
         }
       }, this);
 
@@ -182,25 +181,25 @@ var Form = React.createClass({
     validations.forEach(function(validation, i){
       switch (validation.type) {
         case "presence":
-        console.log(value);
+//        console.log(value);
           valid = value !== "" && value !== undefined;
           message = value !== "" ? "" : validation.message;
-          console.log(validation.type + ": " + valid);
+//          console.log(validation.type + ": " + valid);
         break;
         case "length>":
           valid = value.length > validation.limit;
           message = value.length > validation.limit ? "" : validation.message;
-          console.log(validation.type + ": " + valid);
+//          console.log(validation.type + ": " + valid);
         break;
         case "value>":
           valid = value > validation.limit;
           message = value > validation.limit ? "" : validation.message;
-          console.log(validation.type + ": " + valid);
+//          console.log(validation.type + ": " + valid);
         break;
         case "email":
           valid = /^[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+$/i.test(value);
           message = valid ? "" : validation.message;
-          console.log(validation.type + ": " + valid);
+//          console.log(validation.type + ": " + valid);
         break;
         default:
           valid = true;

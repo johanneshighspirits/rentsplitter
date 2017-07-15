@@ -1,8 +1,10 @@
 <% provide :page_title, "List all members" %>
+<% addresses = [] %>
 <section>
-  <article>
+  <article class="info bright">
     <ul>
     <% @members.each do |member| %>
+      <% addresses << "\"#{member.name}\" <#{member.email}>" %>
       <li class="memberInfo">
         <%= form_for member do |f| %>
           <%= f.hidden_field :edited_by, value: "admin" %>
@@ -45,3 +47,10 @@
     </ul>
   </article>
 </section>
+<section>
+  <article class="info bright">
+    <h2>Member email addresses</h2>
+    <p><%= addresses.join(', ') %></p>
+  </article>
+</section>
+
