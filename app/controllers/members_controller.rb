@@ -72,7 +72,9 @@ class MembersController < ApplicationController
     puts "MembersController#create_and_invite"
     # Convert month/year params to date
     params[:joined_at] = "#{params[:joined_at_y]}-#{params[:joined_at_m]}-1".to_date
-    params[:left_at] = "#{params[:left_at_y]}-#{params[:left_at_m]}-1".to_date.end_of_month
+    # Left_at should be the first of next month. A member who's left_at is set to 1st of August will
+    # only pay for July.
+    params[:left_at] = "#{params[:left_at_y]}-#{params[:left_at_m]}-1".to_date.next_month #.end_of_month
     
     # Invite a new member or add an existing to a project
     if params[:invite_or_add] == "add"
@@ -217,6 +219,11 @@ class MembersController < ApplicationController
       render 'edit'
     end
   end
+  
+  # ADMIN ONLY
+  # Edit membership (join and left dates)
+  def 
+  
 
   # ADMIN ONLY:
   # Deleting a Member

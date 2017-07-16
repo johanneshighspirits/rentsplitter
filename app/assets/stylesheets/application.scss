@@ -276,6 +276,9 @@ footer {
   overflow: hidden;
   vertical-align: top;
   animation: fade-in-and-scale 400ms ease-out backwards;
+  &.fullWidth {
+    width: 100% !important;
+  }
   &.currentMember {
     display: block;
     margin: 0.5em auto;

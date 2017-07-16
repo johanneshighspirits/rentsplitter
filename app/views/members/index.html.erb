@@ -5,7 +5,7 @@
     <ul>
     <% @members.each do |member| %>
       <% addresses << "\"#{member.name}\" <#{member.email}>" %>
-      <li class="memberInfo">
+      <li class="memberInfo fullWidth">
         <%= form_for member do |f| %>
           <%= f.hidden_field :edited_by, value: "admin" %>
           <h3><%= member.name %><span><%= member.email %></span></h3>
@@ -29,6 +29,69 @@
         <%= button_to 'Send invite', invitations_path, class: "btn-primary", method: :post, params: { member: member, project_id: @project.id } %>
         <% end %>
         <% if member.id != current_member.id %>
+        <div>
+<% membership = member.memberships.where(project_id: @project.id).first %>
+<%= react_component 'Form', 
+  authenticity_token: form_authenticity_token, 
+  action: membership_path(membership),
+  method: "patch",
+  title: "Edit membership",
+  fields: [
+    {
+      fieldType: "p",
+      text: "Select which month the new member joined the Project. This is the first month to pay rent for."
+    },
+    {
+      fieldType: "flex-items",
+      items: [
+        {
+          fieldType: "select",
+          attribute: "joined_at_m",
+          attributeName: "",
+          options: (1..12).map {|m| [m, Date::MONTHNAMES[m]]},
+          defaultValue: membership.joined_at.month
+        },
+        {
+          fieldType: "select",
+          attribute: "joined_at_y",
+          attributeName: "",
+          options: (2000..20.years.from_now.year).map {|y| [y, y]},
+          defaultValue: membership.joined_at.year
+        },
+      ]
+    },
+    {
+      fieldType: "p",
+      text: "Select the last month to pay rent for."
+    },
+    {
+      fieldType: "flex-items",
+      items: [
+        {
+          fieldType: "select",
+          attribute: "left_at_m",
+          attributeName: "",
+          options: (1..12).map {|m| [m, Date::MONTHNAMES[m]]},
+          defaultValue: membership.left_at.prev_month.month
+        },
+        {
+          fieldType: "select",
+          attribute: "left_at_y",
+          attributeName: "",
+          options: (2000..100.years.from_now.year).map {|y| [y, y]},
+          defaultValue: membership.left_at.prev_month.year
+        }
+      ]
+    },  
+    {
+      fieldType: "submit",
+      attributeName: "Update membership"
+    }
+  ]
+        %>
+        
+        </div>
+        <br>
         <div class="paddedLeftRight"><%= link_to "Remove from project", member.memberships.where(project_id: @project.id).first, class: "btn-primary initial-width red",
           method: :delete,
           data: {

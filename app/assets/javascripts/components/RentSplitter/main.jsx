@@ -124,6 +124,7 @@ var MemberInfo = React.createClass({
     // added in March should be applied to member rent if member was participating
     // in Feburary)
     this.props.rentDiscounts.forEach(function(discount, i) {
+      console.log(discount);
       if (discount.from >= this.props.member.joinedAt && discount.to <= this.props.member.leftAt) {
         totalAmountToPay -= parseInt(discount.sharedAmount || 0);
         transactionHistory.push(
@@ -135,7 +136,7 @@ var MemberInfo = React.createClass({
           />
         )
       }else{
-        console.log("Ignored discount " + discount.from + "-" + discount.to + " since member joined " + this.props.member.joinedAt);
+        console.log("Ignored discount " + discount.message + ": " + discount.from + "-" + discount.to + " since member joined " + this.props.member.joinedAt);
       }
     }, this);
     // Add transfers (every payment this member has ever made)

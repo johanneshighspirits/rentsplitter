@@ -27,7 +27,7 @@ Rails.application.routes.draw do
   resources :transfers
   resources :rent_discounts
   resources :invitations, only: [:create, :edit]
-  resources :memberships, only: [:destroy]
+  resources :memberships, only: [:update, :destroy]
   resources :password_resets, only: [:new, :edit, :create, :update]
   resources :calendar_events
 
