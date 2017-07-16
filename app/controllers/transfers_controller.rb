@@ -62,9 +62,15 @@ class TransfersController < ApplicationController
     rents_and_discounts = p.project_rents_and_discounts
     member_and_transfers = p.members.map do |m|
       membership = p.memberships.where(project_id: p.id, member_id: m.id).first
+      isMember = membership.joined_at <= Date.current && membership.left_at > Date.current
+      if p.start_date == membership.joined_at && membership.left_at > Date.current
+        # If member is participating from the start of the project, make sure
+        # isMember is true even before project start
+        isMember = true
+      end
       member = {
         name: m.name,
-        isMember: membership.joined_at <= Date.current && membership.left_at > Date.current,
+        isMember: isMember,
         isActivated: m.activated,
         isInvited: m.invited,
         joinedAt: membership.joined_at,

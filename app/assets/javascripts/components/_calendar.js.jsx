@@ -184,7 +184,8 @@ var Calendar = React.createClass({
       displayDate: displayDate
     }, function() {
       var clickedDate = new Date(this.state.displayDate);
-      var timeSelector = new TimeSelector(
+      var timeSelector = new TimeSelector();
+      timeSelector.init(
         'timeSelector',
         this.state.displayDate.getDate(),
         this.props.dayNames[this.state.displayDate.getDay()],

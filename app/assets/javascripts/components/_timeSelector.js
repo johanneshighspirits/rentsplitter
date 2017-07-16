@@ -3,12 +3,14 @@
 *
 *   Display a 24-hour clock where user can choose a time span.
 */
-function TimeSelector(canvasId, date, day, month, bookings, currentMember, callback) {
+function TimeSelector() {}
+
+TimeSelector.prototype.init = function(canvasId, date, dayName, monthName, bookings, currentMember, callback) {
   this.canvas = document.getElementById(canvasId);
   this.pixelWidth = this.canvas.width;
   this.date = date;
-  this.day = day;
-  this.month = month;
+  this.day = dayName;
+  this.month = monthName;
   this.currentMember = currentMember;
   this.selectedHours = new HourSelection();
   this.selectedHours.registerBookings(bookings);

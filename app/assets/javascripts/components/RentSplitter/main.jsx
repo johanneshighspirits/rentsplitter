@@ -34,6 +34,7 @@ window.RentSplitter = React.createClass({
           key={m}
           order={m}
           member={member}
+          projectName={this.props.project.name}
           currentMember={this.props.currentMember.first_name + " " + this.props.currentMember.last_name == member.name}
           dueMonth={dueMonth}
           transfers={member.transfers}
@@ -124,7 +125,6 @@ var MemberInfo = React.createClass({
     // added in March should be applied to member rent if member was participating
     // in Feburary)
     this.props.rentDiscounts.forEach(function(discount, i) {
-      console.log(discount);
       if (discount.from >= this.props.member.joinedAt && discount.to <= this.props.member.leftAt) {
         totalAmountToPay -= parseInt(discount.sharedAmount || 0);
         transactionHistory.push(
@@ -158,7 +158,7 @@ var MemberInfo = React.createClass({
         <h3>{this.props.member.name}
           <span>{isActivated ? "Member since " + this.props.member.joinedAt : isInvited ? "Invitation sent" : "Not invited yet" }</span>
         </h3>
-        {!isMember ? <p className="noLongerMember">{this.props.member.name} är inte medlem i<br/>Årsta Frukt & Musik AB längre.<br/>{totalAmountToPay > 0 ? "KVARSTÅENDE SKULD: " + (totalAmountToPay * -1) + ":-" : "Alla skulder betalda."}</p> : null }
+        {!isMember ? <p className="noLongerMember">{this.props.member.name} är inte medlem i<br/>{this.props.projectName}.<br/><br/>{totalAmountToPay > 0 ? "KVARSTÅENDE SKULD: " + (totalAmountToPay * -1) + ":-" : "Alla skulder betalda."}</p> : null }
         {totalAmountToPay > 0 ?
         <span className="red" style={{background: "#d05959", color: "#FFF"}}>Att betala senast sista {this.props.dueMonth}:
           <span className="displayNumbers right counter" data-amount={totalAmountToPay}>{totalAmountToPay}:-</span>
