@@ -57,6 +57,8 @@
     }
   }
   .timeSelectorContainer {
+    display: flex;
+    flex-direction: column;
     background: rgba(0, 0, 0, 0.8);
     position: fixed;
     top: 0;
@@ -66,7 +68,7 @@
     border-radius: 10px;
     canvas {
       display: block;
-      margin: 40px auto;
+      margin: auto;
     }
     &.visible {
       animation: fade-in-hidden 200ms;
@@ -345,6 +347,11 @@
 }
 @media screen and (min-width: 700px) {
   .calendar {
+    .timeSelectorContainer {
+      canvas {
+        margin: 5% auto;
+      }
+    }
     .calendarDays, .memberLegend, .monthDisplay h1 {
       width: 700px;
       .calendarDay {

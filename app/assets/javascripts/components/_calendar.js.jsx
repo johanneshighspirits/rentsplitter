@@ -335,7 +335,7 @@ var Calendar = React.createClass({
           showToday={this.showToday}  
         />
         <div className={this.state.shouldDisplayTimeSelector ? "timeSelectorContainer visible" : "timeSelectorContainer invisible"} >
-          <canvas id="timeSelector" width="600" height="600"/>
+          <canvas id="timeSelector" width="700" height="700"/>
           <MemberLegend
             currentMember={this.props.currentMember}
             members={this.state.members}

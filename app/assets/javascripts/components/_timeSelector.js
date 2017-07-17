@@ -7,7 +7,6 @@ function TimeSelector() {}
 
 TimeSelector.prototype.init = function(canvasId, date, dayName, monthName, bookings, currentMember, callback) {
   this.canvas = document.getElementById(canvasId);
-  this.pixelWidth = this.canvas.width;
   this.date = date;
   this.day = dayName;
   this.month = monthName;
@@ -41,45 +40,78 @@ TimeSelector.prototype.init = function(canvasId, date, dayName, monthName, booki
   this.canvas.addEventListener("mousemove", this.handleHoverRef);
   this.canvas.addEventListener("touchstart", this.handleMouseDownRef);
   this.canvas.addEventListener("touchmove", this.handleHoverRef);
+//  window.addEventListener("resize", this.updateCanvasSize.bind(this));
+  
+  (function() {
+    var throttle = function(type, name, obj) {
+        obj = obj || window;
+        var running = false;
+        var func = function() {
+            if (running) { return; }
+            running = true;
+             requestAnimationFrame(function() {
+                obj.dispatchEvent(new CustomEvent(name));
+                running = false;
+            });
+        };
+        obj.addEventListener(type, func);
+    };
+
+    /* init - you can init any event */
+    throttle("resize", "optimizedResize");
+  })();
+
+  // handle event
+  window.addEventListener("optimizedResize", this.updateCanvasSize.bind(this));
+
+
+  
   // Update sizes and draw first frame
   this.updateCanvasSize();
-  window.addEventListener("resize", this.updateCanvasSize.bind(this));
 }
 
 TimeSelector.prototype.updateCanvasSize = function() {
   var devicePixelRatio = window.devicePixelRatio;
-  if (devicePixelRatio == 2) {
-    this.canvas.width = (this.pixelWidth * 2);
-    this.canvas.height = (this.pixelWidth * 2);
-    this.ctx.scale(2, 2);
-    this.canvas.style.width = this.pixelWidth + "px";
-    this.canvas.style.height = this.pixelWidth + "px";
+  var portrait = window.innerWidth < window.innerHeight;
+  var pixelSize;
+  if (portrait) {
+    pixelSize = window.innerWidth > 700 ? 700 : window.innerWidth;
+  } else {
+    pixelSize = window.innerHeight > 700 ? 700 : window.innerHeight;
   }
-  this.width = this.canvas.width;
-  this.height = this.canvas.height;
+  
+  this.width = pixelSize * devicePixelRatio;
+  this.height = pixelSize * devicePixelRatio;
+  this.canvas.width = this.width;
+  this.canvas.height = this.height;
+  this.ctx.scale(devicePixelRatio, devicePixelRatio);
+  this.canvas.style.width = pixelSize + "px";
+  this.canvas.style.height = pixelSize + "px";
   this.radius = (this.width - 20) / 2;
   this.center = {
     x: this.width / 2,
-    y: this.height / 2
+    y: this.width / 2
   };
   
-  if (this.pixelWidth > 480) {
+  if (pixelSize > 480) {
     // Default
     this.cancelBtnMargin = 20 * devicePixelRatio;
     this.cancelBtnSize = 30 * devicePixelRatio;
     this.fontSizes = {
       timeRange: 34 * devicePixelRatio,
       info: 14 * devicePixelRatio,
-      dateDisplay: 16 * devicePixelRatio
+      dateDisplay: 16 * devicePixelRatio,
+      hourNumbers: 12 * devicePixelRatio
     };  
-  } else if (this.pixelWidth > 320) {
+  } else if (pixelSize > 320) {
     // Mid size
     this.cancelBtnMargin = 20 * devicePixelRatio;
     this.cancelBtnSize = 20 * devicePixelRatio;
     this.fontSizes = {
       timeRange: 22 * devicePixelRatio,
       info: 10 * devicePixelRatio,
-      dateDisplay: this.width * 0.03
+      dateDisplay: pixelSize * 0.03 * devicePixelRatio,
+      hourNumbers: 12 * devicePixelRatio
     };
   } else {
     // Small
@@ -88,10 +120,14 @@ TimeSelector.prototype.updateCanvasSize = function() {
     this.fontSizes = {
       timeRange: 12 * devicePixelRatio,
       info: 8 * devicePixelRatio,
-      dateDisplay: 10 * devicePixelRatio
+      dateDisplay: 10 * devicePixelRatio,
+      hourNumbers: 12 * devicePixelRatio
     };
   }
 
+  setTimeout(function(){
+    this.draw();
+  }.bind(this), 0);
   this.draw();
 }
 
@@ -146,8 +182,6 @@ TimeSelector.prototype.shrinkToPoint = function(x, y, xMargin) {
   } else {
     this.animationCompletion = 0;
     this.draw();
-    this.canvas.width = this.pixelWidth;
-    this.canvas.height = this.pixelWidth;
   }
 }
 
@@ -240,7 +274,7 @@ TimeSelector.prototype.drawHourNumbers = function() {
   var hour = 0;
   this.ctx.textAlign = "center";
   this.ctx.textBaseline = "middle";
-  this.ctx.font = "400 12px 'Quicksand', Quicksand, 'HelveticaNeue', Helvetica, Arial, sans-serif"
+  this.ctx.font = "400 " + this.fontSizes.hourNumbers + "px 'Quicksand', Quicksand, 'HelveticaNeue', Helvetica, Arial, sans-serif"
   this.startHandle = undefined;
   this.endHandle = undefined;
   for (var h = 0; h < (2 * Math.PI); h += ((2 * Math.PI) / 24)) {
@@ -327,13 +361,13 @@ TimeSelector.prototype.drawCancelBtn = function() {
 */
 TimeSelector.prototype.drawDate = function() {
   this.ctx.save();
-  this.ctx.textAlign = "center";
-  this.ctx.textBaseline = "middle";
   this.ctx.translate(this.center.x * (1 - this.animationCompletion), this.center.y * (1 - this.animationCompletion));
   this.ctx.scale(this.animationCompletion, this.animationCompletion);
   // Date
   this.ctx.font = "700 " + this.fontSizes.timeRange + "px 'Quicksand', Quicksand, 'HelveticaNeue', Helvetica, Arial, sans-serif";
   this.ctx.fillStyle = this.colors.dateText;
+  this.ctx.textAlign = "center";
+  this.ctx.textBaseline = "middle";
   this.ctx.fillText(this.date, this.center.x, this.center.y * 0.62);
   this.ctx.font = "300 " + this.fontSizes.dateDisplay + "px 'Quicksand', Quicksand, 'HelveticaNeue', Helvetica, Arial, sans-serif";
   // Weekday
@@ -390,6 +424,9 @@ TimeSelector.prototype.drawTimeRange = function() {
   if (this.selectedHours.hasSelection()) {
     text = this.selectedHours.from + ":00-" + this.selectedHours.to + ":00";
   }
+  this.ctx.textAlign = "center";
+  this.ctx.textBaseline = "middle";
+
   this.ctx.fillText(text, this.center.x, this.center.y * 1.28);
   this.ctx.restore();
 }
@@ -401,6 +438,8 @@ TimeSelector.prototype.drawTimeRange = function() {
 TimeSelector.prototype.drawInfo = function(info) {
   this.ctx.font = "100 " + this.fontSizes.info + "px 'Quicksand', Quicksand, 'Helvetica Neue', Helvetica, Arial, sans-serif";
   this.ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+  this.ctx.textAlign = "center";
+  this.ctx.textBaseline = "middle";
   if (Array.isArray(info)) {
     info.forEach(function(line, i) {
       this.ctx.fillText(line, this.center.x, (this.center.y * 1.4) + (i * this.fontSizes.info * 1.2));
@@ -410,17 +449,67 @@ TimeSelector.prototype.drawInfo = function(info) {
   }
 }
 
+
+TimeSelector.prototype.degreeFromPoint = function(point) {
+  // Calculate degree relative from canvas center.
+  // E.g. A point of x: 100px and y: 100px would return 45°
+  var degree = Math.atan2(point.y - this.center.y, point.x - this.center.x) * 180 / Math.PI;
+  // Convert negative degrees to positive
+  if (degree < 0) degree = 360 + degree;
+  return degree;
+}
+
+TimeSelector.prototype.drawClock = function() {
+  if (!this.cursorPos) return false;
+  var degree = this.degreeFromPoint(this.cursorPos);
+  var angle = 360 / 12;
+
+  // Return which hour the point is in.
+  // 0 means the hour between 00:00-01:00 (am)
+  // 1 means 01:00-02:00 and so on
+  var hour = Math.floor((degree / 360) * 24) + this.hourOffset;
+  hour = hour >= 0 ? hour : hour + 24;
+  var minute = Math.floor((degree / 360) * 24 * 60) + (this.hourOffset * 60);
+  minute = minute >= 0 ? minute : minute + (24 * 60);
+  
+  // Draw hour hand
+  this.ctx.translate(this.center.x, this.center.y + (this.height * 0.25));
+  this.ctx.rotate(2 * degree * Math.PI / 180);
+  this.ctx.beginPath();
+  
+  this.ctx.moveTo(0, 0); //this.center.x, this.center.y);
+  this.ctx.lineTo(0, 12); //this.center.x + 100, this.center.y);
+  
+  this.ctx.closePath();
+  this.ctx.strokeStyle = "#FFF";
+  this.ctx.lineWidth = 1;
+  this.ctx.stroke();
+  this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+  // Draw minute hand
+  this.ctx.translate(this.center.x, this.center.y + (this.height * 0.25));
+  this.ctx.rotate(24 * degree * Math.PI / 180);
+  this.ctx.beginPath();
+  
+  this.ctx.moveTo(0, 0); //this.center.x, this.center.y);
+  this.ctx.lineTo(0, -20); //this.center.x + 100, this.center.y);
+  
+  this.ctx.closePath();
+  this.ctx.strokeStyle = "#FFF";
+  this.ctx.lineWidth = 1;
+  this.ctx.stroke();
+  this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+  
+  console.log(hour + ":" + (minute - (hour * 60)));
+}
+
 /**
 *   Find which hour a point belongs to
 *   @param {Object} point - An object with properties for
 *   x and y coordinates
 */
 TimeSelector.prototype.hourFromPoint = function(point) {
-  // Calculate degree relative from canvas center.
-  // E.g. A point of x: 100px and y: 100px would return 45°
-  var degree = Math.atan2(point.y - this.center.y, point.x - this.center.x) * 180 / Math.PI;
-  // Convert negative degrees to positive
-  if (degree < 0) degree = 360 + degree;
+  var degree = this.degreeFromPoint(point);
   // Return which hour the point is in.
   // 0 means the hour between 00:00-01:00 (am)
   // 1 means 01:00-02:00 and so on
@@ -517,6 +606,8 @@ TimeSelector.prototype.draw = function() {
   };
   // Display selected time range
   this.drawTimeRange();
+  // Draw regular clock
+//  this.drawClock();
   // Display user feedback
   if (this.highlightCancel) info = "Click to cancel booking";
   this.drawInfo(info);
@@ -732,6 +823,7 @@ TimeSelector.prototype.handleHover = function(e) {
     this.highlightCancel = false;
     this.highlightBooking = this.selectedHours.bookingFor(hour);
   }
+  this.cursorPos = point;
   this.draw();
 }
 
