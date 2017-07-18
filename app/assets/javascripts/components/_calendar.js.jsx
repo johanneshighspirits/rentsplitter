@@ -114,7 +114,7 @@ var Calendar = React.createClass({
             calendar_event: {
               from: fromDate,
               to: toDate,
-              project_id: this.props.projectId,
+              project_id: this.props.project.id,
               member_id: this.props.currentMember.id
             },
             authenticity_token: this.props.authenticity_token
@@ -314,6 +314,7 @@ var Calendar = React.createClass({
     var isCurrentMonth = now.getFullYear() == this.state.displayDate.getFullYear() && now.getMonth() == this.state.displayDate.getMonth();
     return (
       <div className="calendar">
+        <h2 className="projectName">{this.props.project.name}</h2>
         <div className="monthDisplay">
           <h1>
             {isCurrentMonth ? <div className="prev"></div> : <a className="prev" href="#prev" onClick={this.changeMonth}>&lt;</a>}{this.props.monthNames[this.state.displayDate.getMonth() + 1]}

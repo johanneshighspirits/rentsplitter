@@ -3,10 +3,13 @@
 <%= react_component 'Calendar',
   authenticity_token: form_authenticity_token,
   currentMember: {
-      name: current_member.name,
-      id: current_member.id
-    },
-  projectId: @project_id,
+    name: current_member.name,
+    id: current_member.id
+  },
+  project: {
+    id: @project.id,
+    name: @project.name
+  },
   members: @members.map {|m| {name: m.name, id: m.id}},
   bookings: @calendar_events,
   monthNames: (0..12).map {|m| Date::MONTHNAMES[m]},

@@ -9,10 +9,9 @@ class CalendarEventsController < ApplicationController
   # GET /calendar_events
   # GET /calendar_events.json
   def index
-    @project_id = current_project_id
-    project = Project.find(@project_id)
-    @calendar_events = project.calendar_events
-    @members = project.members.sort { |m| m.id == current_member.id ? -1 : 1}
+    @project = Project.find(current_project_id)
+    @calendar_events = @project.calendar_events
+    @members = @project.members.sort { |m| m.id == current_member.id ? -1 : 1}
   end
 
   # GET /calendar_events/1
