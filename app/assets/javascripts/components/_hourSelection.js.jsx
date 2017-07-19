@@ -36,11 +36,11 @@ HourSelection.prototype.selectHour = function(hour) {
     }
     // Check if range is valid
     if(!this.rangeIsFreeToBook(this.getSelectedHours())) {
-      console.error("Already booked!");
       var h = this.from;
       while (this.isFreeToBook(h++)) {
         this.to = h;
       }
+      console.error("Already booked!");
     }
   }
   this.sanityCheck();
@@ -87,10 +87,20 @@ HourSelection.prototype.sanityCheck = function() {
   // Make sure this.from is less than this.to
   if (this.from > this.to) {
     // Swap values
-    var to = this.from;
-    this.to = this.from;
+    var from = this.from;
+    var to = this.to;
+    this.to = from;
     this.from = to;
+    return;
   }
+  if (this.from == this.to) {
+    this.removeSelection();
+    return;
+  }
+  if (this.from < 0) this.from += 24;
+  if (this.from > 23) this.from -= 24;
+  if (this.to < 1) this.to += 24;
+  if (this.to > 24) this.to -= 24;
 }
 
 HourSelection.prototype.registerBookings = function(bookings) {

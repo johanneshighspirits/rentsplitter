@@ -207,7 +207,7 @@ TimeSelector.prototype.drawBackground = function() {
 *   @param {Number} from      - A Number between 0-23
 *   @param {Number} [to]      - A Number between 1-24
 *   @param {String} [color]   - The color for the time span.
-*   @param {Boolean} [stroke] - If true: stroke, else fill.
+*   @param {Boolean} [stroke] - If true: stroke outside of pie, else fill inside.
 */
 TimeSelector.prototype.drawHourPie = function(from, to, color, stroke) {
   var to = to || from + 1;
@@ -218,15 +218,13 @@ TimeSelector.prototype.drawHourPie = function(from, to, color, stroke) {
   var startAngle = (from - this.hourOffset) * hourRadian;
   var endAngle = (to - this.hourOffset) * hourRadian;
     
+  this.ctx.beginPath();
   if (stroke) {
     this.ctx.strokeStyle = color;
     this.ctx.lineWidth = 10;
-    this.ctx.beginPath();
     this.ctx.arc(this.center.x, this.center.y, (this.radius + 5 * this.animationCompletion), startAngle, endAngle);
-//    this.ctx.arc(this.center.x, this.center.y, ((this.radius - 100) * this.animationCompletion), endAngle, startAngle, true);
     this.ctx.stroke();
   } else {
-    this.ctx.beginPath();
     this.ctx.arc(this.center.x, this.center.y, (this.radius * this.animationCompletion), startAngle, endAngle);
     this.ctx.arc(this.center.x, this.center.y, ((this.radius - (this.radius * 0.4)) * this.animationCompletion), endAngle, startAngle, true);
     this.ctx.fillStyle = color;
@@ -317,7 +315,8 @@ TimeSelector.prototype.drawHourNumbers = function() {
     var display = this.offsetCorrectedHour(hour);
     if (this.highlightedHour < 12 && hour + this.hourOffset === 0) {
       display = "0";
-    } 
+    }
+//    if (selectedHourCircle && this.selectedHours.to == 24) display = "#24#";
     if (selectedHourCircle) this.ctx.fillStyle = this.colors.dayText;
     if (display) this.ctx.fillText(display, x, y);
     hour++;
@@ -404,10 +403,14 @@ TimeSelector.prototype.drawSubmit = function() {
     var size = (this.width * 0.083) * this.animationCompletion;
     // Moon
     var moon = document.getElementById('moon');
-    this.ctx.drawImage(moon, this.center.x - (size / 2), (this.center.y + (this.height * 0.016 * this.animationCompletion)), size, size)
+    if (moon) {
+      this.ctx.drawImage(moon, this.center.x - (size / 2), (this.center.y + (this.height * 0.016 * this.animationCompletion)), size, size)
+    }
     // Sun
     var sun = document.getElementById('sun');
-    this.ctx.drawImage(sun, this.center.x - (size / 2), (this.center.y - (this.height * 0.1 * this.animationCompletion)), size, size)
+    if (sun) {
+      this.ctx.drawImage(sun, this.center.x - (size / 2), (this.center.y - (this.height * 0.1 * this.animationCompletion)), size, size)
+    }
   }
 }
 
@@ -499,8 +502,6 @@ TimeSelector.prototype.drawClock = function() {
   this.ctx.lineWidth = 1;
   this.ctx.stroke();
   this.ctx.setTransform(1, 0, 0, 1, 0, 0);
-  
-  console.log(hour + ":" + (minute - (hour * 60)));
 }
 
 /**
@@ -523,7 +524,7 @@ TimeSelector.prototype.hourFromPoint = function(point) {
     // User presses on end handle
     hour = this.endHandle.hour;
   }
-  return hour;
+  return hour >= 0 ? hour : 23;
 }
 
 TimeSelector.prototype.mouseIsAboveSubmit = function(point) {
@@ -593,7 +594,7 @@ TimeSelector.prototype.draw = function() {
   }, this);
 
   // Draw highlighted hour if user hovers on canvas
-  if (this.highlightedHour !== undefined) {
+  if (this.highlightedHour !== undefined && this.animationCompletion == 1) {
     var color = this.colors.bookingText;
     this.drawHourPie(this.highlightedHour, this.highlightedHour + 1, color, true);
     if (info === "") {
@@ -680,10 +681,13 @@ TimeSelector.prototype.handleMouseDown = function(e) {
   } else {
     // Select/Deselect hour(s)
     var hour = this.hourFromPoint(point);
-
+    // The hour that user started clicking/dragging on
     this.startHour = hour;
     this.startHourIsSelected = this.selectedHours.hourIsSelected(hour);
+    // Check if user is dragging the start handle
     this.dragStartHandle = hour == this.selectedHours.from && this.selectedHours.to > hour + 1;
+    // Check if user is dragging the end handle
+    this.dragEndHandle = hour == this.selectedHours.to - 1 && this.selectedHours.from < hour;
     // Check if current member has booked, if so, edit booking, else
     // let HourSelection decide what to do
     var prevBooking = this.selectedHours.bookingFor(hour);
@@ -759,21 +763,34 @@ TimeSelector.prototype.dragSelectHours = function(e) {
     // User drags start point
     if (hour < this.selectedHours.from) {
       this.selectedHours.selectHour(hour);
+    } else if (this.selectedHours.from == 0 && hour == 23) {
+      // Cancel drag selecting
+      this.cancelSelecting(e);
+      return;
     } else {
       this.selectedHours.selectFrom(hour);
     }
-  } else {
+  } else if (this.dragEndHandle) {
     // User is dragging the last hour of the selection
-    // Prevent mouse up to deselect starting hour
+    // Prevent mouse up to deselect ending hour
     if (hour !== this.startHour) {
       this.startHour = undefined;
     }
     // User drags end point
-    if (hour < this.selectedHours.to - 1) {
+    if (this.selectedHours.to == 24 && hour == 0) {
+      // Cancel drag selecting
+      this.cancelSelecting(e);
+      return;
+    } else if (hour < this.selectedHours.to - 1) {
       this.selectedHours.selectTo(hour);
     } else {
       this.selectedHours.selectHour(hour);
     }
+  } else {
+//    if (hour !== this.startHour) {
+//      this.startHour = undefined;
+//    }
+    this.selectedHours.selectHour(hour);
   }
   
   this.draw();
@@ -792,6 +809,13 @@ TimeSelector.prototype.hoursSelected = function(e) {
     }
   }
   this.draw();
+  this.cancelSelecting(e);
+}
+
+/**
+*   Cancel user selecting
+*/
+TimeSelector.prototype.cancelSelecting = function(e) {
   e.target.removeEventListener("mousemove", this.dragSelectHoursRef);
   e.target.removeEventListener("mouseup", this.hoursSelectedRef);
   e.target.removeEventListener("touchmove", this.dragSelectHoursRef);

@@ -125,7 +125,7 @@ var Calendar = React.createClass({
               var userAlert = new UserInfo(error.message, "OK");
               userAlert.present(document.querySelector('.calendar'));
             } else {
-              var userAlert = new UserInfo(["Booking confirmed:", fromDate.toLocaleDateString(), booking.from + ":00 - " + booking.to + ":00"], "OK", function(){
+              var userAlert = new UserInfo(["Booking confirmed:", fromDate.getDate() + " " + fromDate.getMonthName(), "kl: " + booking.from + ":00 - " + booking.to + ":00"], "OK", function(){
                 this.thumbnailUpdated(this.state.displayDate.getDate());
               }.bind(this));
               userAlert.present(document.querySelector('.calendar'));
@@ -173,9 +173,9 @@ var Calendar = React.createClass({
   },
   showTimeSelector: function(e) {
     e.preventDefault();
+    if (e.currentTarget.parentNode.className.indexOf('past') !== -1) return false;
     e.currentTarget.getElementsByClassName('booking')[0].style.transform = "rotateZ(0deg)";
 
-    if (e.currentTarget.parentNode.className.indexOf('past') !== -1) return false;
     var thumbnailRect = e.currentTarget.getBoundingClientRect();
     var displayDate = new Date(this.state.displayDate);
     displayDate.setDate(e.currentTarget.dataset.datenr);
@@ -194,7 +194,7 @@ var Calendar = React.createClass({
         this.props.currentMember,
         this.timeSelected
       );
-      timeSelector.enterFrom(thumbnailRect.left, thumbnailRect.top);
+      timeSelector.enterFrom(thumbnailRect.left + (thumbnailRect.width / 2), thumbnailRect.top);
     });
   },
 /**
@@ -440,12 +440,12 @@ var CalendarDayThumbnail = React.createClass({
 
 var MemberLegend = React.createClass({
   handleMouseOver: function(e) {
-    e.preventDefault();
+//    e.preventDefault();
     var membersBookings = document.getElementsByClassName(e.target.dataset.id);
     Array.prototype.forEach.call(membersBookings, function(circle) {
       circle.style.opacity = 1;
-      if (circle.parentNode.parentNode.className.indexOf("highlighted") == -1) {
-        circle.parentNode.parentNode.className += " highlighted";
+      if (circle.parentNode.parentNode.parentNode.className.indexOf("highlighted") == -1) {
+        circle.parentNode.parentNode.parentNode.className += " highlighted";
       }
     })
   },
@@ -453,7 +453,7 @@ var MemberLegend = React.createClass({
     var membersBookings = document.getElementsByClassName(e.target.dataset.id);
     Array.prototype.forEach.call(membersBookings, function(circle) {
       circle.style.opacity = null;
-      circle.parentNode.parentNode.className = circle.parentNode.parentNode.className.replace("highlighted", "");
+      circle.parentNode.parentNode.parentNode.className = circle.parentNode.parentNode.parentNode.className.replace(" highlighted", "");
     })
   },
   render: function() {
