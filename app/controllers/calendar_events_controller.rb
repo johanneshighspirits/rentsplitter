@@ -42,9 +42,34 @@ class CalendarEventsController < ApplicationController
       render json: { error: "CONFLICT: Booking conflicts with another booking" }
     else
       @calendar_event = project.calendar_events.build(calendar_event_params)
+      # Join calendar events that are next to each other in time.
+      event_before = project.calendar_events.where(to: params[:calendar_event][:from].to_datetime.utc, member_id: current_member.id)
+      event_after = project.calendar_events.where(from: params[:calendar_event][:to].to_datetime.utc, member_id: current_member.id)
+      if event_before.count > 0
+        event_before.first.update(to: params[:calendar_event][:to])
+        render json: {
+          success: true,
+          update: true,
+          message: "Booking successfully updated.",
+          bookingId: event_before.first.id
+        }
+        return
+      end
+      if event_after.count > 0
+        event_after.first.update(from: params[:calendar_event][:from])
+        render json: {
+          success: true,
+          update: true,
+          message: "Booking successfully updated.",
+          bookingId: event_after.first.id
+        }
+        return
+      end
+
       if project.save 
         render json: {
           success: true,
+          update: false,
           message: "Booking successfully saved.",
           bookingId: @calendar_event.id
         }
@@ -83,6 +108,23 @@ class CalendarEventsController < ApplicationController
       success: true,
       message: "Booking successfully removed."
     }
+  end
+  
+  def send_event_reminders
+    unless params[:ids].nil?
+      params[:ids].each do |memberId|
+        member = Member.find(memberId)
+        puts "Let's send email to #{member.name}"
+        member.send_booking_email(
+          project_name: params[:project_name],
+          date_and_time: params[:date_and_time]
+        )
+      end
+      render json: {
+        success: true,
+        message: "Messages sent to #{params[:ids]}"
+      }
+    end
   end
 
   private

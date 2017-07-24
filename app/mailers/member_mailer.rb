@@ -77,6 +77,19 @@ class MemberMailer < ApplicationMailer
     }
     mail to: recipient.email, subject: subject
   end
+  
+  def booking(member, info)
+    @content = {
+      heading1: "Booking confirmed",
+      greeting: "Hi #{member.first_name}",
+      body: [
+        "Your booking:",
+        "#{info[:project_name]}.",
+        "#{info[:date_and_time]}."
+      ]
+    }
+    mail to: member.email, subject: "RentSplitter Booking"
+  end
 
   def activation(member)
     @member = member

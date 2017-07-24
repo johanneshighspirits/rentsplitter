@@ -21,6 +21,7 @@ Rails.application.routes.draw do
   post    '/mail/reports', to: 'mail_reports#mail_report'
 
   get     '/calendar',  to: 'calendar_events#index', as: :calendar_events
+  post    '/calendar_events/event_reminder',  to: 'calendar_events#send_event_reminders'
 
   resources :members
   resources :projects

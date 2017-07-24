@@ -101,7 +101,7 @@ TimeSelector.prototype.updateCanvasSize = function() {
       timeRange: 34 * devicePixelRatio,
       info: 14 * devicePixelRatio,
       dateDisplay: 16 * devicePixelRatio,
-      hourNumbers: 12 * devicePixelRatio
+      hourNumbers: 14 * devicePixelRatio
     };  
   } else if (pixelSize > 320) {
     // Mid size
@@ -663,12 +663,27 @@ TimeSelector.prototype.handleMouseDown = function(e) {
       // Envoke callback to submit booking
       this.submitBooking("create", this.selectedHours.from, this.selectedHours.to);
     } else {
-      var userConfirm = new UserInfo("Nothing selected.\nPlease click (or drag) on the hours you want to book.\n\nPress cancel to close without making a booking.", "OK", undefined, "Cancel", function() {
-        this.clearListeners();
-        // Hide time selector
-        this.discardTo(this.thumbnailX, this.thumbnailY);
-        this.submitBooking("cancel");
-      }.bind(this));
+      var userConfirm = new UserInfo();
+      userConfirm.addMessage([
+        "Nothing selected.",
+        "Please click (or drag) on the hours you want to book.",
+        "Press cancel to close without making a booking."
+      ]);
+      userConfirm.addButtons([
+        {
+          text: "OK"
+        },
+        {
+          text: "Cancel",
+          action: function() {
+            this.clearListeners();
+            // Hide time selector
+            this.discardTo(this.thumbnailX, this.thumbnailY);
+            this.submitBooking("cancel");
+          }.bind(this)
+        }
+      ]);
+      userConfirm.present(this.canvas.parentNode);
     }
   } else if (this.mouseIsAboveCancel(point)) {
     // Cancel booking
@@ -697,20 +712,36 @@ TimeSelector.prototype.handleMouseDown = function(e) {
       this.draw();
       if (prevBooking.bookedBy.id == this.currentMember.id) {
         // Member has booked
-        var userConfirm = new UserInfo("Press DELETE to remove this booking.", "DELETE", function() {
-          // User pressed first button (DELETE)
-          // Remove event listeners
-          this.clearListeners();
-          // Hide time selector
-          this.discardTo(this.thumbnailX, this.thumbnailY);
-          // Delete booking
-          this.submitBooking("destroy", 0, 0, prevBooking.id);
-        }.bind(this), "Cancel");
+        var userConfirm = new UserInfo();
+        userConfirm.addMessage("Press DELETE to remove this booking.");
+        userConfirm.addButtons([
+          {
+            text: "DELETE",
+            action: function() {
+              // User pressed first button (DELETE)
+              // Remove event listeners
+              this.clearListeners();
+              // Hide time selector
+              this.discardTo(this.thumbnailX, this.thumbnailY);
+              // Delete booking
+              this.submitBooking("destroy", 0, 0, prevBooking.id);
+            }.bind(this)
+          },
+          {
+            text: "Cancel"
+          }
+        ]);
         userConfirm.present(this.canvas.parentNode);
         return false;
       } else {
         // Someone else has booked
-        var userAlert = new UserInfo(prevBooking.bookedBy.name + " has already booked " + prevBooking.from + ":00 - " + prevBooking.to + ":00.", "OK")
+        var userAlert = new UserInfo();
+        userAlert.addMessage(prevBooking.bookedBy.name + " has already booked " + prevBooking.from + ":00 - " + prevBooking.to + ":00.");
+        userAlert.addButtons([
+          {
+            text: "OK"
+          }
+        ]);
         userAlert.present(this.canvas.parentNode);
         return false;
       }

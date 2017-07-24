@@ -100,7 +100,36 @@ var Calendar = React.createClass({
           },
           color: this.state.members[this.props.currentMember.id].color
         };
-        members[this.props.currentMember.id].bookings.push(booking);
+        var memberBookings = members[this.props.currentMember.id].bookings;
+        // Check if booking should be merged with prev/next
+        var bookingNeedsUpdate = -1;
+        memberBookings = memberBookings.map(function(prevBooking, i) {
+          if (prevBooking.fromDate.getTime() == booking.toDate.getTime() || prevBooking.toDate.getTime() == booking.fromDate.getTime()) {
+            bookingNeedsUpdate = i;
+            
+            var updatedFrom = Math.min(booking.from, prevBooking.from);
+            var updatedFromDate = new Date(fromDate);
+            updatedFromDate.setHours(updatedFrom);
+            
+            var updatedTo = Math.max(booking.to, prevBooking.to);
+            var updatedToDate = new Date(toDate);
+            updatedToDate.setHours(updatedTo);
+            
+            var updatedBooking = {
+              from: updatedFrom,
+              fromDate: updatedFromDate,
+              to: updatedTo,
+              toDate: updatedToDate,
+              bookedBy: prevBooking.bookedBy,
+              color: prevBooking.color
+            }
+            return updatedBooking;
+          } else {
+            return prevBooking;
+          }
+        })
+        if (bookingNeedsUpdate == -1) memberBookings.push(booking);
+        members[this.props.currentMember.id].bookings = memberBookings;
         this.setState({
           shouldDisplayTimeSelector: false,
           members: members
@@ -122,13 +151,51 @@ var Calendar = React.createClass({
             var error = undefined;
             if (error = response.error) {
               console.error(error.code);
-              var userAlert = new UserInfo(error.message, "OK");
+              var userAlert = new UserInfo();
+              userAlert.addMessage(error.message);
+              userAlert.addButtons([{text: "OK"}]);
               userAlert.present(document.querySelector('.calendar'));
             } else {
-              var userAlert = new UserInfo(["Booking confirmed:", fromDate.getDate() + " " + fromDate.getMonthName(), "kl: " + booking.from + ":00 - " + booking.to + ":00"], "OK", function(){
-                this.thumbnailUpdated(this.state.displayDate.getDate());
-              }.bind(this));
-              userAlert.present(document.querySelector('.calendar'));
+              var userInfoForm = new UserInfoForm();
+              var timeMessage = fromDate.getDate() + " " + fromDate.getMonthName() + " kl: " + booking.from + ":00 - " + booking.to + ":00"; 
+              if (bookingNeedsUpdate > -1) {
+                var updatedBooking = memberBookings[bookingNeedsUpdate];
+                timeMessage = updatedBooking.fromDate.getDate() + " " + updatedBooking.fromDate.getMonthName() + " kl: " + updatedBooking.from + ":00 - " + updatedBooking.to + ":00"
+              }
+              userInfoForm.addMessage([
+                "Booking confirmed!",
+                timeMessage,
+                "",
+                "Share with your band members by clicking their names."
+              ]);
+              userInfoForm.addMembers(this.state.members, this.props.currentMember.id);
+              userInfoForm.addButtons([
+                {
+                  text: "OK",
+                  action: function(){
+                    var checkedMemberIds = [];
+                    var checkBoxes = userInfoForm.form.getElementsByTagName('input');
+                    for (var i = 0; i < checkBoxes.length; i++) {
+                      if (checkBoxes[i].checked) checkedMemberIds.push(checkBoxes[i].id.replace('id_', ''));
+                    }
+                    if (checkedMemberIds.length > 0) {
+                      $.post(
+                        '/calendar_events/event_reminder',
+                        {
+                          ids: checkedMemberIds,
+                          project_name: this.props.project.name,
+                          date_and_time: timeMessage
+                        }, function(response) {
+                          console.log(response);
+                        }
+                      );
+                    }
+                    this.thumbnailUpdated(this.state.displayDate.getDate());
+                  }.bind(this)
+                }
+              ]);
+              userInfoForm.present(document.querySelector('.calendar'));
+              
               // Set id on booking so we can retrieve it from database later
               var members = this.state.members;
               var membersBookings = members[this.props.currentMember.id].bookings;

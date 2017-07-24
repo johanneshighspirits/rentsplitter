@@ -61,6 +61,12 @@ class Member < ApplicationRecord
     MemberMailer.activation(self).deliver_now
   end
 
+  # Sends booking confirmation email
+  def send_booking_email(info)
+    # Send email with booking confirmation
+    MemberMailer.booking(self, info).deliver_now
+  end
+
   # Sends invoice email
   def send_invoice_email(info)
     MemberMailer.invoice(self, info).deliver_now
