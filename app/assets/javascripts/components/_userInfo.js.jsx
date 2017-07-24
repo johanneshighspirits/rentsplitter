@@ -66,7 +66,7 @@ UserInfo.prototype.dismiss = function() {
 function UserInfoForm() {
   UserInfo.call(this);
   this.form = document.createElement('form');
-  this.form.className = "userInfoForm";
+  this.form.className = "userInfoForm row";
   this.container.insertBefore(this.form, this.buttonsContainer);
 }
 UserInfoForm.prototype = Object.create(UserInfo.prototype);

@@ -166,7 +166,7 @@ var Calendar = React.createClass({
                 "Booking confirmed!",
                 timeMessage,
                 "",
-                "Share with your band members by clicking their names."
+                "Share with your band members by selecting their names. Then press OK."
               ]);
               userInfoForm.addMembers(this.state.members, this.props.currentMember.id);
               userInfoForm.addButtons([
