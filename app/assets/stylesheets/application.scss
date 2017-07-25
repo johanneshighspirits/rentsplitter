@@ -847,6 +847,14 @@ form.full-width {
   font-size: 8px;
 }
 
+.blurrable {
+  transition: filter 400ms ease-out;
+  filter: none;
+  &.blurred {
+    filter: blur(8px);
+  }
+}
+
 /* --- Media queries --- */
 @media screen and (min-width: 600px) {
   header .logged-in-info {

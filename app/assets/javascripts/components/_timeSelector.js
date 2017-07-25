@@ -571,9 +571,9 @@ TimeSelector.prototype.draw = function() {
   this.selectedHours.bookings.forEach(function(booking) {
     if (this.highlightBooking !== undefined && this.highlightBooking.id == booking.id) {
       this.ctx.globalAlpha = 0.8;
-      info = booking.bookedBy.name;
+      info = [booking.bookedBy.name, booking.from + ":00 - " + booking.to + ":00"];
       if (booking.bookedBy.id == this.currentMember.id) {
-        info = [info, "(click to delete)"];
+        info = [booking.bookedBy.name, "(click to delete)"];
       }
     } else {
       this.ctx.globalAlpha = 0.5;
@@ -683,7 +683,7 @@ TimeSelector.prototype.handleMouseDown = function(e) {
           }.bind(this)
         }
       ]);
-      userConfirm.present(this.canvas.parentNode);
+      userConfirm.present(this.canvas.parentNode.parentNode);
     }
   } else if (this.mouseIsAboveCancel(point)) {
     // Cancel booking
@@ -731,7 +731,7 @@ TimeSelector.prototype.handleMouseDown = function(e) {
             text: "Cancel"
           }
         ]);
-        userConfirm.present(this.canvas.parentNode);
+        userConfirm.present(this.canvas.parentNode.parentNode);
         return false;
       } else {
         // Someone else has booked
@@ -742,7 +742,7 @@ TimeSelector.prototype.handleMouseDown = function(e) {
             text: "OK"
           }
         ]);
-        userAlert.present(this.canvas.parentNode);
+        userAlert.present(this.canvas.parentNode.parentNode);
         return false;
       }
     } else {

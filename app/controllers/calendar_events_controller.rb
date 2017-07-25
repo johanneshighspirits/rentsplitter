@@ -35,8 +35,6 @@ class CalendarEventsController < ApplicationController
     dayRange = params[:calendar_event][:from]..params[:calendar_event][:to]
     p dayRange
     conflicts = CalendarEvent.where("('from' BETWEEN ? AND ?) AND ('to' BETWEEN ? AND ?)", params[:calendar_event][:from], params[:calendar_event][:to], params[:calendar_event][:from], params[:calendar_event][:to]).exists?
-    puts "conflicts:"
-    p conflicts
     
     if conflicts
       render json: { error: "CONFLICT: Booking conflicts with another booking" }
@@ -45,33 +43,49 @@ class CalendarEventsController < ApplicationController
       # Join calendar events that are next to each other in time.
       event_before = project.calendar_events.where(to: params[:calendar_event][:from].to_datetime.utc, member_id: current_member.id)
       event_after = project.calendar_events.where(from: params[:calendar_event][:to].to_datetime.utc, member_id: current_member.id)
-      if event_before.count > 0
+      
+      if event_before.count > 0 && event_after.count == 0
+        # Merge with earlier event
+        puts "Merge with earlier event"
+        p event_before.first
         event_before.first.update(to: params[:calendar_event][:to])
         render json: {
           success: true,
-          update: true,
-          message: "Booking successfully updated.",
-          bookingId: event_before.first.id
+          heading: "Booking confirmed",
+          from: event_before.first.from,
+          to: event_before.first.to,
+          bookings: project.calendar_events.where(member_id: current_member.id),
         }
         return
       end
-      if event_after.count > 0
+      if event_after.count > 0 && event_before.count == 0
+        # Merge with following event
+        puts "Merge with following event"
         event_after.first.update(from: params[:calendar_event][:from])
         render json: {
           success: true,
-          update: true,
-          message: "Booking successfully updated.",
-          bookingId: event_after.first.id
+          heading: "Booking confirmed",
+          from: event_after.first.from,
+          to: event_after.first.to,
+          bookings: project.calendar_events.where(member_id: current_member.id),
         }
         return
       end
-
+      if event_before.count > 0 && event_after.count > 0
+        # Merge with earlier and following event
+        puts "Merge with both before and after"
+        @calendar_event.from = event_before.first.from
+        @calendar_event.to = event_after.first.to
+        event_before.first.destroy
+        event_after.first.destroy
+      end
       if project.save 
         render json: {
           success: true,
-          update: false,
-          message: "Booking successfully saved.",
-          bookingId: @calendar_event.id
+          heading: "Booking confirmed",
+          from: @calendar_event.from,
+          to: @calendar_event.to,
+          bookings: project.calendar_events.where(member_id: current_member.id),
         }
       else
         p project.errors

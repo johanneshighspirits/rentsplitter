@@ -73,18 +73,25 @@ UserInfoForm.prototype = Object.create(UserInfo.prototype);
 
 UserInfoForm.prototype.addMembers = function (members, currentMemberId) {
   for (var memberId in members) {
-    if (members.hasOwnProperty(memberId) && memberId != currentMemberId) {
+    if (members.hasOwnProperty(memberId)) {
       var member = members[memberId];
       (function (self) {
         var checkbox = document.createElement('input');
         var label = document.createElement('label');
         checkbox.type = 'checkbox';
-        checkbox.name = 'id_' + member.id;
         checkbox.id = 'id_' + member.id;
+        checkbox.name = 'id_' + member.id;
         checkbox.value = member.id;
-        label.innerHTML = member.name;
         label.setAttribute('for', checkbox.getAttribute('id'));
-        self.form.appendChild(checkbox);
+        if (memberId == currentMemberId) {
+          // Add option to send a reminder to yourself
+          label.innerHTML = 'Send to yourself';
+          // Make sure it is placed first
+          self.form.insertBefore(checkbox, self.form.firstChild);
+        } else {
+          label.innerHTML = member.name;
+          self.form.appendChild(checkbox);
+        }
         self.form.appendChild(label);
       })(this);
     }

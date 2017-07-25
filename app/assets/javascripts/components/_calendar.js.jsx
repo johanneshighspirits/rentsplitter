@@ -29,21 +29,7 @@ var Calendar = React.createClass({
     });
     // Check previous bookings and add to members
     this.props.bookings.forEach(function(booking, i) {
-      var fromDate = new Date(booking.from);
-      var toDate = new Date(booking.to);
-      var dayKey = fromDate.getFullYear() + "_" + fromDate.getDate();
-      var existingBooking = {
-        id: booking.id,
-        from: fromDate.getHours(),
-        fromDate: fromDate,
-        to: toDate.getHours() == 0 ? 24 : toDate.getHours(),
-        toDate: toDate,
-        bookedBy: {
-          name: members[booking.member_id].name,
-          id: booking.member_id
-        },
-        color: members[booking.member_id].color
-      };
+      var existingBooking = this.prepareBooking(booking, members);
       members[booking.member_id].bookings.push(existingBooking);
     }, this);
     this.setState({
@@ -61,6 +47,24 @@ var Calendar = React.createClass({
       members: {}
     });
   },
+  prepareBooking: function(booking, members) {
+    var fromDate = new Date(booking.from);
+    var toDate = new Date(booking.to);
+    var dayKey = fromDate.getFullYear() + "_" + fromDate.getDate();
+    var existingBooking = {
+      id: booking.id,
+      from: fromDate.getHours(),
+      fromDate: fromDate,
+      to: toDate.getHours() == 0 ? 24 : toDate.getHours(),
+      toDate: toDate,
+      bookedBy: {
+        name: members[booking.member_id].name,
+        id: booking.member_id
+      },
+      color: members[booking.member_id].color
+    };
+    return existingBooking;
+  },
   updateCalendarDaySize: function() {
     var calendarWidth = document.querySelector('.calendarDays').offsetWidth;
     if (calendarWidth < 700) {
@@ -75,6 +79,10 @@ var Calendar = React.createClass({
     }
   },
   timeSelected: function(action, from, to, bookingId) {
+    var elementsToUnBlur = document.querySelectorAll('.blurred');
+    elementsToUnBlur.forEach(function(el) {
+      el.className = el.className.replace(" blurred", "");
+    })
     var members = this.state.members;
     switch (action) {
       case "cancel":
@@ -100,49 +108,51 @@ var Calendar = React.createClass({
           },
           color: this.state.members[this.props.currentMember.id].color
         };
-        var memberBookings = members[this.props.currentMember.id].bookings;
-        // Check if booking should be merged with prev/next
-        var bookingNeedsUpdate = -1;
-        memberBookings = memberBookings.map(function(prevBooking, i) {
-          if (prevBooking.fromDate.getTime() == booking.toDate.getTime() || prevBooking.toDate.getTime() == booking.fromDate.getTime()) {
-            bookingNeedsUpdate = i;
-            
-            var updatedFrom = Math.min(booking.from, prevBooking.from);
-            var updatedFromDate = new Date(fromDate);
-            updatedFromDate.setHours(updatedFrom);
-            
-            var updatedTo = Math.max(booking.to, prevBooking.to);
-            var updatedToDate = new Date(toDate);
-            updatedToDate.setHours(updatedTo);
-            
-            var updatedBooking = {
-              from: updatedFrom,
-              fromDate: updatedFromDate,
-              to: updatedTo,
-              toDate: updatedToDate,
-              bookedBy: prevBooking.bookedBy,
-              color: prevBooking.color
-            }
-            return updatedBooking;
-          } else {
-            return prevBooking;
-          }
-        })
-        if (bookingNeedsUpdate == -1) memberBookings.push(booking);
-        members[this.props.currentMember.id].bookings = memberBookings;
+//        var memberBookings = members[this.props.currentMember.id].bookings;
+//        // Check if booking should be merged with prev/next
+//        var bookingNeedsUpdate = [];
+//        console.log(memberBookings);
+//        memberBookings = memberBookings.map(function(prevBooking, i) {
+//          if (prevBooking.fromDate.getTime() == booking.toDate.getTime() || prevBooking.toDate.getTime() == booking.fromDate.getTime()) {
+//             bookingNeedsUpdate.push(i);
+//            
+//             var updatedFrom = Math.min(booking.from, prevBooking.from);
+//             var updatedFromDate = new Date(fromDate);
+//             updatedFromDate.setHours(updatedFrom);
+//            
+//             var updatedTo = Math.max(booking.to, prevBooking.to);
+//             var updatedToDate = new Date(toDate);
+//             updatedToDate.setHours(updatedTo);
+//            
+//             var updatedBooking = {
+//               from: updatedFrom,
+//               fromDate: updatedFromDate,
+//               to: updatedTo,
+//               toDate: updatedToDate,
+//               bookedBy: prevBooking.bookedBy,
+//               color: prevBooking.color
+//             }
+//             return updatedBooking;
+//          } else {
+//            return prevBooking;
+//          }
+//        })
+//        console.log(memberBookings);
+//        if (bookingNeedsUpdate.length === 0) memberBookings.push(booking);
+//        members[this.props.currentMember.id].bookings = memberBookings;
         this.setState({
           shouldDisplayTimeSelector: false,
-          members: members
+//          members: members
         }, function() {
-          var fromDate = new Date(this.state.displayDate);
-          fromDate.setHours(booking.from);
-          var toDate = new Date(this.state.displayDate);
-          toDate.setHours(booking.to);
+//          var fromDate = new Date(this.state.displayDate);
+//          fromDate.setHours(booking.from);
+//          var toDate = new Date(this.state.displayDate);
+//          toDate.setHours(booking.to);
           // Save event to database
           $.post('/calendar_events', {
             calendar_event: {
-              from: fromDate,
-              to: toDate,
+              from: booking.fromDate,
+              to: booking.toDate,
               project_id: this.props.project.id,
               member_id: this.props.currentMember.id
             },
@@ -156,15 +166,14 @@ var Calendar = React.createClass({
               userAlert.addButtons([{text: "OK"}]);
               userAlert.present(document.querySelector('.calendar'));
             } else {
+              // Booking succeeded
+              var bookedFrom = new Date(response.from);
+              var bookedTo = new Date(response.to);
               var userInfoForm = new UserInfoForm();
-              var timeMessage = fromDate.getDate() + " " + fromDate.getMonthName() + " kl: " + booking.from + ":00 - " + booking.to + ":00"; 
-              if (bookingNeedsUpdate > -1) {
-                var updatedBooking = memberBookings[bookingNeedsUpdate];
-                timeMessage = updatedBooking.fromDate.getDate() + " " + updatedBooking.fromDate.getMonthName() + " kl: " + updatedBooking.from + ":00 - " + updatedBooking.to + ":00"
-              }
               userInfoForm.addMessage([
-                "Booking confirmed!",
-                timeMessage,
+                response.heading,
+                bookedFrom.getDate() + " " + bookedFrom.getMonthName(),
+                bookedFrom.getHours() + ":00 - " + bookedTo.getHours() + ":00",
                 "",
                 "Share with your band members by selecting their names. Then press OK."
               ]);
@@ -184,7 +193,7 @@ var Calendar = React.createClass({
                         {
                           ids: checkedMemberIds,
                           project_name: this.props.project.name,
-                          date_and_time: timeMessage
+                          date_and_time: response.message
                         }, function(response) {
                           console.log(response);
                         }
@@ -196,15 +205,18 @@ var Calendar = React.createClass({
               ]);
               userInfoForm.present(document.querySelector('.calendar'));
               
-              // Set id on booking so we can retrieve it from database later
+              // Update member's bookings
               var members = this.state.members;
-              var membersBookings = members[this.props.currentMember.id].bookings;
-              for (var i = membersBookings.length - 1; i >= 0; i--) {
-                if (membersBookings[i].id === undefined && membersBookings[i].fromDate == booking.fromDate) {
-                  membersBookings[i].id = response.bookingId;
-                  break;
-                }
-              }
+              var member = members[this.props.currentMember.id];
+              member.bookings = [];
+              response.bookings.forEach(function(booking) {
+                var existingBooking = this.prepareBooking(booking, members);
+                member.bookings.push(existingBooking);
+              }, this);
+              
+              this.setState({
+                members: members
+              })
             }
           }.bind(this))
         }.bind(this))
@@ -242,6 +254,10 @@ var Calendar = React.createClass({
     e.preventDefault();
     if (e.currentTarget.parentNode.className.indexOf('past') !== -1) return false;
     e.currentTarget.getElementsByClassName('booking')[0].style.transform = "rotateZ(0deg)";
+    var elementsToBlur = document.querySelectorAll('.blurrable');
+    elementsToBlur.forEach(function(el) {
+      el.className += " blurred";
+    })
 
     var thumbnailRect = e.currentTarget.getBoundingClientRect();
     var displayDate = new Date(this.state.displayDate);
@@ -381,19 +397,20 @@ var Calendar = React.createClass({
     var isCurrentMonth = now.getFullYear() == this.state.displayDate.getFullYear() && now.getMonth() == this.state.displayDate.getMonth();
     return (
       <div className="calendar">
-        <h2 className="projectName">{this.props.project.name}</h2>
-        <div className="monthDisplay">
+        <h2 className="blurrable projectName">{this.props.project.name}</h2>
+        <div className="blurrable monthDisplay">
           <h1>
             {isCurrentMonth ? <div className="prev"></div> : <a className="prev" href="#prev" onClick={this.changeMonth}>&lt;</a>}{this.props.monthNames[this.state.displayDate.getMonth() + 1]}
             <a className="next" href="#next" onClick={this.changeMonth}>&gt;</a>
           </h1>
           <p className="year">{this.state.displayDate.getFullYear()}</p>
         </div>
-        <ul className="calendarDays">
+        <ul className="blurrable calendarDays">
           {dayNames}
           {days}
         </ul>
         <MemberLegend
+          forMonth={true}
           currentMember={this.props.currentMember}
           members={this.state.members}
           bookings={this.getBookingsFor(firstOfMonth, lastOfMonth)}
@@ -403,12 +420,15 @@ var Calendar = React.createClass({
           showToday={this.showToday}  
         />
         <div className={this.state.shouldDisplayTimeSelector ? "timeSelectorContainer visible" : "timeSelectorContainer invisible"} >
-          <canvas id="timeSelector" width="700" height="700"/>
-          <MemberLegend
-            currentMember={this.props.currentMember}
-            members={this.state.members}
-            bookings={this.getBookingsFor(this.state.displayDate)}
-          />
+          <div className="timeSelectorContent">
+            <canvas id="timeSelector" width="700" height="700"/>
+            <MemberLegend
+              forMonth={false}
+              currentMember={this.props.currentMember}
+              members={this.state.members}
+              bookings={this.getBookingsFor(this.state.displayDate)}
+            />
+          </div>
         </div>
       </div>
     )
@@ -429,7 +449,7 @@ var Schedule = React.createClass({
     })
     
     return (todaysBookings.length > 0 ? 
-      <div className="todaysBookings">
+      <div className="blurrable todaysBookings">
         <h2><a href="#" onClick={this.props.showToday}>Today</a></h2>
         {todaysBookings}
       </div>
@@ -507,7 +527,7 @@ var CalendarDayThumbnail = React.createClass({
 
 var MemberLegend = React.createClass({
   handleMouseOver: function(e) {
-//    e.preventDefault();
+    if (!this.props.forMonth) return false;
     var membersBookings = document.getElementsByClassName(e.target.dataset.id);
     Array.prototype.forEach.call(membersBookings, function(circle) {
       circle.style.opacity = 1;
@@ -517,6 +537,7 @@ var MemberLegend = React.createClass({
     })
   },
   handleMouseOut: function(e) {
+    if (!this.props.forMonth) return false;
     var membersBookings = document.getElementsByClassName(e.target.dataset.id);
     Array.prototype.forEach.call(membersBookings, function(circle) {
       circle.style.opacity = null;
@@ -559,7 +580,7 @@ var MemberLegend = React.createClass({
       }
     }      
     return (
-      <div className="memberLegend">
+      <div className="blurrable memberLegend">
         <ul>
           {items}
         </ul>
