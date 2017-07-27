@@ -1,6 +1,10 @@
 <ul class="overview projects">
   <% @projects.each do |project| %>
-  <% active_members = project.members.select { |m| m.activated } %>
+  <% active_members = project.members.select do |m|
+    membership = m.memberships.where(project_id: project.id).first
+    hasLeft = membership.left_at <= Date.current.next_month.beginning_of_month
+    m.activated && !hasLeft
+  end %>
   <% member_names = active_members.map { |m| m.name }.join(', ') %>
   <li>
     <h3><%= project.name %></h3>
@@ -28,7 +32,7 @@
         "/projects/#{project.id}/send_invoices",
         method: :post,
         remote: true,
-        id: "send_invoices",
+        id: "send_invoices_#{project.id}",
         class: "btn-primary inverted",
         data: {
           disable_with: "Sending...",

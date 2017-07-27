@@ -63,11 +63,14 @@ class ProjectsController < ApplicationController
       @project.members.each do |member|
         if member.activated
           membership = member.memberships.where(project_id: @project.id).first
+          # Ignore member that left project
+          next if membership.left_at <= Date.current.next_month.beginning_of_month
+          
           info = {
             sender: current_member,
             project: @project
           }
-          puts "________________________\n|    Sending invoice to:\n|    === #{member.name} ===\n|    who joined at #{membership.joined_at}"
+          puts "________________________\n|    Sending invoice to:\n|    === #{member.name} ===\n|    who joined at #{membership.joined_at} and left #{membership.left_at}"
           rent_total = project_rents_and_discounts[:rents].inject(0) do |sum, r|
             if r[:to] < membership.joined_at
               sum
@@ -108,7 +111,7 @@ class ProjectsController < ApplicationController
       format.html { redirect_to projects_path }
       format.js {
         @response = { 
-          selector: "send_invoices",
+          selector: "send_invoices_#{@project.id}",
           btn_text: "Invoices sent",
           disable: true
         }
