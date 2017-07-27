@@ -561,6 +561,7 @@ var MemberLegend = React.createClass({
       }
       var item = <li
           key={memberId}
+          className="unselectable"
           onMouseOver={this.handleMouseOver}
           onMouseOut={this.handleMouseOut}
           onTouchStart={this.handleMouseOver}

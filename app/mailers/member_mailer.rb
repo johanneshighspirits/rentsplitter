@@ -141,6 +141,7 @@ class MemberMailer < ApplicationMailer
     @due_date = info[:due_date]
 
     @member = member
+    @admin = Member.find(project.admin_id)
 
     @content = {
       heading1: "Räkning",
@@ -166,6 +167,7 @@ class MemberMailer < ApplicationMailer
     headers['X-SMTPAPI'] = smtp_headers.to_json
 
     mail to: @member.email, subject: "#{@project_name} | #{info[:for_month]}"
+    mail to: @admin.email, subject: "#{@project_name} | copy: #{info[:for_month]}"
   end
 
   def invoice_reminder_for_project_admin(project_admin, project)

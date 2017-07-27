@@ -855,6 +855,11 @@ form.full-width {
   }
 }
 
+.unselectable {
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
 /* --- Media queries --- */
 @media screen and (min-width: 600px) {
   header .logged-in-info {
