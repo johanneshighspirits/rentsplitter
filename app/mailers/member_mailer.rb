@@ -147,7 +147,7 @@ class MemberMailer < ApplicationMailer
       heading1: "Räkning",
       greeting: "Hej #{@member.first_name}",
       body: [
-        "Dags att betala hyran för <b>#{@project_name}</b> igen."
+        "Dags att betala hyran för <b>#{@project_name}</b>."
       ],
       invoice_number: "#{@member.name}",
       account_info: info[:account_info],
@@ -165,9 +165,8 @@ class MemberMailer < ApplicationMailer
       }
     }
     headers['X-SMTPAPI'] = smtp_headers.to_json
-    puts "Mailing to #{@member.email}, bcc: #{@admin.email}, subject: #{@project_name} #{info[:for_month]}"
-    mail to: @member.email, bcc: @admin.email, subject: "#{@project_name} | #{info[:for_month]}"
-    puts "Done mailing..."
+    puts "Mailing to #{@member.email}, bcc: #{@admin.email}, subject: #{@project_name} | Rent for #{info[:for_month]}"
+    mail to: @member.email, bcc: @admin.email, subject: "#{@project_name} | Rent for #{info[:for_month]}"
   end
 
   def invoice_reminder_for_project_admin(project_admin, project)

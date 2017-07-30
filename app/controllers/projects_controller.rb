@@ -69,7 +69,8 @@ class ProjectsController < ApplicationController
           
           info = {
             sender: current_member,
-            project: @project
+            project: @project,
+            for_month: Date::MONTHNAMES[Date.current.next_month.month]
           }
           puts "________________________\n|    Sending invoice to:\n|    === #{member.name} ===\n|    who joined at #{membership.joined_at} and left #{membership.left_at}"
           rent_total = project_rents_and_discounts[:rents].inject(0) do |sum, r|
