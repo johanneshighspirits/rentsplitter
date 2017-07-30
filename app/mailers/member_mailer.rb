@@ -165,9 +165,9 @@ class MemberMailer < ApplicationMailer
       }
     }
     headers['X-SMTPAPI'] = smtp_headers.to_json
-
-    mail to: @member.email, subject: "#{@project_name} | #{info[:for_month]}"
-    mail to: @admin.email, subject: "#{@project_name} | copy: #{info[:for_month]}"
+    puts "Mailing to #{@member.email}, bcc: #{@admin.email}, subject: #{@project_name} #{info[:for_month]}"
+    mail to: @member.email, bcc: @admin.email, subject: "#{@project_name} | #{info[:for_month]}"
+    puts "Done mailing..."
   end
 
   def invoice_reminder_for_project_admin(project_admin, project)

@@ -40,7 +40,6 @@ TimeSelector.prototype.init = function(canvasId, date, dayName, monthName, booki
   this.canvas.addEventListener("mousemove", this.handleHoverRef);
   this.canvas.addEventListener("touchstart", this.handleMouseDownRef);
   this.canvas.addEventListener("touchmove", this.handleHoverRef);
-//  window.addEventListener("resize", this.updateCanvasSize.bind(this));
   
   (function() {
     var throttle = function(type, name, obj) {
@@ -57,15 +56,11 @@ TimeSelector.prototype.init = function(canvasId, date, dayName, monthName, booki
         obj.addEventListener(type, func);
     };
 
-    /* init - you can init any event */
     throttle("resize", "optimizedResize");
   })();
 
   // handle event
   window.addEventListener("optimizedResize", this.updateCanvasSize.bind(this));
-
-
-  
   // Update sizes and draw first frame
   this.updateCanvasSize();
 }
@@ -631,15 +626,34 @@ TimeSelector.prototype.clear = function() {
   this.ctx.clearRect(0, 0, this.width, this.height);
 }
 
-
-TimeSelector.prototype.clearListeners = function() {
-  this.canvas.removeEventListener("mousedown", this.handleMouseDownRef);
-  this.canvas.removeEventListener("mousemove", this.handleHoverRef);
-  this.canvas.removeEventListener("touchstart", this.handleMouseDownRef);
-  this.canvas.removeEventListener("touchmove", this.handleHoverRef);
+/**
+*   Handle mouse hover over canvas
+*/
+TimeSelector.prototype.handleHover = function(e) {
+  var point = this.pointFromEvent(e);
+  if (this.mouseIsAboveSubmit(point)) {
+    this.canvas.style.cursor = "pointer";
+    this.highlightSubmit = true;
+    this.highlightedHour = undefined;
+    this.highlightCancel = false;
+    this.highlightBooking = undefined;
+  } else if (this.mouseIsAboveCancel(point)) {
+    this.canvas.style.cursor = "pointer";
+    this.highlightSubmit = false;
+    this.highlightedHour = undefined;
+    this.highlightCancel = true;
+    this.highlightBooking = undefined;
+  } else {
+    this.canvas.style.cursor = "default";
+    var hour = this.hourFromPoint(point);
+    this.highlightSubmit = false;
+    this.highlightedHour = hour;    
+    this.highlightCancel = false;
+    this.highlightBooking = this.selectedHours.bookingFor(hour);
+  }
+  this.cursorPos = point;
+  this.draw();
 }
-
-
 
 /**
 *   Handle mouse click on canvas
@@ -761,24 +775,6 @@ TimeSelector.prototype.handleMouseDown = function(e) {
 }
 
 /**
-*   Returns a string if point is over start or end handle,
-*   false otherwise
-*/
-TimeSelector.prototype.pointIsOnHandle = function(point) {
-  if (this.startHandle !== undefined && this.endHandle !== undefined) {
-    this.ctx.beginPath();
-    this.ctx.arc(this.startHandle.x, this.startHandle.y, this.startHandle.r, 0, Math.PI * 2);
-    this.ctx.closePath();
-    if (this.ctx.isPointInPath(point.x, point.y)) return "start";
-    this.ctx.beginPath();
-    this.ctx.arc(this.endHandle.x, this.endHandle.y, this.endHandle.r, 0, Math.PI * 2);
-    this.ctx.closePath();
-    if (this.ctx.isPointInPath(point.x, point.y)) return "end";
-  }
-  return false;
-}
-
-/**
 *   Handle mouse dragging over hours to select/book
 */
 TimeSelector.prototype.dragSelectHours = function(e) {
@@ -844,6 +840,35 @@ TimeSelector.prototype.hoursSelected = function(e) {
 }
 
 /**
+*   Returns a string if point is over start or end handle,
+*   false otherwise
+*/
+TimeSelector.prototype.pointIsOnHandle = function(point) {
+  if (this.startHandle !== undefined && this.endHandle !== undefined) {
+    this.ctx.beginPath();
+    this.ctx.arc(this.startHandle.x, this.startHandle.y, this.startHandle.r, 0, Math.PI * 2);
+    this.ctx.closePath();
+    if (this.ctx.isPointInPath(point.x, point.y)) return "start";
+    this.ctx.beginPath();
+    this.ctx.arc(this.endHandle.x, this.endHandle.y, this.endHandle.r, 0, Math.PI * 2);
+    this.ctx.closePath();
+    if (this.ctx.isPointInPath(point.x, point.y)) return "end";
+  }
+  return false;
+}
+
+
+/**
+*   Remove event listeners
+*/
+TimeSelector.prototype.clearListeners = function() {
+  this.canvas.removeEventListener("mousedown", this.handleMouseDownRef);
+  this.canvas.removeEventListener("mousemove", this.handleHoverRef);
+  this.canvas.removeEventListener("touchstart", this.handleMouseDownRef);
+  this.canvas.removeEventListener("touchmove", this.handleHoverRef);
+}
+
+/**
 *   Cancel user selecting
 */
 TimeSelector.prototype.cancelSelecting = function(e) {
@@ -853,33 +878,5 @@ TimeSelector.prototype.cancelSelecting = function(e) {
   e.target.removeEventListener("touchend", this.hoursSelectedRef);
 }
 
-/**
-*   Handle mouse hover over canvas
-*/
-TimeSelector.prototype.handleHover = function(e) {
-  var point = this.pointFromEvent(e);
-  if (this.mouseIsAboveSubmit(point)) {
-    this.canvas.style.cursor = "pointer";
-    this.highlightSubmit = true;
-    this.highlightedHour = undefined;
-    this.highlightCancel = false;
-    this.highlightBooking = undefined;
-  } else if (this.mouseIsAboveCancel(point)) {
-    this.canvas.style.cursor = "pointer";
-    this.highlightSubmit = false;
-    this.highlightedHour = undefined;
-    this.highlightCancel = true;
-    this.highlightBooking = undefined;
-  } else {
-    this.canvas.style.cursor = "default";
-    var hour = this.hourFromPoint(point);
-    this.highlightSubmit = false;
-    this.highlightedHour = hour;    
-    this.highlightCancel = false;
-    this.highlightBooking = this.selectedHours.bookingFor(hour);
-  }
-  this.cursorPos = point;
-  this.draw();
-}
 
 

@@ -25,9 +25,9 @@
 
     <%= link_to "Open #{project.name}", project, class: "btn-primary inverted" %>
     <% if is_admin_for_project? project %>
-    <% unless project.invoices_sent_at.nil? %>
-      <p>Invoices was last sent <b><%= time_ago_in_words(project.invoices_sent_at) %> ago</b>. <br><i>(<%= project.invoices_sent_at.to_date %>)</i></p>
-    <% end %>
+      <% unless project.invoices_sent_at.nil? %>
+        <p>Invoices was last sent <b><%= time_ago_in_words(project.invoices_sent_at) %> ago</b>. <br><i>(<%= project.invoices_sent_at.to_date %>)</i></p>
+      <% end %>
       <%= link_to "Send invoices",
         "/projects/#{project.id}/send_invoices",
         method: :post,
@@ -39,6 +39,7 @@
           confirm: "This will send invoice emails to the following #{active_members.count} #{'member'.pluralize(active_members.count)}:\n\n#{member_names}"} %>
       <%= link_to "Delete", project, method: :delete,
                                   data: { confirm: "Are you sure? This will delete '#{project.name}' and all data will be lost." }, class: "btn-primary inverted" %>
+      <p><b>Monthly rent:</b> <%= number_with_precision(project.rents.last.amount, precision: 2) %> SEK</p>
     <% end %>
     <hr style="margin-top:2em;">
     <h3>Members</h3>

@@ -60,6 +60,7 @@ class ProjectsController < ApplicationController
     if is_admin_for_project? @project
       project_rents_and_discounts = @project.project_rents_and_discounts
       invoice_count = 0
+      unactivated_members = []
       @project.members.each do |member|
         if member.activated
           membership = member.memberships.where(project_id: @project.id).first
@@ -99,10 +100,13 @@ class ProjectsController < ApplicationController
         else
           flash[:info] = "Ignored unactivated member: #{member.name}."
           puts "Ignored unactivated member: #{member.name}."
+          unactivated_members << member
         end
       end
       @project.update(invoices_sent_at: Time.now)
       flash[:success] = "#{invoice_count} #{'invoice'.pluralize(invoice_count)} sent"
+      puts "These members are still not activated:"
+      p unactivated_members
     else
       flash[:danger] = "Only members with admin privileges can send invoices."
     end

@@ -1,6 +1,7 @@
 $("#<%= escape_javascript(@response[:selector]) %>")
-  .html("<%= @response[:btn_text] %>")
+  .html("<%= escape_javascript(@response[:btn_text]) %>")
   .addClass("ajaxComplete")
   .removeAttr("data-remote")
   .removeAttr("data-method")
+  .removeAttr("data-confirm")
   .removeAttr("href");
