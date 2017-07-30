@@ -87,12 +87,13 @@ UserInfoForm.prototype.addMembers = function (members, currentMemberId) {
           // Add option to send a reminder to yourself
           label.innerHTML = 'Send to yourself';
           // Make sure it is placed first
+          self.form.insertBefore(label, self.form.firstChild);
           self.form.insertBefore(checkbox, self.form.firstChild);
         } else {
           label.innerHTML = member.name;
           self.form.appendChild(checkbox);
+          self.form.appendChild(label);
         }
-        self.form.appendChild(label);
       })(this);
     }
   }
