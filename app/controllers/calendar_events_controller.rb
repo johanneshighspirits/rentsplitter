@@ -129,9 +129,11 @@ class CalendarEventsController < ApplicationController
       params[:ids].each do |memberId|
         member = Member.find(memberId)
         puts "Let's send email to #{member.name}"
+        p params
         member.send_booking_email(
           project_name: params[:project_name],
-          date_and_time: params[:date_and_time]
+          bookedDate: params[:bookedDate],
+          bookedTime: params[:bookedTime]
         )
       end
       render json: {

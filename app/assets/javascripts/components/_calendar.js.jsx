@@ -170,10 +170,12 @@ var Calendar = React.createClass({
               var bookedFrom = new Date(response.from);
               var bookedTo = new Date(response.to);
               var userInfoForm = new UserInfoForm();
+              var bookedDate = bookedFrom.getDate() + " " + bookedFrom.getMonthName();
+              var bookedTime = bookedFrom.getHours() + ":00 - " + bookedTo.getHours() + ":00";
               userInfoForm.addMessage([
                 response.heading,
-                bookedFrom.getDate() + " " + bookedFrom.getMonthName(),
-                bookedFrom.getHours() + ":00 - " + bookedTo.getHours() + ":00",
+                bookedDate,
+                bookedTime,
                 "",
                 "Share with your band members by selecting their names. Then press OK."
               ]);
@@ -193,7 +195,8 @@ var Calendar = React.createClass({
                         {
                           ids: checkedMemberIds,
                           project_name: this.props.project.name,
-                          date_and_time: response.message
+                          bookedDate: bookedDate,
+                          bookedTime: bookedTime
                         }, function(response) {
                           console.log(response);
                         }
@@ -438,8 +441,9 @@ var Calendar = React.createClass({
 var Schedule = React.createClass({
   render: function() {
     // Sort bookings by start time, so early bookings appear first.
-    var todaysBookings = this.props.bookings.sort(function(a, b) { return a.from > b.from });
-    todaysBookings = this.props.bookings.map(function(event, i) {
+    var todaysBookings = this.props.bookings.slice();
+    todaysBookings.sort(function(a, b) { return a.from > b.from });
+    todaysBookings = todaysBookings.map(function(event, i) {
       return (
         <p key={i}>
           <span className="time" style={{ borderColor: event.color }}>{event.from.toLocaleString()}:00 - {event.to.toLocaleString()}:00</span>
