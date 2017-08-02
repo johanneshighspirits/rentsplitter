@@ -2,6 +2,13 @@
 <h2><%= yield :page_title %></h2>
 <section>
   <article class="info bright">
+  <% @projects.each do |project| %>
+    <%= link_to "#{project.name}", project, class: "btn-primary inverted" %>
+  <% end %>
+  </article>
+</section>
+<section>
+  <article class="info bright">
 
   <% unless @projects.empty? %>
     <p>Below is a list of all your existing projects. Project admins can <b>send invoices</b> or <b>delete</b> projects.</p>

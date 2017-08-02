@@ -88,8 +88,7 @@ class MemberMailer < ApplicationMailer
       body: [
         "Your booking:",
         "#{@project_name}.",
-        "#{@bookedDate}",
-        "#{@bookedTime}"
+        "#{@bookedDate} #{@bookedTime}"
       ]
     }
     mail to: member.email, subject: "RentSplitter Booking"

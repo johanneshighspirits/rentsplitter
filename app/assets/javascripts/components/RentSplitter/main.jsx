@@ -57,7 +57,7 @@ window.RentSplitter = React.createClass({
     return (
       <section className="centered">
         <article>
-          <h2>{this.props.project.name}</h2>
+          <h2><a href="/projects">{this.props.project.name}</a></h2>
           <p>{projectInfo}</p>
         </article>
         <article>

@@ -439,18 +439,21 @@ var Calendar = React.createClass({
 });
 
 var Schedule = React.createClass({
+  showTimeSelector: function() {
+    console.log("Show TimeSelector");
+  },
   render: function() {
     // Sort bookings by start time, so early bookings appear first.
     var todaysBookings = this.props.bookings.slice();
     todaysBookings.sort(function(a, b) { return a.from > b.from });
     todaysBookings = todaysBookings.map(function(event, i) {
       return (
-        <p key={i}>
+        <p key={i} onClick={this.showTimeSelector}>
           <span className="time" style={{ borderColor: event.color }}>{event.from.toLocaleString()}:00 - {event.to.toLocaleString()}:00</span>
           <span className="name">{event.bookedBy.name}</span>
         </p>
       )
-    })
+    }, this)
     
     return (todaysBookings.length > 0 ? 
       <div className="blurrable todaysBookings">
