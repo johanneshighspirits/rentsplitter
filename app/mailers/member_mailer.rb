@@ -157,7 +157,7 @@ class MemberMailer < ApplicationMailer
       additional: [
         "För att se hela uträkningen, klicka på länken nedan:"
       ],
-      call_to_action_href: root_url,
+      call_to_action_href: project_url(project),
       call_to_action_title: "#{@project_name}"
     }
 
@@ -180,7 +180,7 @@ class MemberMailer < ApplicationMailer
       body: [
         "Det är dags att skicka ut räkningar för <b>#{@project_name}</b>"
       ],
-      call_to_action_href: projects_url,
+      call_to_action_href: project_url(project),
       call_to_action_title: "Öppna #{@project_name}"
     }    
     mail to: project_admin.email, subject: "Reminder to send invoices for '#{@project_name}'"

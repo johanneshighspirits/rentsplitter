@@ -1,5 +1,5 @@
 <% # provide(:page_title, "Register money transfer") %>
-<% project_members = @members.map {|m| [m.id, m.name, m.pattern]}.unshift([0, "Choose Member", ""]) %>
+<% project_members = @allMembers.map {|m| [m.id, m.name, m.pattern]}.unshift([0, "Choose Member", ""]) %>
 
 <%= react_component 'Form', 
 authenticity_token: form_authenticity_token, 
@@ -79,7 +79,7 @@ fields: [
     fieldType: "select",
     attribute: "transfers[0][member_id]",
     attributeName: "Which member made the transfer",
-    options: @members.map {|m| [m.id, m.name]}.unshift([0, "Choose Member"]),
+    options: @allMembers.map {|m| [m.id, m.name]}.unshift([0, "Choose Member"]),
     isControlling: "project_id", # Get member's projects when member is selected
     controlType: "select",
     controlUrl: "/members/:id/projects.json",

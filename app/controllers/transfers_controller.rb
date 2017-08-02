@@ -5,7 +5,11 @@ class TransfersController < ApplicationController
 
   def new
     @transfer = Transfer.new
-    @members = Project.find(current_project_id).members
+    @allMembers = []
+    current_member.projects.where(admin_id: current_member.id).each do |project|
+      @allMembers = @allMembers | project.members
+    end
+#    @members = Project.find(current_project_id).members
   end
 
   def create
