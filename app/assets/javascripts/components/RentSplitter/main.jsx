@@ -110,7 +110,7 @@ var MemberInfo = React.createClass({
     this.props.rents.forEach(function(rent, i) {
       if (rent.from >= this.props.member.joinedAt && rent.to <= this.props.member.leftAt) {
         // Member had membership when this rent is due
-        totalAmountToPay += parseInt(rent.sharedAmount || 0);
+        totalAmountToPay += parseFloat(rent.sharedAmount || 0);
         transactionHistory.push(
           <Transaction
             key={"rent" + i}
@@ -126,7 +126,7 @@ var MemberInfo = React.createClass({
     // in Feburary)
     this.props.rentDiscounts.forEach(function(discount, i) {
       if (discount.from >= this.props.member.joinedAt && discount.to <= this.props.member.leftAt) {
-        totalAmountToPay -= parseInt(discount.sharedAmount || 0);
+        totalAmountToPay -= parseFloat(discount.sharedAmount || 0);
         transactionHistory.push(
           <Transaction
             key={"discount" + i}
@@ -141,7 +141,7 @@ var MemberInfo = React.createClass({
     }, this);
     // Add transfers (every payment this member has ever made)
     this.props.transfers.forEach(function(transfer, i) {
-      totalAmountToPay -= parseInt(transfer.amount);
+      totalAmountToPay -= parseFloat(transfer.amount);
       transactionHistory.push(
         <Transaction
           key={"transfer" + i}
@@ -261,7 +261,7 @@ var ExcelParser = React.createClass({
               "date": new Date(transactions[m]),
               "name": "ABF-bidrag",
               "message": message,
-              "amount": parseInt(transactions[m + 3].replace(" ", "")),
+              "amount": parseFloat(transactions[m + 3].replace(" ", "")),
               "md5": md5
             };
             if (!hashedObjectIsInArray(abf, abfs)){
@@ -277,7 +277,7 @@ var ExcelParser = React.createClass({
               "date": new Date(transactions[m]),
               "paidBy": name,
               "message": message,
-              "amount": parseInt(transactions[m + 3].replace(" ", "")),
+              "amount": parseFloat(transactions[m + 3].replace(" ", "")),
               "md5": md5
           };
             if(name == "UNKNOWN"){
