@@ -158,7 +158,7 @@ class MembersController < ApplicationController
           @member.save
 
           if project.rents.empty?
-            project.rents.create(amount: params[:monthly_rent], due_date: project.start_date.change(day: 25))
+            project.rents.create(amount: params[:monthly_rent], due_date: project.start_date.prev_month.change(day: 25))
           end
         end
 

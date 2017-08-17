@@ -850,6 +850,9 @@ form.full-width {
 .blurrable {
   transition: filter 400ms ease-out;
   filter: none;
+  transform: translateZ(0);
+  perspective: 1000;
+  backface-visibility: hidden;
   &.blurred {
     filter: blur(8px);
   }

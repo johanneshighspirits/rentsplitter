@@ -53,6 +53,9 @@ class Project < ApplicationRecord
         )
       end
 
+      if !rents[m + 1].nil? && date > rents[m + 1].due_date.change(day: 10)
+        m += 1
+      end
       rent = {
         amount: rents[m].amount,
         message: "Rent for #{date.next_month.month}/#{date.next_month.year}",
@@ -63,9 +66,6 @@ class Project < ApplicationRecord
         from: date.next_month.beginning_of_month,
         to: date.next_month(2).beginning_of_month - 1.seconds,
       }
-      if !rents[m + 1].nil? && date > rents[m + 1].due_date
-        m += 1
-      end
 
       rent
     end
