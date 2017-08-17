@@ -151,6 +151,8 @@ var MemberInfo = React.createClass({
         />
       )
     }, this);
+    // Round total amount up
+    totalAmountToPay = Math.ceil(totalAmountToPay);
     // Sort transactionHistory on dates.
     transactionHistory = transactionHistory.sort(function(a,b){ return b.props.date - a.props.date; })
     return (
