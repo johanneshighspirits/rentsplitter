@@ -27,6 +27,7 @@ window.RentSplitter = React.createClass({
   render: function() {
     var today = new Date();
     var thisMonth = today.getMonthName();
+    var dueDay = 27;
     var dueMonth = today.getDate() < 10 ? (new Date(today.getFullYear(), today.getMonth() - 1, 1)).getMonthName() : thisMonth;
     var members = this.state.members.length === 0 ? <Loader /> : this.state.members.map(function(member, m) {
       return (
@@ -36,6 +37,7 @@ window.RentSplitter = React.createClass({
           member={member}
           projectName={this.props.project.name}
           currentMember={this.props.currentMember.first_name + " " + this.props.currentMember.last_name == member.name}
+          dueDay={dueDay}
           dueMonth={dueMonth}
           transfers={member.transfers}
           rents={this.state.rents}
@@ -100,6 +102,10 @@ var MemberInfo = React.createClass({
   },
   render: function() {
     var isMember = this.props.member.isMember;
+    var willJoin = new Date(this.props.member.joinedAt) > new Date();
+    var hasLeft = new Date(this.props.member.leftAt) < new Date();
+    var leftDate = new Date(this.props.member.leftAt);
+    leftDate.setDate(leftDate.getDate() - 1);
     var isInvited = this.props.member.isInvited;
     var isActivated = this.props.member.isActivated;
     /* transactionHistory is a list of all transactions that concerns this member.
@@ -158,11 +164,11 @@ var MemberInfo = React.createClass({
     return (
       <div className={(isMember ? "memberInfo" : "memberInfo noLongerMember") + (this.props.currentMember ? " currentMember" : "")} style={{animationDelay: (this.props.order * 200) + "ms"}}>
         <h3>{this.props.member.name}
-          <span>{isActivated ? "Member since " + this.props.member.joinedAt : isInvited ? "Invitation sent" : "Not invited yet" }</span>
+          <span>{isActivated ? hasLeft ? "Left project " + leftDate.toLocaleDateString() : "Member from " + this.props.member.joinedAt : isInvited ? "Invitation sent" : "Not invited yet" }</span>
         </h3>
-        {!isMember ? <p className="noLongerMember">{this.props.member.name} är inte medlem i<br/>{this.props.projectName}.<br/><br/>{totalAmountToPay > 0 ? "KVARSTÅENDE SKULD: " + (totalAmountToPay * -1) + ":-" : "Alla skulder betalda."}</p> : null }
+        {!isMember ? <p className="noLongerMember">{this.props.member.name} är inte medlem i<br/>{this.props.projectName}{willJoin ? " ännu." : " längre."}<br/><br/>{totalAmountToPay > 0 ? "Skuld: " + (totalAmountToPay * -1) + ":-" : "Alla skulder betalda."}</p> : null }
         {totalAmountToPay > 0 ?
-        <span className="red" style={{background: "#d05959", color: "#FFF"}}>Att betala senast sista {this.props.dueMonth}:
+        <span className="red" style={{background: "#d05959", color: "#FFF"}}>Att betala senast {this.props.dueDay} {this.props.dueMonth}:
           <span className="displayNumbers right counter" data-amount={totalAmountToPay}>{totalAmountToPay}:-</span>
         </span>
           :

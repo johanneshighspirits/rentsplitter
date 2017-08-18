@@ -215,8 +215,9 @@ class MembersController < ApplicationController
         redirect_to edit_member_path @member and return
       end
     else
-      flash[:success] = "Errors: #{@member.errors}"
-      render 'edit'
+      puts "Error when changing password"
+      p @member.errors
+      render 'members/edit_password'
     end
   end
   

@@ -1,5 +1,8 @@
 <%= react_component 'RentSplitter',
-currentMember: @current_member,
+currentMember: {
+  first_name: @current_member.first_name,
+  last_name: @current_member.last_name
+},
 project: {
   name: @current_project.name,
   id: @current_project.id,

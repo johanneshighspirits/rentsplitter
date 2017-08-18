@@ -94,7 +94,7 @@ class ProjectsController < ApplicationController
           debt = rent_total - discount_total - paid_total
           puts "|    #{member.name} must pay #{debt}:-\n________________________\n"
           info[:debt] = debt
-          info[:due_date] = Date.current.end_of_month
+          info[:due_date] = Date.current.change(day: 27)
           info[:account_info] = @project.account_info
           member.send_invoice_email info
           invoice_count += 1
