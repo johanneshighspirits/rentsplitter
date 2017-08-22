@@ -80,7 +80,7 @@ var Calendar = React.createClass({
   },
   timeSelected: function(action, from, to, bookingId) {
     var elementsToUnBlur = document.querySelectorAll('.blurred');
-    elementsToUnBlur.forEach(function(el) {
+    Array.prototype.forEach.call(elementsToUnBlur, function(el) {
       el.className = el.className.replace(" blurred", "");
     })
     var members = this.state.members;

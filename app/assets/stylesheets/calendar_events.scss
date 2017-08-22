@@ -16,6 +16,9 @@
   font-weight: 300;
   font-family: 'Quicksand', 'Helvetica Neue', Helvetica, sans-serif;
   color: #FFF;
+  // transform: translateZ(0);
+  // perspective: 1000;
+  backface-visibility: hidden;
   .projectName {
     color: #aaa;
     font-size: 1.2em;
