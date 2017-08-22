@@ -61,6 +61,9 @@ window.RentSplitter = React.createClass({
         <article>
           <h2><a href="/projects">{this.props.project.name}</a></h2>
           <p>{projectInfo}</p>
+          {this.state.rents[this.state.rents.length - 1] !== undefined ?
+          <p><b>Monthly rent: </b>{this.state.rents[this.state.rents.length - 1].amount}</p>
+          : null }
         </article>
         <article>
           <ul>

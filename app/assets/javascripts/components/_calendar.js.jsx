@@ -258,9 +258,9 @@ var Calendar = React.createClass({
     if (e.currentTarget.parentNode.className.indexOf('past') !== -1) return false;
     e.currentTarget.getElementsByClassName('booking')[0].style.transform = "rotateZ(0deg)";
     var elementsToBlur = document.querySelectorAll('.blurrable');
-    elementsToBlur.forEach(function(el) {
+    Array.prototype.forEach.call(elementsToBlur, function(el) {
       el.className += " blurred";
-    })
+    });
 
     var thumbnailRect = e.currentTarget.getBoundingClientRect();
     var displayDate = new Date(this.state.displayDate);
