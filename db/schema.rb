@@ -10,11 +10,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170701191041) do
+ActiveRecord::Schema.define(version: 20170824081705) do
 
   create_table "calendar_events", force: :cascade do |t|
-    t.datetime "from"
-    t.datetime "to"
+    t.datetime "from_date"
+    t.datetime "to_date"
     t.integer  "member_id"
     t.integer  "project_id"
     t.datetime "created_at", null: false

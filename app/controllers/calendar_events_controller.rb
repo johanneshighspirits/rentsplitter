@@ -32,28 +32,28 @@ class CalendarEventsController < ApplicationController
   def create
     project = current_member.projects.where(id: current_project_id).first
     p params
-    dayRange = params[:calendar_event][:from]..params[:calendar_event][:to]
+    dayRange = params[:calendar_event][:from_date]..params[:calendar_event][:to_date]
     p dayRange
-    conflicts = CalendarEvent.where("('from' BETWEEN ? AND ?) AND ('to' BETWEEN ? AND ?)", params[:calendar_event][:from], params[:calendar_event][:to], params[:calendar_event][:from], params[:calendar_event][:to]).exists?
+    conflicts = CalendarEvent.where("('from_date' BETWEEN ? AND ?) AND ('to_date' BETWEEN ? AND ?)", params[:calendar_event][:from_date], params[:calendar_event][:to_date], params[:calendar_event][:from_date], params[:calendar_event][:to_date]).exists?
     
     if conflicts
       render json: { error: "CONFLICT: Booking conflicts with another booking" }
     else
       @calendar_event = project.calendar_events.build(calendar_event_params)
       # Join calendar events that are next to each other in time.
-      event_before = project.calendar_events.where(to: params[:calendar_event][:from].to_datetime.utc, member_id: current_member.id)
-      event_after = project.calendar_events.where(from: params[:calendar_event][:to].to_datetime.utc, member_id: current_member.id)
+      event_before = project.calendar_events.where(to_date: params[:calendar_event][:from_date].to_datetime.utc, member_id: current_member.id)
+      event_after = project.calendar_events.where(from_date: params[:calendar_event][:to_date].to_datetime.utc, member_id: current_member.id)
       
       if event_before.count > 0 && event_after.count == 0
         # Merge with earlier event
         puts "Merge with earlier event"
         p event_before.first
-        event_before.first.update(to: params[:calendar_event][:to])
+        event_before.first.update(to_date: params[:calendar_event][:to_date])
         render json: {
           success: true,
           heading: "Booking confirmed",
-          from: event_before.first.from,
-          to: event_before.first.to,
+          from_date: event_before.first.from_date,
+          to_date: event_before.first.to_date,
           bookings: project.calendar_events.where(member_id: current_member.id),
         }
         return
@@ -61,12 +61,12 @@ class CalendarEventsController < ApplicationController
       if event_after.count > 0 && event_before.count == 0
         # Merge with following event
         puts "Merge with following event"
-        event_after.first.update(from: params[:calendar_event][:from])
+        event_after.first.update(from_date: params[:calendar_event][:from_date])
         render json: {
           success: true,
           heading: "Booking confirmed",
-          from: event_after.first.from,
-          to: event_after.first.to,
+          from_date: event_after.first.from_date,
+          to_date: event_after.first.to_date,
           bookings: project.calendar_events.where(member_id: current_member.id),
         }
         return
@@ -74,8 +74,8 @@ class CalendarEventsController < ApplicationController
       if event_before.count > 0 && event_after.count > 0
         # Merge with earlier and following event
         puts "Merge with both before and after"
-        @calendar_event.from = event_before.first.from
-        @calendar_event.to = event_after.first.to
+        @calendar_event.from_date = event_before.first.from_date
+        @calendar_event.to_date = event_after.first.to_date
         event_before.first.destroy
         event_after.first.destroy
       end
@@ -83,8 +83,8 @@ class CalendarEventsController < ApplicationController
         render json: {
           success: true,
           heading: "Booking confirmed",
-          from: @calendar_event.from,
-          to: @calendar_event.to,
+          from_date: @calendar_event.from_date,
+          to_date: @calendar_event.to_date,
           bookings: project.calendar_events.where(member_id: current_member.id),
         }
       else
@@ -151,6 +151,6 @@ class CalendarEventsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def calendar_event_params
-      params.require(:calendar_event).permit(:from, :to, :project_id, :member_id)
+      params.require(:calendar_event).permit(:from_date, :to_date, :project_id, :member_id)
     end
 end

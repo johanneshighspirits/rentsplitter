@@ -48,8 +48,8 @@ var Calendar = React.createClass({
     });
   },
   prepareBooking: function(booking, members) {
-    var fromDate = new Date(booking.from);
-    var toDate = new Date(booking.to);
+    var fromDate = new Date(booking.from_date);
+    var toDate = new Date(booking.to_date);
     var dayKey = fromDate.getFullYear() + "_" + fromDate.getDate();
     var existingBooking = {
       id: booking.id,
@@ -151,8 +151,8 @@ var Calendar = React.createClass({
           // Save event to database
           $.post('/calendar_events', {
             calendar_event: {
-              from: booking.fromDate,
-              to: booking.toDate,
+              from_date: booking.fromDate,
+              to_date: booking.toDate,
               project_id: this.props.project.id,
               member_id: this.props.currentMember.id
             },
@@ -167,8 +167,8 @@ var Calendar = React.createClass({
               userAlert.present(document.querySelector('.calendar'));
             } else {
               // Booking succeeded
-              var bookedFrom = new Date(response.from);
-              var bookedTo = new Date(response.to);
+              var bookedFrom = new Date(response.from_date);
+              var bookedTo = new Date(response.to_date);
               var userInfoForm = new UserInfoForm();
               var bookedDate = bookedFrom.getDate() + " " + bookedFrom.getMonthName();
               var bookedTime = bookedFrom.getHours() + ":00 - " + bookedTo.getHours() + ":00";
