@@ -195,6 +195,7 @@ var Calendar = React.createClass({
                         {
                           ids: checkedMemberIds,
                           project_name: this.props.project.name,
+                          project_id: this.props.project.id,
                           bookedDate: bookedDate,
                           bookedTime: bookedTime
                         }, function(response) {

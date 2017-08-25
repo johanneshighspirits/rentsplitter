@@ -4,7 +4,7 @@ class CalendarEventsController < ApplicationController
   include ProjectsHelper
 
   before_action :logged_in_member
-  before_action :set_calendar_event, only: [:show, :edit, :update, :destroy]
+  before_action :set_calendar_event, only: [:edit, :update, :destroy]
 
   # GET /calendar_events
   # GET /calendar_events.json
@@ -17,6 +17,8 @@ class CalendarEventsController < ApplicationController
   # GET /calendar_events/1
   # GET /calendar_events/1.json
   def show
+    set_current_project_id params[:id]
+    redirect_to calendar_events_path
   end
 
   # GET /calendar_events/new
@@ -35,8 +37,9 @@ class CalendarEventsController < ApplicationController
     dayRange = params[:calendar_event][:from_date]..params[:calendar_event][:to_date]
     p dayRange
     conflicts = CalendarEvent.where("('from_date' BETWEEN ? AND ?) AND ('to_date' BETWEEN ? AND ?)", params[:calendar_event][:from_date], params[:calendar_event][:to_date], params[:calendar_event][:from_date], params[:calendar_event][:to_date]).exists?
-    
+
     if conflicts
+      puts "CONFLICT: Booking conflicts with another booking"
       render json: { error: "CONFLICT: Booking conflicts with another booking" }
     else
       @calendar_event = project.calendar_events.build(calendar_event_params)
@@ -132,6 +135,7 @@ class CalendarEventsController < ApplicationController
         p params
         member.send_booking_email(
           project_name: params[:project_name],
+          project_id: params[:project_id],
           bookedDate: params[:bookedDate],
           bookedTime: params[:bookedTime]
         )

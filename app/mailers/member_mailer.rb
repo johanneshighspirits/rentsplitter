@@ -80,6 +80,7 @@ class MemberMailer < ApplicationMailer
   
   def booking(member, info)
     @project_name = info[:project_name]
+    @project_id = info[:project_id]
     @bookedDate = info[:bookedDate]
     @bookedTime = info[:bookedTime]
     @content = {
@@ -89,7 +90,9 @@ class MemberMailer < ApplicationMailer
         "Your booking:",
         "#{@project_name}.",
         "#{@bookedDate} #{@bookedTime}"
-      ]
+      ],
+      call_to_action_href: calendar_event_url(@project_id),
+      call_to_action_title: "Open Calendar" 
     }
     mail to: member.email, subject: "RentSplitter Booking"
   end
