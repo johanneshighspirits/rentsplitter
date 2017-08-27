@@ -993,3 +993,12 @@ form.full-width {
     }
   }
 }
+@media screen and (min-width: 1600px) {
+  .memberInfo {
+    margin: 7px;
+    width: 400px;
+    &.currentMember {
+      width: 814px;
+    }
+  }
+}

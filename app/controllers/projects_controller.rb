@@ -40,7 +40,12 @@ class ProjectsController < ApplicationController
   end
 
   def show
-    current_member.open_project params[:id]
+    if current_member.memberships.where(project_id: params[:id]).count > 0
+      current_member.open_project params[:id]
+    else
+      puts "Member is not a member of project with id #{params[:id]}."
+      current_member.open_project 0
+    end
     redirect_to root_path
   end
 
@@ -92,7 +97,7 @@ class ProjectsController < ApplicationController
           paid_total = membership.transfers.sum(:amount)
           puts "|    Paid #{paid_total}:-"
           debt = rent_total - discount_total - paid_total
-          puts "|    #{member.name} must pay #{debt}:-\n________________________\n"
+          puts "|    #{member.name} must pay SEK #{debt}\n________________________\n"
           info[:debt] = debt
           info[:due_date] = Date.current.change(day: 27)
           info[:account_info] = @project.account_info

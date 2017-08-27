@@ -143,7 +143,7 @@ class MemberMailer < ApplicationMailer
     @sender = info[:sender]
     project = info[:project]
     @project_name = project.name
-    @debt = info[:debt].round()
+    @debt = info[:debt].ceil()
     @due_date = info[:due_date]
 
     @member = member
