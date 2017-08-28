@@ -20,7 +20,7 @@ class TransfersController < ApplicationController
       @transfers = []
       params[:transfers].each do |key, transfer|
         # Find member
-        unless transfer[:member_id] == "0"
+        unless transfer[:member_id] == "0" || transfer[:ignore] == "on"
           member = @members.find(transfer[:member_id])
           if member.nil?
             puts "Couldn't find member matching '#{transfer[:message]}'"
@@ -30,6 +30,8 @@ class TransfersController < ApplicationController
             membership = member.memberships.where(project_id: current_project_id).first
             @transfers << membership.transfers.build(transfer.permit(:message, :amount, :transferred_at))
           end
+        else
+          puts "Ignored '#{transfer[:message]}' because ignore = #{transfer[:ignore]} or member id = #{transfer[:member_id]}"
         end
       end
       Transfer.import @transfers, ignore: true
@@ -44,7 +46,7 @@ class TransfersController < ApplicationController
       RentDiscount.import @rent_discounts, ignore: true
     end
 
-    flash[:success] = "Transactions added successfully"
+    puts "Transactions added successfully"
     redirect_to new_transfer_path
   end
 

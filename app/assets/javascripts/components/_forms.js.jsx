@@ -363,6 +363,7 @@ var Form = React.createClass({
         }
 
         for (var m = 0; m < cells.length; m+=5){
+          console.log(cells[m]);
           var message = cells[m + 2];
           if(abfRentDiscountRegex.test(message)){
             // 123:1234:1
@@ -417,13 +418,50 @@ var Form = React.createClass({
         var controlValues = this.state.controlValues;
         var newFields = [{
           fieldType: "p",
-          text: "Check that everything looks correct, edit if necessary. Click Submit when you're done."
+          text: "Check that everything looks correct, edit if neccessary. Click Submit when you're done."
         }];
+        // Delete validations
+        controlValues["transfers[0][member_id]"].validations = undefined;
+        controlValues["transfers[0][message]"].validations = undefined;
+        controlValues["transfers[0][member_id]"].valid = true;
+        controlValues["transfers[0][message]"].valid = true;
+
         transfers.forEach(function(item, i){
+          if (controlValues["transfers[" + i + "][transferred_at]"] === undefined) {
+            controlValues["transfers[" + i + "][transferred_at]"] = {
+              pristine: true,
+              valid: true,
+              formError: "Error"
+            };
+            controlValues["transfers[" + i + "][amount]"] = {
+              pristine: true,
+              valid: true,
+              formError: "Error"
+            };
+            controlValues["transfers[" + i + "][message]"] = {
+              pristine: true,
+              valid: true,
+              formError: "Enter a description of this transfer."
+            };
+            controlValues["transfers[" + i + "][member_id]"] = {
+              pristine: true,
+              valid: true,
+              formError: "Select the member who transferred the amount."
+            };
+          }
+
+          controlValues["transfers[" + i + "][ignore]"] = {
+            pristine: true,
+            valid: true,
+            formError: "Error",
+            value: false
+          };
+
           controlValues["transfers[" + i + "][transferred_at]"].value = item.transferred_at.toLocaleDateString();
           controlValues["transfers[" + i + "][amount]"].value = item.amount;
           controlValues["transfers[" + i + "][message]"].value = item.message;
           controlValues["transfers[" + i + "][member_id]"].value = item.memberId;
+          controlValues["transfers[" + i + "][ignore]"].value = item.memberId === 0;
 
           newFields.push(
             {
@@ -454,6 +492,11 @@ var Form = React.createClass({
               options: this.state.members,
               defaultValue: item.memberId,
               unknown: item.memberId === 0
+            },
+            {
+              fieldType: "checkbox",
+              attribute: "transfers[" + i + "][ignore]",
+              attributeName: "Ignore this transaction"
             },
             {
               fieldType: "divider"
