@@ -504,6 +504,24 @@ var Form = React.createClass({
           );
         }, this);
         discounts.forEach(function(item, i){
+          if (controlValues["rent_discounts[" + i + "][transferred_at]"] === undefined) {
+            controlValues["rent_discounts[" + i + "][transferred_at]"] = {
+              pristine: true,
+              valid: true,
+              formError: "Error"
+            };
+            controlValues["rent_discounts[" + i + "][amount]"] = {
+              pristine: true,
+              valid: true,
+              formError: "Error"
+            };
+            controlValues["rent_discounts[" + i + "][message]"] = {
+              pristine: true,
+              valid: true,
+              formError: "Enter a description of this transfer."
+            };
+          }
+
           controlValues["rent_discounts[" + i + "][transferred_at]"].value = item.transferred_at.toLocaleDateString();
           controlValues["rent_discounts[" + i + "][amount]"].value = item.amount;
           controlValues["rent_discounts[" + i + "][message]"].value = item.message;
