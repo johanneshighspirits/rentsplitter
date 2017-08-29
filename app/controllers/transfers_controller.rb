@@ -9,11 +9,11 @@ class TransfersController < ApplicationController
     current_member.projects.where(admin_id: current_member.id).each do |project|
       @allMembers = @allMembers | project.members
     end
-#    @members = Project.find(current_project_id).members
+    @allMembers.sort! { |a, b| a.name <=> b.name }
   end
 
   def create
-    @project = Project.find(current_project_id)
+    @project = Project.find(params[:project_id])
     @members = @project.members.includes(:memberships)
 
     unless params[:transfers].nil?
@@ -27,7 +27,7 @@ class TransfersController < ApplicationController
           else
             puts "Found member match: '#{transfer[:message]}' == #{member.name}"
             # Find Membership that hold all transfers
-            membership = member.memberships.where(project_id: current_project_id).first
+            membership = member.memberships.where(project_id: @project.id).first
             @transfers << membership.transfers.build(transfer.permit(:message, :amount, :transferred_at))
           end
         else
@@ -46,7 +46,6 @@ class TransfersController < ApplicationController
       RentDiscount.import @rent_discounts, ignore: true
     end
 
-    puts "Transactions added successfully"
     redirect_to new_transfer_path
   end
 
