@@ -28,6 +28,10 @@ module SessionsHelper
     end
   end
 
+  def current_project_name
+    Project.find(current_project_id).name || ""
+  end
+
   # Returns the current logged-in member's current open Project id
   def current_project_id
     session[:project_id]

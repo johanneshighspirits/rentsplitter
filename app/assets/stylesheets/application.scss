@@ -848,10 +848,10 @@ form.full-width {
 }
 
 .blurrable {
-  transition: filter 400ms ease-out;
+  transition: filter 300ms ease-out 300ms;
   filter: none;
   &.blurred {
-    filter: blur(6px);
+    filter: blur(7px);
   }
 }
 

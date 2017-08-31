@@ -419,7 +419,17 @@ var Form = React.createClass({
         var newFields = [{
           fieldType: "p",
           text: "Check that everything looks correct, edit if neccessary. Click Submit when you're done."
+        },
+        {
+          fieldType: "divider"
         }];
+        if (controlValues.single_or_multiple.value == "multiple") {
+          var projectIdField = fields.filter(function(field) {
+            return field.attribute == "multiple_project_id";
+          });
+          console.log(projectIdField);
+          newFields.unshift(projectIdField[0]);
+        }
         // Delete validations
         controlValues["transfers[0][member_id]"].validations = undefined;
         controlValues["transfers[0][message]"].validations = undefined;

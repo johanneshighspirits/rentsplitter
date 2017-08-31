@@ -29,11 +29,21 @@ fields: [
       }
     ]
   },
-  # {
-  #   fieldType: "p",
-  #   text: "Add multiple transfers from Excel file.",
-  #   isVisibleIfChecked: "single_or_multiple#multiple"
-  # },
+  {
+    fieldType: "select",
+    attribute: "multiple_project_id",
+    attributeName: "Select a project to add the transfers to",
+    options: @projects.map {|p| [p.id, p.name]}.unshift([0, "Choose Project"]),
+    validations: [
+      {
+        type: "value>",
+        limit: 0,
+        message: "Select a Project."
+      }
+    ],
+    isVisibleIfChecked: "single_or_multiple#multiple",
+    defaultValue: ""
+  },
   {
     fieldType: "file",
     attribute: "excelFile",

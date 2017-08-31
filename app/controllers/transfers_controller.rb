@@ -6,14 +6,15 @@ class TransfersController < ApplicationController
   def new
     @transfer = Transfer.new
     @allMembers = []
-    current_member.projects.where(admin_id: current_member.id).each do |project|
+    @projects = current_member.projects.where(admin_id: current_member.id)
+    @projects.each do |project|
       @allMembers = @allMembers | project.members
     end
     @allMembers.sort! { |a, b| a.name <=> b.name }
   end
 
   def create
-    @project = Project.find(params[:project_id])
+    @project = params[:single_or_multiple] == "single" ? Project.find(params[:project_id]) : Project.find(params[:multiple_project_id])
     @members = @project.members.includes(:memberships)
 
     unless params[:transfers].nil?

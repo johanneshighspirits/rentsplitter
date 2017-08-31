@@ -2,7 +2,8 @@
   <h1 class="blurrable"><%= link_to "RentSplitter", root_path %></h1>
 <!--  <h2><%= yield :page_title %></h2> -->
 <% if current_member %>
-  <p class="logged-in-info blurrable">Logged in as <b><%= current_member.name %></b></p>
+  <p class="logged-in-info blurrable"><i><%= current_project_name %></i><br>
+  Logged in as <b><%= current_member.name %></b></p>
   <nav class="blurrable">
     <ul>
         <li><%= link_to "Home", root_path %></li>
