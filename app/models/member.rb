@@ -27,6 +27,25 @@ class Member < ApplicationRecord
     "#{first_name} #{last_name}"
   end
 
+  # Returns Member's invoice identifier
+  def invoice_identifier(project)
+    "#{first_name[0].upcase}#{last_name[0].upcase}#{id}-#{project.id}"
+  end
+
+  # Return project and member from identifier
+  def Member.decode_invoice_identifier(identifier)
+    identifier_regex = /^[\D]{2}([0-9]+)\-([0-9]+)$/
+    matches = identifier_regex.match(identifier)
+    if matches
+      {
+        member_id: matches[1],
+        project_id: matches[2]
+      }
+    else
+      return nil
+    end
+  end
+
   # Returns the hash digest of a given string
   def Member.digest(string)
     cost = ActiveModel::SecurePassword.min_cost ? BCrypt::Engine::MIN_COST :

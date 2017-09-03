@@ -155,7 +155,7 @@ class MemberMailer < ApplicationMailer
       body: [
         "Dags att betala hyran för <b>#{@project_name}</b>."
       ],
-      invoice_number: "#{@member.name}",
+      invoice_number: "#{@member.invoice_identifier(project)}",
       account_info: info[:account_info],
       additional: [
         "För att se hela uträkningen, klicka på länken nedan:"
@@ -163,6 +163,13 @@ class MemberMailer < ApplicationMailer
       call_to_action_href: project_url(project),
       call_to_action_title: "#{@project_name}"
     }
+
+    if @debt < 0
+      @content[:body] = [
+        "Inget att betala denna månad för <b>#{@project_name}</b>.",
+        "Du har betalat för mycket tidigare och ligger nu på plus."
+      ]
+    end
 
     smtp_headers = {
       category: "Invoice",

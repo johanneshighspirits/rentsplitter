@@ -3,6 +3,8 @@ Hej <%= @member.first_name %>,
 <% if @debt > 0 %>
 Dags att betala hyran.
 Summan denna månad är <%= @debt %>:-
+
+Märk betalningen med <%= @content[:invoice_number] %>
 <% else %>
 Du ligger på plus och behöver inte betala denna månad.
 Till godo: <%= @debt * -1 %>:-

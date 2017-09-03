@@ -85,6 +85,7 @@ class ProjectsController < ApplicationController
               sum + r[:sharedAmount]
             end
           end
+          puts "|    Invoice number: #{member.invoice_identifier(@project)}"
           puts "|    Total rent: #{rent_total}:-"
           discount_total = project_rents_and_discounts[:discounts].inject(0) do |sum, d|
             if d[:to] < membership.joined_at
@@ -136,6 +137,19 @@ class ProjectsController < ApplicationController
     projects_for_member = Member.find(params[:id]).projects.map { |p| [p.id, p.name] }
     projects_for_member.unshift([0, "Choose Project"]) if projects_for_member.count > 1
     render json: projects_for_member
+  end
+
+  def name_for
+    if Project.exists?(params[:id])
+      project = Project.find(params[:id])
+      render json: { projectName: project.name }
+    else
+      projects_for_member = Member.find(params[:member_id]).projects.map { |p| [p.id, p.name] }
+      projects_for_member.unshift([0, "Choose Project"]) if projects_for_member.count > 1
+      render json: {
+        projects: projects_for_member
+      }
+    end
   end
 
 

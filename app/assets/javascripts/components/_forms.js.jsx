@@ -84,7 +84,7 @@ var Form = React.createClass({
           });
         break;
         default:
-          console.log("Ignored: " + item.attribute + ", of type " + item.fieldType);
+//          console.log("Ignored: " + item.attribute + ", of type " + item.fieldType);
         break;
       }
 
@@ -282,7 +282,6 @@ var Form = React.createClass({
   },
   handleBlur: function(e) {
     if (e.target.type == "email" && e.target.value !== "") {
-      console.log("HANDLE BLUR for " + e.target.id);
       var controlValues = this.state.controlValues;
       var validation = this.validate(e.target.value, controlValues[e.target.name].validations);
       controlValues[e.target.name].pristine = false;
@@ -294,7 +293,29 @@ var Form = React.createClass({
     }
     if (e.target.dataset["blurhandler"] == "guessMember") {
       var guess = this.guessMember(e.target.value);
-      console.log("Member guess: " + guess.name);
+      if (guess.project !== undefined) {
+        document.getElementById('transfers_0_member_id').value = guess.id;
+        var controlValues = this.state.controlValues;
+        controlValues["transfers[0][member_id]"].value = guess.id;
+        controlValues["transfers[0][member_id]"].valid = true;
+        controlValues["transfers[0][member_id]"].pristine = false;
+        var fields = this.state.fields.map(function(item, i){
+          if (item.attribute == 'project_id') {
+            item.options = [[guess.project.id, guess.project.name]];
+            controlValues['project_id'].value = guess.project.id;
+            controlValues['project_id'].valid = true;
+            controlValues['project_id'].pristine = false;
+          }
+          return item;
+        }, this);
+        this.setState({
+          fields: fields,
+          controlValues: controlValues
+        }, function(){
+          // Validate the newly added field
+//          this.setupFields(this.state.fields);
+        });
+      }
       if (abfRentDiscountRegex.test(e.target.value)) {
         if (confirm("Is this an Abf rent discount?")) {
           window.location = "/rent_discounts/new?message=" + encodeURIComponent(e.target.value); 
@@ -308,6 +329,44 @@ var Form = React.createClass({
       name: undefined,
       message: str
     };
+    var invoiceIdentifierRegex = /^[\D]{2}([0-9]+)\-([0-9]+)$/g;
+    var matches = invoiceIdentifierRegex.exec(str);
+    if (matches !== null) {
+      guess.id = matches[1];
+      guess.project = {
+        id: matches[2],
+        name: "Project Name"
+      };
+      $.get('/project_name/' + matches[2] + '/member/' + guess.id, function(res){
+        if (res.projectName !== undefined) {
+          document.getElementById('project_id').options[0].innerHTML = res.projectName;
+        } else {
+          guess.project = undefined;
+          var controlValues = this.state.controlValues;
+          var fields = this.state.fields.map(function(item, i){
+            if (item.attribute == 'project_id') {
+              item.options = res.projects;
+              controlValues['project_id'].value = 0;
+              controlValues['project_id'].valid = false;
+              controlValues['project_id'].pristine = true;
+            }
+            return item;
+          }, this);
+          this.setState({
+            fields: fields,
+            controlValues: controlValues
+          });
+        }
+      }.bind(this));
+      var members = this.state.members.filter(function(member) {
+        return member[0] == guess.id;
+      });
+      if (members.length > 0) {
+        guess.name = members[0][1];
+      }
+    }else{
+      console.log("Incorrect Invoice Identifier: " + str);
+    }
     this.state.members.forEach(function(member){
       if (member[2] === "") return false;
       var memberId = member[0];
@@ -363,7 +422,6 @@ var Form = React.createClass({
         }
 
         for (var m = 0; m < cells.length; m+=5){
-          console.log(cells[m]);
           var message = cells[m + 2];
           if(abfRentDiscountRegex.test(message)){
             // 123:1234:1
@@ -380,18 +438,19 @@ var Form = React.createClass({
             // }
           }else{
             // This is a rent transaction
-            var memberId = this.guessMember(message).id;
+            var guess = this.guessMember(message);
+            var memberId = guess.id;
             var transfer = {
               "transferred_at": new Date(cells[m]),
               "memberId": memberId,
               "message": message,
               "amount": parseInt(cells[m + 3].replace(" ", "")),
           };
-            if(memberId === 0){
-              console.error("Unkown transaction: " + message);
-            }else{
-              console.log("Member " + memberId + " transferred: " + transfer.amount);
-            }
+          if(memberId === 0){
+            console.error("Unkown transaction: " + message);
+          }else{
+            console.log("Member " + memberId + " transferred: " + transfer.amount);
+          }
               // if(!this.ignore(message)){
               //   this.state.unknownTransaction.push(transfer);
               // }
@@ -400,18 +459,7 @@ var Form = React.createClass({
             // }
           }
         }
-        // console.log("Ignored " + nrOfIgnores + " transfers");
         console.log("Added " + nrOfDiscountsAdded + " discount's");
-        // console.log("Subtract " + (nrOfDiscountsAdded + nrOfIgnores) + " from number of transfers");
-        // this.setState({
-        //   lastUpdated: lastUpdated,
-        //   amountsPaid: amountsPaid,
-        //   rents: rents,
-        //   discounts: discounts,
-        //   dataLoaded: true
-        // }, function(){
-        //   this.saveToBackend();
-        // });
 
         // Add input fields with transactions for previewing
         var fields = this.state.fields;
@@ -427,12 +475,12 @@ var Form = React.createClass({
           var projectIdField = fields.filter(function(field) {
             return field.attribute == "multiple_project_id";
           });
-          console.log(projectIdField);
           newFields.unshift(projectIdField[0]);
         }
         // Delete validations
         controlValues["transfers[0][member_id]"].validations = undefined;
         controlValues["transfers[0][message]"].validations = undefined;
+
         controlValues["transfers[0][member_id]"].valid = true;
         controlValues["transfers[0][message]"].valid = true;
 
@@ -502,7 +550,7 @@ var Form = React.createClass({
               options: this.state.members,
               defaultValue: item.memberId,
               unknown: item.memberId === 0
-            },
+            },            
             {
               fieldType: "checkbox",
               attribute: "transfers[" + i + "][ignore]",
