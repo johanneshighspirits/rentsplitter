@@ -28,8 +28,10 @@
       <% unless project.invoices_sent_at.nil? %>
         <p>Invoices was last sent <b><%= time_ago_in_words(project.invoices_sent_at) %> ago</b>. <br><i>(<%= project.invoices_sent_at.to_date %>)</i></p>
       <% end %>
-      <%= link_to "Send invoices",
-        "/projects/#{project.id}/send_invoices",
+
+      <% if project.invoices_sent_at > 3.days.ago %>
+      <%= link_to "Send invoice reminders",
+        "/projects/#{project.id}/send_invoices?is_reminder=true",
         method: :post,
         remote: true,
         id: "send_invoices_#{project.id}",
@@ -37,6 +39,18 @@
         data: {
           disable_with: "Sending...",
           confirm: "This will send invoice emails to the following #{active_members.count} #{'member'.pluralize(active_members.count)}:\n\n#{member_names}"} %>
+      <% else %>
+      <%= link_to "Send invoices",
+        "/projects/#{project.id}/send_invoices?is_reminder=false",
+        method: :post,
+        remote: true,
+        id: "send_invoices_#{project.id}",
+        class: "btn-primary inverted",
+        data: {
+          disable_with: "Sending...",
+          confirm: "This will send invoice emails to the following #{active_members.count} #{'member'.pluralize(active_members.count)}:\n\n#{member_names}"} %>
+      <% end %>
+
       <%= link_to "Delete", project, method: :delete,
                                   data: { confirm: "Are you sure? This will delete '#{project.name}' and all data will be lost." }, class: "btn-primary inverted" %>
       <p><b>Start date:</b> <%= project.start_date %><br>

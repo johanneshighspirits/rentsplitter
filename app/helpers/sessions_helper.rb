@@ -29,7 +29,11 @@ module SessionsHelper
   end
 
   def current_project_name
-    Project.find(current_project_id).name || ""
+    if Project.exists?(current_project_id)
+      Project.find(current_project_id).name
+    else
+      ""
+    end
   end
 
   # Returns the current logged-in member's current open Project id

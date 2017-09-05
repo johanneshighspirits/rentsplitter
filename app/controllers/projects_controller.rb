@@ -62,6 +62,8 @@ class ProjectsController < ApplicationController
 
   def send_invoices
     @project = Project.find(params[:id])
+    is_reminder = params[:is_reminder] == "true"
+
     if is_admin_for_project? @project
       project_rents_and_discounts = @project.project_rents_and_discounts
       invoice_count = 0
@@ -75,7 +77,8 @@ class ProjectsController < ApplicationController
           info = {
             sender: current_member,
             project: @project,
-            for_month: Date::MONTHNAMES[Date.current.next_month.month]
+            for_month: Date::MONTHNAMES[Date.current.next_month.month],
+            is_reminder: is_reminder
           }
           puts "________________________\n|    Sending invoice to:\n|    === #{member.name} ===\n|    who joined at #{membership.joined_at} and left #{membership.left_at}"
           rent_total = project_rents_and_discounts[:rents].inject(0) do |sum, r|

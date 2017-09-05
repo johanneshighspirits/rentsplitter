@@ -145,16 +145,15 @@ class MemberMailer < ApplicationMailer
     @project_name = project.name
     @debt = info[:debt].ceil()
     @due_date = info[:due_date]
+    @is_reminder = info[:is_reminder]
 
     @member = member
     @admin = Member.find(project.admin_id)
 
     @content = {
-      heading1: "Räkning",
+      heading1: is_reminder ? "Påminnelse" : "Räkning",
       greeting: "Hej #{@member.first_name}",
-      body: [
-        "Dags att betala hyran för <b>#{@project_name}</b>."
-      ],
+      body: is_reminder ? ["Glöm inte betala hyran för <b>#{@project_name}</b> så snart som möjligt."] : ["Dags att betala hyran för <b>#{@project_name}</b>."],
       invoice_number: "#{@member.invoice_identifier(project)}",
       account_info: info[:account_info],
       additional: [
@@ -164,7 +163,7 @@ class MemberMailer < ApplicationMailer
       call_to_action_title: "#{@project_name}"
     }
 
-    if @debt < 0
+    if @debt < 0 && !is_reminder
       @content[:body] = [
         "Inget att betala denna månad för <b>#{@project_name}</b>.",
         "Du har betalat för mycket tidigare och ligger nu på plus."
@@ -179,8 +178,10 @@ class MemberMailer < ApplicationMailer
     }
     headers['X-SMTPAPI'] = smtp_headers.to_json
     puts "Mailing to #{@member.email}, bcc: #{@admin.email}, subject: #{@project_name} | Rent for #{info[:for_month]}"
-    mail to: @member.email, bcc: @admin.email, subject: "#{@project_name} | Rent for #{info[:for_month]}"
+    mail to: @member.email, bcc: @admin.email, subject: is_reminder ? "REMINDER: #{@project_name} | Rent for #{info[:for_month]}" : "#{@project_name} | Rent for #{info[:for_month]}"
   end
+
+
 
   def invoice_reminder_for_project_admin(project_admin, project)
     @project_name = project.name
