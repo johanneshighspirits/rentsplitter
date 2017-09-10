@@ -163,7 +163,7 @@ class MemberMailer < ApplicationMailer
       call_to_action_title: "#{@project_name}"
     }
 
-    if @debt < 0 && !is_reminder
+    if @debt < 1 && !is_reminder
       @content[:body] = [
         "Inget att betala denna månad för <b>#{@project_name}</b>.",
         "Du har betalat för mycket tidigare och ligger nu på plus."

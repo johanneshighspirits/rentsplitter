@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170824081705) do
+ActiveRecord::Schema.define(version: 20170910070011) do
 
   create_table "calendar_events", force: :cascade do |t|
     t.datetime "from_date"
@@ -61,6 +61,7 @@ ActiveRecord::Schema.define(version: 20170824081705) do
     t.string   "info"
     t.string   "account_info"
     t.datetime "invoices_sent_at"
+    t.date     "end_date"
   end
 
   create_table "rent_discounts", force: :cascade do |t|

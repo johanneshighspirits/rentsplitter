@@ -86,6 +86,14 @@ class Project < ApplicationRecord
 
   def project_months
     end_month = Date.current.day < 10 ? Date.current.prev_month.end_of_month : Date.current.end_of_month
+    if !end_date.nil? && end_date.past?
+      # Project has an end date.
+      # An end date is the last day of the month when rent
+      # should be paid.
+      # If the project ends last of August, you will still
+      # have access to the premise throughout September.
+      end_month = end_date
+    end
     (start_date.prev_month..end_month).select do |date|
       date.day == date.end_of_month.day
     end
@@ -111,6 +119,16 @@ class Project < ApplicationRecord
 
   def check_start_date
     self.start_date = Date.current.beginning_of_month.next_month if start_date.nil?
+  end
+
+  def end_date
+    self[:end_date] == self[:start_date] ? nil : self[:end_date]
+  end
+
+  def finish_project(last_month_to_pay_for)
+    # 
+    self[:end_date] = last_month_to_pay_for.prev_month.end_of_month
+    save
   end
 
 end
