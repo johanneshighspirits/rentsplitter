@@ -27,9 +27,13 @@ class Member < ApplicationRecord
     "#{first_name} #{last_name}"
   end
 
+  def initials
+    "#{first_name[0].upcase}#{last_name[0].upcase}"
+  end
+
   # Returns Member's invoice identifier
   def invoice_identifier(project)
-    "#{first_name[0].upcase}#{last_name[0].upcase}#{id}-#{project.id}"
+    "#{initials}#{id}-#{project.id}"
   end
 
   # Return project and member from identifier

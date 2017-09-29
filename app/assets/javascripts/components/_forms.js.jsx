@@ -315,6 +315,27 @@ var Form = React.createClass({
           // Validate the newly added field
 //          this.setupFields(this.state.fields);
         });
+      } else {
+        // Reset Selected options
+        document.getElementById('transfers_0_member_id').value = 0;
+        var controlValues = this.state.controlValues;
+        controlValues["transfers[0][member_id]"].value = 0;
+        controlValues["transfers[0][member_id]"].valid = false;
+        controlValues["transfers[0][member_id]"].pristine = true;
+
+        var fields = this.state.fields.map(function(item, i){
+          if (item.attribute == 'project_id') {
+            item.options = [[0, "Select Project"]];
+            controlValues["project_id"].value = 0;
+            controlValues["project_id"].valid = false;
+            controlValues["project_id"].pristine = true;
+          }
+          return item;
+        }, this);
+        this.setState({
+          fields: fields,
+          controlValues: controlValues
+        });
       }
       if (abfRentDiscountRegex.test(e.target.value)) {
         if (confirm("Is this an Abf rent discount?")) {
@@ -329,40 +350,42 @@ var Form = React.createClass({
       name: undefined,
       message: str
     };
-    var invoiceIdentifierRegex = /^[\D]{2}([0-9]+)\-([0-9]+)$/g;
+    var invoiceIdentifierRegex = /^([\D]{2})([0-9]+)\-([0-9]+)$/g;
     var matches = invoiceIdentifierRegex.exec(str);
     if (matches !== null) {
-      guess.id = matches[1];
-      guess.project = {
-        id: matches[2],
-        name: "Project Name"
-      };
-      $.get('/project_name/' + matches[2] + '/member/' + guess.id, function(res){
-        if (res.projectName !== undefined) {
-          document.getElementById('project_id').options[0].innerHTML = res.projectName;
-        } else {
-          guess.project = undefined;
-          var controlValues = this.state.controlValues;
-          var fields = this.state.fields.map(function(item, i){
-            if (item.attribute == 'project_id') {
-              item.options = res.projects;
-              controlValues['project_id'].value = 0;
-              controlValues['project_id'].valid = false;
-              controlValues['project_id'].pristine = true;
-            }
-            return item;
-          }, this);
-          this.setState({
-            fields: fields,
-            controlValues: controlValues
-          });
-        }
-      }.bind(this));
       var members = this.state.members.filter(function(member) {
-        return member[0] == guess.id;
+        // Check if member id (member[0]) and member Initials (member[3]) matches
+        return member[0] == matches[2] && member[3] == matches[1];
       });
       if (members.length > 0) {
+        // Identifier is correct
         guess.name = members[0][1];
+        guess.id = matches[2];
+        guess.project = {
+          id: matches[3],
+          name: "Project Name"
+        };
+        // Get project name (async)
+        $.get('/project_name/' + matches[3] + '/member/' + matches[2], function(res){
+          if (res.projectName !== undefined) {
+            document.getElementById('project_id').options[0].innerHTML = res.projectName;
+          } else {
+            var controlValues = this.state.controlValues;
+            var fields = this.state.fields.map(function(item, i){
+              if (item.attribute == 'project_id') {
+                item.options = res.projects;
+                controlValues['project_id'].value = 0;
+                controlValues['project_id'].valid = false;
+                controlValues['project_id'].pristine = true;
+              }
+              return item;
+            }, this);
+            this.setState({
+              fields: fields,
+              controlValues: controlValues
+            });
+          }
+        }.bind(this));
       }
     }else{
       console.log("Incorrect Invoice Identifier: " + str);
