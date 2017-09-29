@@ -10,7 +10,7 @@
     id: @project.id,
     name: @project.name
   },
-  members: @members.map {|m| {name: m.name, id: m.id}},
+  members: @members.map {|m| {name: m.name, email: m.email, id: m.id}},
   bookings: @calendar_events,
   monthNames: (0..12).map {|m| Date::MONTHNAMES[m]},
   dayNames: (0..6).map {|m| Date::DAYNAMES[m]},

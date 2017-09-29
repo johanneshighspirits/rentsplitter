@@ -131,13 +131,13 @@ class CalendarEventsController < ApplicationController
     unless params[:ids].nil?
       params[:ids].each do |memberId|
         member = Member.find(memberId)
-        puts "Let's send email to #{member.name}"
-        p params
         member.send_booking_email(
+          booker: current_member,
           project_name: params[:project_name],
           project_id: params[:project_id],
           bookedDate: params[:bookedDate],
-          bookedTime: params[:bookedTime]
+          bookedTime: params[:bookedTime],
+          ics_string: params[:icsString]
         )
       end
       render json: {

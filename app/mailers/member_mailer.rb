@@ -79,21 +79,30 @@ class MemberMailer < ApplicationMailer
   end
   
   def booking(member, info)
+    @booker = info[:booker]
     @project_name = info[:project_name]
     @project_id = info[:project_id]
     @bookedDate = info[:bookedDate]
     @bookedTime = info[:bookedTime]
+    @ics_string = info[:ics_string]
+    message = @booker.id == member.id ? "Your booking has been successfully added." : "You have been invited to the following event by #{@booker.name}."
     @content = {
       heading1: "Booking confirmed",
       greeting: "Hi #{member.first_name}",
       body: [
-        "Your booking:",
+        message,
         "#{@project_name}.",
         "#{@bookedDate} #{@bookedTime}"
       ],
       call_to_action_href: calendar_event_url(@project_id),
       call_to_action_title: "Open Calendar" 
     }
+    unless @ics_string.nil?
+      attachments['booking.ics'] = {
+        mime_type: 'text/calendar',
+        content: @ics_string
+      }
+    end
     mail to: member.email, subject: "RentSplitter Booking"
   end
 

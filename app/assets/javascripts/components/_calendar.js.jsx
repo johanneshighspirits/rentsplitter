@@ -3,6 +3,56 @@ function randomHSLColor() {
   return "hsl(" + hue + ", 70%, 60%)";
 }
 
+function icsString(bookedFrom, bookedTo, invitedMembers, currentMemberId, projectName) {
+  var uid = currentMemberId + "-" + bookedFrom.getTime() + "@com.rentsplitter";
+  var now = new Date();
+  var timeZoneOffset = now.getTimezoneOffset() / 60;
+  var start = new Date(bookedFrom);
+  var end = new Date(bookedTo);
+  start.setUTCHours(start.getUTCHours() - timeZoneOffset);  
+  end.setUTCHours(end.getUTCHours() - timeZoneOffset);  
+  var attendees = '';
+  for (let i in invitedMembers) {
+    var member = invitedMembers[i];
+    attendees += 'ATTENDEE;CN=' + member.name + ':mailto:' + member.email;
+    if (i < invitedMembers.length - 1) attendees += '\n';
+  }
+  function formatDate(date) {
+    return date.toISOString().slice(0,16).replace(/[\-\:]/gi, '') + '00';
+  }
+  var ics = `BEGIN:VCALENDAR
+VERSION:2.0
+CALSCALE:GREGORIAN
+PRODID:-//Johannes Borgström//rentsplitter.herokuapp.com//RentSplitter
+BEGIN:VEVENT
+UID:${uid}
+DTSTAMP:${formatDate(now)}Z
+DTSTART:${formatDate(start)}
+DTEND:${formatDate(end)}
+SUMMARY:Booking | ${projectName}
+DESCRIPTION:Rock'n'roll
+LOCATION:Rökerigatan 23, Stockholm, Sweden
+URL:http://rentsplitter.herokuapp.com/calendar/
+STATUS:CONFIRMED
+GEO:59.2906327;18.0823772
+${attendees}
+CATEGORIES:Music
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT24H
+DESCRIPTION:Reminder
+REPEAT:1
+DURATION:PT15M
+END:VALARM
+BEGIN:VALARM
+ACTION:AUDIO
+TRIGGER:-PT120M
+END:VALARM
+END:VEVENT
+END:VCALENDAR`;
+    return ics;
+}
+
 var Calendar = React.createClass({
   componentDidMount: function() {
     window.addEventListener("resize", this.updateCalendarDaySize);
@@ -177,7 +227,7 @@ var Calendar = React.createClass({
                 bookedDate,
                 bookedTime,
                 "",
-                "Share with your band members by selecting their names. Then press OK."
+                "Invite other members by selecting their names. Then press OK."
               ]);
               userInfoForm.addMembers(this.state.members, this.props.currentMember.id);
               userInfoForm.addButtons([
@@ -197,7 +247,8 @@ var Calendar = React.createClass({
                           project_name: this.props.project.name,
                           project_id: this.props.project.id,
                           bookedDate: bookedDate,
-                          bookedTime: bookedTime
+                          bookedTime: bookedTime,
+                          icsString: icsString(bookedFrom, bookedTo, this.membersWithIds(checkedMemberIds), this.props.currentMember.id, this.props.project.name)
                         }, function(response) {
                           console.log(response);
                         }
@@ -249,6 +300,14 @@ var Calendar = React.createClass({
         });
       break;
     }
+  },
+  membersWithIds: function(ids) {
+    var members = [];
+    for (let i in ids) {
+      let member = this.state.members[ids[i]];
+      members.push(member);
+    }
+    return members;
   },
   thumbnailUpdated: function(id) {
     var thumbnail = document.querySelector("a[data-datenr='" + id + "'] svg.booking");
