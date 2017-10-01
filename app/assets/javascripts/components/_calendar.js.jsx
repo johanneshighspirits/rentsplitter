@@ -9,11 +9,13 @@ function icsString(bookedFrom, bookedTo, invitedMembers, currentMemberId, projec
   var timeZoneOffset = now.getTimezoneOffset() / 60;
   var start = new Date(bookedFrom);
   var end = new Date(bookedTo);
-  start.setUTCHours(start.getUTCHours() - timeZoneOffset);  
-  end.setUTCHours(end.getUTCHours() - timeZoneOffset);  
+  // start.setUTCHours(start.getUTCHours() - timeZoneOffset);  
+  // end.setUTCHours(end.getUTCHours() - timeZoneOffset);  
+  var bookedBy = '';
   var attendees = '';
   for (let i in invitedMembers) {
     var member = invitedMembers[i];
+    if (member.id == currentMemberId) bookedBy = member.name;
     attendees += 'ATTENDEE;CN=' + member.name + ':mailto:' + member.email;
     if (i < invitedMembers.length - 1) attendees += '\n';
   }
@@ -27,10 +29,10 @@ PRODID:-//Johannes Borgström//rentsplitter.herokuapp.com//RentSplitter
 BEGIN:VEVENT
 UID:${uid}
 DTSTAMP:${formatDate(now)}Z
-DTSTART:${formatDate(start)}
-DTEND:${formatDate(end)}
+DTSTART:${formatDate(start)}Z
+DTEND:${formatDate(end)}Z
 SUMMARY:Booking | ${projectName}
-DESCRIPTION:Rock'n'roll
+DESCRIPTION:Booked by ${bookedBy}
 LOCATION:Rökerigatan 23, Stockholm, Sweden
 URL:http://rentsplitter.herokuapp.com/calendar/
 STATUS:CONFIRMED
