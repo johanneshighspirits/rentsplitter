@@ -91,8 +91,9 @@ class MemberMailer < ApplicationMailer
       greeting: "Hi #{member.first_name}",
       body: [
         message,
-        "#{@project_name}.",
-        "#{@bookedDate} #{@bookedTime}"
+        "<b>#{@project_name}</b>",
+        "#{@bookedDate} #{@bookedTime}",
+        "To add this to your calendar, double click the 'booking.ics' file at the bottom of this email."
       ],
       call_to_action_href: calendar_event_url(@project_id),
       call_to_action_title: "Open Calendar" 
