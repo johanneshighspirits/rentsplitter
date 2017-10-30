@@ -61,29 +61,30 @@ var Calendar = React.createClass({
     this.updateCalendarDaySize();
     // Assign color to every member
     // Predefined colors to choose from
-    var colors = [
+    this.colors = [
       "hsl(152, 64%, 58%)",
-      "hsl(41, 77%, 52%)",
       "hsl(341, 64%, 58%)",
       "hsl(199, 80%, 54%)",
       "hsl(268, 68%, 62%)",
       "hsl(21, 80%, 54%)",
       "hsl(171, 64%, 53%)",
+      "hsl(41, 77%, 52%)",
       "hsl(196, 46%, 73%)"
     ];
     var members = {};
     // Prepare members
     this.props.members.forEach(function(member, i) {
       var newMember = member;
-      newMember.color = colors.length > 0 ? colors.shift() : randomHSLColor();
+      if (member.id == this.props.currentMember.id) newMember.color = this.colors.shift();
       newMember.bookings = [];
       members[member.id] = newMember;
-    });
+    }, this);
     // Check previous bookings and add to members
     this.props.bookings.forEach(function(booking, i) {
       var existingBooking = this.prepareBooking(booking, members);
       members[booking.member_id].bookings.push(existingBooking);
     }, this);
+    // Set state
     this.setState({
       members: members
     })
@@ -103,6 +104,10 @@ var Calendar = React.createClass({
     var fromDate = new Date(booking.from_date);
     var toDate = new Date(booking.to_date);
     var dayKey = fromDate.getFullYear() + "_" + fromDate.getDate();
+    // Assign color to member if undefined
+    if (members[booking.member_id].color === undefined) {
+      members[booking.member_id].color = this.colors.length > 0 ? this.colors.shift() : randomHSLColor();
+    }
     var existingBooking = {
       id: booking.id,
       from: fromDate.getHours(),
@@ -160,46 +165,10 @@ var Calendar = React.createClass({
           },
           color: this.state.members[this.props.currentMember.id].color
         };
-//        var memberBookings = members[this.props.currentMember.id].bookings;
-//        // Check if booking should be merged with prev/next
-//        var bookingNeedsUpdate = [];
-//        console.log(memberBookings);
-//        memberBookings = memberBookings.map(function(prevBooking, i) {
-//          if (prevBooking.fromDate.getTime() == booking.toDate.getTime() || prevBooking.toDate.getTime() == booking.fromDate.getTime()) {
-//             bookingNeedsUpdate.push(i);
-//            
-//             var updatedFrom = Math.min(booking.from, prevBooking.from);
-//             var updatedFromDate = new Date(fromDate);
-//             updatedFromDate.setHours(updatedFrom);
-//            
-//             var updatedTo = Math.max(booking.to, prevBooking.to);
-//             var updatedToDate = new Date(toDate);
-//             updatedToDate.setHours(updatedTo);
-//            
-//             var updatedBooking = {
-//               from: updatedFrom,
-//               fromDate: updatedFromDate,
-//               to: updatedTo,
-//               toDate: updatedToDate,
-//               bookedBy: prevBooking.bookedBy,
-//               color: prevBooking.color
-//             }
-//             return updatedBooking;
-//          } else {
-//            return prevBooking;
-//          }
-//        })
-//        console.log(memberBookings);
-//        if (bookingNeedsUpdate.length === 0) memberBookings.push(booking);
-//        members[this.props.currentMember.id].bookings = memberBookings;
+
         this.setState({
-          shouldDisplayTimeSelector: false,
-//          members: members
+          shouldDisplayTimeSelector: false
         }, function() {
-//          var fromDate = new Date(this.state.displayDate);
-//          fromDate.setHours(booking.from);
-//          var toDate = new Date(this.state.displayDate);
-//          toDate.setHours(booking.to);
           // Save event to database
           $.post('/calendar_events', {
             calendar_event: {

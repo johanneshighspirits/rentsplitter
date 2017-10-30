@@ -16,6 +16,7 @@
             <%= f.label :pattern, "Regex pattern" %>
             <%= f.text_field :pattern %><%= f.submit "Update" %><br>
           </p>
+          <p>Invoice identifier: <b><%= member.invoice_identifier(@project) %></b></p>
         <% end %>
 
         <% if member.invited? %>

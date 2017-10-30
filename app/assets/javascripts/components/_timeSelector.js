@@ -549,13 +549,6 @@ TimeSelector.prototype.pointFromEvent = function(e) {
   }
 }
 /**
-*   Calculates the next frame in preparation for drawing
-*/
-TimeSelector.prototype.prepare = function() {
-//  this.drawHourPie(17, 22);
-}
-
-/**
 *   Updates canvas by clearing and then drawing to it.
 */
 TimeSelector.prototype.draw = function() {
@@ -563,8 +556,6 @@ TimeSelector.prototype.draw = function() {
   this.clear();
   // Draw background
   this.drawBackground();
-  // Prepare for drawing
-  this.prepare();
   var info = "";
   // Draw previous bookings if any
   this.selectedHours.bookings.forEach(function(booking) {

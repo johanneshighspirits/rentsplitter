@@ -350,7 +350,7 @@ var Form = React.createClass({
       name: undefined,
       message: str
     };
-    var invoiceIdentifierRegex = /^([\D]{2})([0-9]+)\-([0-9]+)$/g;
+    var invoiceIdentifierRegex = /^([\D]{2})([0-9]+)\-([0-9]+)\-?([A-Z]{0,3})?/g;
     var matches = invoiceIdentifierRegex.exec(str);
     if (matches !== null) {
       var members = this.state.members.filter(function(member) {
@@ -365,6 +365,7 @@ var Form = React.createClass({
           id: matches[3],
           name: "Project Name"
         };
+        guess.month = matches[4];
         // Get project name (async)
         $.get('/project_name/' + matches[3] + '/member/' + matches[2], function(res){
           if (res.projectName !== undefined) {
