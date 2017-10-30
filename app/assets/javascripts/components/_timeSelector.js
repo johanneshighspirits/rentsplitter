@@ -149,7 +149,7 @@ TimeSelector.prototype.discardTo = function(x, y) {
 *
 */
 TimeSelector.prototype.growFromPoint = function(x, y, xMargin) {
-  this.animationCompletion += 0.05;
+  this.animationCompletion += 0.1;
   var xPos = (x - this.center.x - xMargin) * (1 - this.animationCompletion);
   var yPos = (y - this.center.y + 10) * (1 - this.animationCompletion);
   if (this.animationCompletion < 1) {
@@ -167,7 +167,7 @@ TimeSelector.prototype.growFromPoint = function(x, y, xMargin) {
 *
 */
 TimeSelector.prototype.shrinkToPoint = function(x, y, xMargin) {
-  this.animationCompletion -= 0.075;
+  this.animationCompletion -= 0.15;
   var xPos = (x - this.center.x - xMargin) * (this.animationCompletion - 1);
   var yPos = (y - this.center.y + 10) * (this.animationCompletion - 1);
   if (this.animationCompletion > 0) {
@@ -212,6 +212,10 @@ TimeSelector.prototype.drawHourPie = function(from, to, color, stroke) {
   var hourRadian = (2* Math.PI) / 24;
   var startAngle = (from - this.hourOffset) * hourRadian;
   var endAngle = (to - this.hourOffset) * hourRadian;
+
+  if (to === 0 && from == 24) {
+    console.log("24 hours", to, from);
+  }
     
   this.ctx.beginPath();
   if (stroke) {
