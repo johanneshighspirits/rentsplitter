@@ -104,7 +104,7 @@ class MemberMailer < ApplicationMailer
         content: @ics_string
       }
     end
-    mail to: member.email, subject: "RentSplitter Booking"
+    mail to: member.email, subject: "RentSplitter Booking - #{@bookedDate} #{@bookedTime}"
   end
 
   def activation(member)

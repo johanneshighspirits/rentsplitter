@@ -154,6 +154,7 @@ var Calendar = React.createClass({
         fromDate.setHours(from);
         var toDate = new Date(this.state.displayDate);
         toDate.setHours(to);
+        if (to == 24) toDate.setSeconds(toDate.getSeconds() - 1);
         var booking = {
           from: from,
           fromDate: fromDate,
@@ -528,6 +529,9 @@ var CalendarDayThumbnail = React.createClass({
     var circles = this.props.bookings.map(function(booking, i) {
       var hour = 190 / 24;
       var range = booking.to - booking.from;
+      if (booking.toDate.getSeconds() == 59) {
+        range += 1;
+      }
       return <circle
           key={i}
           cx="50%"

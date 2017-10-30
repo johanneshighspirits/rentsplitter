@@ -212,10 +212,6 @@ TimeSelector.prototype.drawHourPie = function(from, to, color, stroke) {
   var hourRadian = (2* Math.PI) / 24;
   var startAngle = (from - this.hourOffset) * hourRadian;
   var endAngle = (to - this.hourOffset) * hourRadian;
-
-  if (to === 0 && from == 24) {
-    console.log("24 hours", to, from);
-  }
     
   this.ctx.beginPath();
   if (stroke) {
@@ -559,9 +555,11 @@ TimeSelector.prototype.draw = function() {
   var info = "";
   // Draw previous bookings if any
   this.selectedHours.bookings.forEach(function(booking) {
+    var bookingEnd = booking.to;
+    if(booking.toDate.getSeconds() == 59) bookingEnd += 1;
     if (this.highlightBooking !== undefined && this.highlightBooking.id == booking.id) {
       this.ctx.globalAlpha = 0.8;
-      info = [booking.bookedBy.name, booking.from + ":00 - " + booking.to + ":00"];
+      info = [booking.bookedBy.name, booking.from + ":00 - " + bookingEnd + ":00"];
       if (booking.bookedBy.id == this.currentMember.id) {
         info = [booking.bookedBy.name, "(click to delete)"];
       }
@@ -570,7 +568,7 @@ TimeSelector.prototype.draw = function() {
     }
     var color = booking.color;
     var hour = booking.from;
-    while (hour < booking.to) {
+    while (hour < bookingEnd) {
       this.drawHourPie(hour, hour + 1, color);
       hour++;
     }
