@@ -24,6 +24,8 @@ $bg-color: #e3e6e6;
 $text-color: #494949;
 $green: #499260;
 $green-darker: #286B70;
+$blue: #6cb1e6;
+$blue-darker: #3aa0d4;
 $red: #d05959;
 $red-darker: #BA3446;
 $red-bright: #FEE;
@@ -51,6 +53,16 @@ $brand-medium-dark: #53878c;
   background: -webkit-linear-gradient(-45deg, #244c5b 0%,#22393f 100%);
   background: linear-gradient(135deg, #244c5b 0%,#22393f 100%);
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#244c5b', endColorstr='#22393f',GradientType=1 );
+}
+@mixin blue-gradient {
+  background: $blue;
+  background: -moz-linear-gradient(339deg, $blue 0%, $blue 38%, $blue-darker 100%) !important;
+  background: -webkit-gradient(linear, left top, right top, color-stop(0%, $blue), color-stop(38%, $blue), color-stop(100%, $blue-darker)) !important;
+  background: -webkit-linear-gradient(339deg, $blue 0%, $blue 38%, $blue-darker 100%) !important;
+  background: -o-linear-gradient(339deg, $blue 0%, $blue 38%, $blue-darker 100%) !important;
+  background: -ms-linear-gradient(339deg, $blue 0%, $blue 38%, $blue-darker 100%) !important;
+  background: linear-gradient(111deg, $blue 0%, $blue 38%, $blue-darker 100%) !important;
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='$blue', endColorstr='$blue-darker',GradientType=1 );
 }
 @mixin red-gradient {
   background: $red;
@@ -304,10 +316,10 @@ footer {
     font-size: 4em;
   }
 
-  span.green, span.red {
+  span.green, span.red, span.blue {
     display: block;
   }
-  .green, .red {
+  .green, .red, .blue {
     padding: 1.25em 20px 0.5em;
     color: #FFF;
     margin: 0;
@@ -320,6 +332,9 @@ footer {
   }
   .red {
     @include red-gradient;
+  }
+  .blue {
+    @include blue-gradient;
   }
   .noLongerMember {
     color: #AAA;

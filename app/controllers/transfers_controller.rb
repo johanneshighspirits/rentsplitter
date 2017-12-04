@@ -64,6 +64,8 @@ class TransfersController < ApplicationController
   def for_project
     # Find project
     p = Project.find(params[:id])
+    # Fetch expenses
+    expenses = p.expenses
     # Fetch rents and discounts
     rents_and_discounts = p.project_rents_and_discounts
     member_and_transfers = p.members.map do |m|
@@ -98,6 +100,7 @@ class TransfersController < ApplicationController
     render json: {
       memberTransfers: member_and_transfers,
       rentAndDiscounts: rents_and_discounts,
+      expenses: expenses
     }
   end
 

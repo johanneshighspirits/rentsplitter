@@ -4,7 +4,8 @@ window.RentSplitter = React.createClass({
     return ({
       rents: [],
       rentDiscounts: [],
-      members: []
+      members: [],
+      expenses: []
     });
   },
   componentDidMount: function() {
@@ -12,7 +13,8 @@ window.RentSplitter = React.createClass({
       this.setState({
         rents: projectInfo.rentAndDiscounts.rents,
         rentDiscounts: projectInfo.rentAndDiscounts.discounts,
-        members: projectInfo.memberTransfers.sort(this.sortMembers)
+        members: projectInfo.memberTransfers.sort(this.sortMembers),
+        expenses: projectInfo.expenses
       });
     }.bind(this), 'json');
   },
@@ -67,6 +69,7 @@ window.RentSplitter = React.createClass({
         </article>
         <article>
           <ul>
+            <Expenses rents={this.state.rents} expenses={this.state.expenses} />
             {members}
           </ul>
         </article>
@@ -145,7 +148,7 @@ var MemberInfo = React.createClass({
           />
         )
       }else{
-        console.log("Ignored discount " + discount.message + ": " + discount.from + "-" + discount.to + " since member joined " + this.props.member.joinedAt);
+//        console.log("Ignored discount " + discount.message + ": " + discount.from + "-" + discount.to + " since member joined " + this.props.member.joinedAt);
       }
     }, this);
     // Add transfers (every payment this member has ever made)
@@ -199,6 +202,61 @@ var MemberInfo = React.createClass({
     )
   }
 });
+
+var Expenses = React.createClass({
+  render: function() {
+    var numberOfMonths = this.props.rents.length;
+    var totalBudgetAmount = 1000 * numberOfMonths;
+    // Add expenses
+    var totalExpenses = 0;
+    var expensesHistory = [];
+    var expenses = this.props.expenses.sort(function(a,b){ return Date.parse(b.registered_at) - Date.parse(a.registered_at); })
+    
+    expenses.forEach(function(expense, i) {
+      totalExpenses += parseFloat(expense.amount);
+      var transaction = {
+        message: expense.description,
+        shortDate: expense.registered_at,
+        longDate: expense.registered_at,
+        amount: expense.amount
+      }
+      expensesHistory.push(
+        <Transaction
+          key={"expense" + i}
+          type="expense"
+          date={Date.parse(transaction.longDate)}
+          transaction={transaction}
+        />
+      )
+    }, this);
+    return (
+      <div className="memberInfo currentMember">
+      <h3>Budget balance
+        <span>The money we can use to buy beer and stuff</span>
+      </h3>
+      <span className="blue" style={{background: "#d05959", color: "#FFF"}}>Budget today:
+        <span className="displayNumbers right counter">{totalBudgetAmount - totalExpenses}:-</span>
+      </span>
+
+      <table className="paddedTopBottom paddedLeftRight">
+        <thead>
+          <tr>
+            <th colSpan="3" style={{paddingBottom: "0.7em", fontSize: "1.2em"}}>All expenses</th>
+          </tr>
+          <tr>
+            <th>Datum</th>
+            <th>Meddelande</th>
+            <th>Belopp</th>
+          </tr>
+        </thead>
+        <tbody>
+          {expensesHistory}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+})
 
 var Transaction = React.createClass({
   render: function() {

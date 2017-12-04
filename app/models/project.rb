@@ -4,6 +4,7 @@ class Project < ApplicationRecord
   has_many :memberships,      dependent: :destroy
   has_many :rents,            dependent: :destroy
   has_many :rent_discounts,   dependent: :destroy
+  has_many :expenses,         dependent: :destroy
   has_many :calendar_events,  dependent: :destroy
   
   has_many :members, through: :memberships
