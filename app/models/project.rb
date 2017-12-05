@@ -28,10 +28,15 @@ class Project < ApplicationRecord
       discounts
     end
 
+    @bonus = bonus
+    if @bonus.nil?
+      @bonus = 0
+    end
+
     result = {
       rents: [],
       discounts: [],
-      bonus: bonus
+      bonus: @bonus
     }
 
     # Loop through all project's months and add the rent to project_rents
@@ -58,11 +63,13 @@ class Project < ApplicationRecord
       if !rents[m + 1].nil? && date > rents[m + 1].due_date.change(day: 10)
         m += 1
       end
+
+      rent_including_bonus = @bonus + rents[m].amount
       rent = {
-        amount: rents[m].amount,
+        amount: rent_including_bonus,
         message: "Rent for #{date.next_month.month}/#{date.next_month.year}",
         numberOfMembers: month_members,
-        sharedAmount: (rents[m].amount / month_members).round(2),
+        sharedAmount: (rent_including_bonus / month_members).round(2),
         shortDate: (short_date date),
         longDate: date.to_s(:iso8601),
         from: date.next_month.beginning_of_month,

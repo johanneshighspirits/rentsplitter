@@ -65,12 +65,12 @@ window.RentSplitter = React.createClass({
           <h2><a href="/projects">{this.props.project.name}</a></h2>
           <p>{projectInfo}</p>
           {this.state.rents[this.state.rents.length - 1] !== undefined ?
-          <p><b>Monthly rent: </b>{this.state.rents[this.state.rents.length - 1].amount}</p>
+          <p><b>Monthly rent: </b>{this.state.rents[this.state.rents.length - 1].amount}:-{this.state.bonus > 0 && <span><br/><i>(incl. monthly budget: {this.state.bonus}:-)</i> </span>}</p>
           : null }
         </article>
         <article>
           <ul>
-            <Expenses rents={this.state.rents} bonus={this.state.bonus} expenses={this.state.expenses} />
+            {this.state.bonus > 0 && <Expenses rents={this.state.rents} bonus={this.state.bonus} expenses={this.state.expenses} />}
             {members}
           </ul>
         </article>
@@ -212,8 +212,6 @@ var Expenses = React.createClass({
     var totalExpenses = 0;
     var expensesHistory = [];
     var expenses = this.props.expenses.sort(function(a,b){ return Date.parse(b.registered_at) - Date.parse(a.registered_at); })
-    var budget = totalBudgetAmount - totalExpenses;
-    if (isNaN(budget)) budget = 0;
     expenses.forEach(function(expense, i) {
       totalExpenses += parseFloat(expense.amount);
       var transaction = {
@@ -231,10 +229,12 @@ var Expenses = React.createClass({
         />
       )
     }, this);
+    var budget = totalBudgetAmount - totalExpenses;
+    if (isNaN(budget)) budget = 0;
     return (
       <div className="memberInfo currentMember">
       <h3>Budget balance
-        <span>The money we can use to buy beer and stuff</span>
+        <span>Money to use for shared costs</span>
       </h3>
       <span className="blue" style={{background: "#d05959", color: "#FFF"}}>Budget today:
         <span className="displayNumbers right counter">{budget}:-</span>
