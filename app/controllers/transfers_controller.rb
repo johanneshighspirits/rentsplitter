@@ -5,6 +5,7 @@ class TransfersController < ApplicationController
 
   def new
     @transfer = Transfer.new
+    @expense = Expense.new
     @allMembers = []
     @projects = current_member.projects.where(admin_id: current_member.id)
     @projects.each do |project|
@@ -14,7 +15,13 @@ class TransfersController < ApplicationController
   end
 
   def create
-    @project = params[:single_or_multiple] == "single" ? Project.find(params[:project_id]) : Project.find(params[:multiple_project_id])
+    if params[:single_or_multiple] == "single"
+      @project = Project.find(params[:project_id])
+    elsif params[:single_or_multiple] == "multiple"
+      @project = Project.find(params[:multiple_project_id])
+    elsif params[:single_or_multiple] == "expense"
+      @project = Project.find(params[:expense_project_id])
+    end
     @members = @project.members.includes(:memberships)
 
     unless params[:transfers].nil?
@@ -45,6 +52,14 @@ class TransfersController < ApplicationController
       end
 
       RentDiscount.import @rent_discounts, ignore: true
+    end
+
+    unless params[:expenses].nil?
+      @expenses = []
+      params[:expenses].each do |key, expense|
+        @expenses << @project.expenses.build(expense.permit(:description, :amount, :registered_at))
+      end
+      Expense.import @expenses, ignore: true
     end
 
     redirect_to new_transfer_path

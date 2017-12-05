@@ -14,7 +14,8 @@ window.RentSplitter = React.createClass({
         rents: projectInfo.rentAndDiscounts.rents,
         rentDiscounts: projectInfo.rentAndDiscounts.discounts,
         members: projectInfo.memberTransfers.sort(this.sortMembers),
-        expenses: projectInfo.expenses
+        expenses: projectInfo.expenses,
+        bonus: projectInfo.rentAndDiscounts.bonus
       });
     }.bind(this), 'json');
   },
@@ -69,7 +70,7 @@ window.RentSplitter = React.createClass({
         </article>
         <article>
           <ul>
-            <Expenses rents={this.state.rents} expenses={this.state.expenses} />
+            <Expenses rents={this.state.rents} bonus={this.state.bonus} expenses={this.state.expenses} />
             {members}
           </ul>
         </article>
@@ -206,12 +207,13 @@ var MemberInfo = React.createClass({
 var Expenses = React.createClass({
   render: function() {
     var numberOfMonths = this.props.rents.length;
-    var totalBudgetAmount = 1000 * numberOfMonths;
+    var totalBudgetAmount = parseFloat(this.props.bonus) * numberOfMonths;
     // Add expenses
     var totalExpenses = 0;
     var expensesHistory = [];
     var expenses = this.props.expenses.sort(function(a,b){ return Date.parse(b.registered_at) - Date.parse(a.registered_at); })
-    
+    var budget = totalBudgetAmount - totalExpenses;
+    if (isNaN(budget)) budget = 0;
     expenses.forEach(function(expense, i) {
       totalExpenses += parseFloat(expense.amount);
       var transaction = {
@@ -235,7 +237,7 @@ var Expenses = React.createClass({
         <span>The money we can use to buy beer and stuff</span>
       </h3>
       <span className="blue" style={{background: "#d05959", color: "#FFF"}}>Budget today:
-        <span className="displayNumbers right counter">{totalBudgetAmount - totalExpenses}:-</span>
+        <span className="displayNumbers right counter">{budget}:-</span>
       </span>
 
       <table className="paddedTopBottom paddedLeftRight">

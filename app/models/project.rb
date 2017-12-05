@@ -31,6 +31,7 @@ class Project < ApplicationRecord
     result = {
       rents: [],
       discounts: [],
+      bonus: bonus
     }
 
     # Loop through all project's months and add the rent to project_rents

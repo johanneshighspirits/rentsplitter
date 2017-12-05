@@ -26,7 +26,13 @@ fields: [
         attribute: "single_or_multiple",
         attributeName: "Add transfers from excel file",
         defaultValue: "multiple"
-      }
+      },
+      {
+        fieldType: "radio",
+        attribute: "single_or_multiple",
+        attributeName: "Add single expense",
+        defaultValue: "expense"
+      },
     ]
   },
   {
@@ -42,6 +48,21 @@ fields: [
       }
     ],
     isVisibleIfChecked: "single_or_multiple#multiple",
+    defaultValue: ""
+  },
+  {
+    fieldType: "select",
+    attribute: "expense_project_id",
+    attributeName: "Select a project to add the expense to",
+    options: @projects.map {|p| [p.id, p.name]}.unshift([0, "Choose Project"]),
+    validations: [
+      {
+        type: "value>",
+        limit: 0,
+        message: "Select a Project."
+      }
+    ],
+    isVisibleIfChecked: "single_or_multiple#expense",
     defaultValue: ""
   },
   {
@@ -72,6 +93,20 @@ fields: [
     ],
   },
   {
+    fieldType: "text",
+    attribute: "expenses[0][description]",
+    attributeName: "Description",
+    defaultValue: "",
+    isVisibleIfChecked: "single_or_multiple#expense",
+    autofocus: true,
+    validations: [
+      {
+        type: "presence",
+        message: "Enter a description of this expense."
+      }
+    ],
+  },
+  {
     fieldType: "number",
     attribute: "transfers[0][amount]",
     attributeName: "Amount",
@@ -79,11 +114,25 @@ fields: [
     isVisibleIfChecked: "single_or_multiple#single"
   },
   {
+    fieldType: "number",
+    attribute: "expenses[0][amount]",
+    attributeName: "Amount",
+    defaultValue: 0,
+    isVisibleIfChecked: "single_or_multiple#expense"
+  },
+  {
     fieldType: "date",
     attribute: "transfers[0][transferred_at]",
     attributeName: "Transfer date",
     defaultValue: Date.current.to_date,
     isVisibleIfChecked: "single_or_multiple#single"
+  },
+  {
+    fieldType: "date",
+    attribute: "expenses[0][registered_at]",
+    attributeName: "Date",
+    defaultValue: Date.current.to_date,
+    isVisibleIfChecked: "single_or_multiple#expense"
   },
   {
     fieldType: "select",
@@ -119,6 +168,6 @@ fields: [
   },
   {
     fieldType: "submit",
-    attributeName: "Add transfer"
+    attributeName: "Done"
   }
 ] %>
