@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171205195737) do
+ActiveRecord::Schema.define(version: 20171224201446) do
 
   create_table "calendar_events", force: :cascade do |t|
     t.datetime "from_date"
@@ -64,8 +64,8 @@ ActiveRecord::Schema.define(version: 20171205195737) do
 
   create_table "projects", force: :cascade do |t|
     t.string   "name"
-    t.datetime "created_at",       null: false
-    t.datetime "updated_at",       null: false
+    t.datetime "created_at",                       null: false
+    t.datetime "updated_at",                       null: false
     t.date     "start_date"
     t.integer  "admin_id"
     t.string   "info"
@@ -73,6 +73,7 @@ ActiveRecord::Schema.define(version: 20171205195737) do
     t.datetime "invoices_sent_at"
     t.date     "end_date"
     t.decimal  "bonus"
+    t.boolean  "perQuarter",       default: false
   end
 
   create_table "rent_discounts", force: :cascade do |t|
