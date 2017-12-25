@@ -159,7 +159,6 @@ var MemberInfo = React.createClass({
     var totalAmountToPay = 0;
     // Add rent amount to be paid.
     this.props.rents.forEach(function(rent, i) {
-      console.log(rent);
       if (rent.from >= this.props.member.joinedAt && rent.to <= this.props.member.leftAt) {
         // Member had membership when this rent is due
         totalAmountToPay += parseFloat(rent.sharedAmount || 0);

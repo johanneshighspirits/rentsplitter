@@ -57,6 +57,13 @@
                 <%= @debt %>:-
               </td>
             </tr>
+            <% if @perQuarter %>
+            <tr>
+              <td width="100%" style="padding:30px 30px 10px 30px;text-align:right;">
+                Rent for (<%= @quarterMonths %>)
+              </td>
+            </tr>
+            <% end %>
           </table>
         </td>
         <% else %>

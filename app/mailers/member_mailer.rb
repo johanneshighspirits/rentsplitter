@@ -153,6 +153,20 @@ class MemberMailer < ApplicationMailer
     @sender = info[:sender]
     project = info[:project]
     @project_name = project.name
+    @perQuarter = project.perQuarter
+    if @perQuarter
+      quarter = ((Date.current.month / 12.0) * 4.0).floor
+      if quarter == 4
+        quarter = 0
+      end
+      quarters = [
+        "jan, feb, mar",
+        "apr, may, jun",
+        "jul, aug, oct",
+        "nov, dec, dec"
+      ]
+      @quarterMonths = quarters[quarter]
+    end
     @debt = info[:debt].ceil()
     @due_date = info[:due_date]
     @is_reminder = info[:is_reminder]
