@@ -1,3 +1,18 @@
+var monthNames = [
+  'jan',
+  'feb',
+  'mar',
+  'apr',
+  'may',
+  'jun',
+  'jul',
+  'aug',
+  'sep',
+  'oct',
+  'nov',
+  'dec'
+];
+
 // Address namespace issue
 window.RentSplitter = React.createClass({
   getInitialState: function(){
@@ -5,17 +20,21 @@ window.RentSplitter = React.createClass({
       rents: [],
       rentDiscounts: [],
       members: [],
-      expenses: []
+      expenses: [],
+      bonus: 0,
+      perQuarter: false
     });
   },
   componentDidMount: function() {
     $.get('/projects/' + this.props.project.id + '/transfers.json', function(projectInfo){
+      console.log(projectInfo);
       this.setState({
         rents: projectInfo.rentAndDiscounts.rents,
         rentDiscounts: projectInfo.rentAndDiscounts.discounts,
         members: projectInfo.memberTransfers.sort(this.sortMembers),
         expenses: projectInfo.expenses,
-        bonus: projectInfo.rentAndDiscounts.bonus
+        bonus: projectInfo.rentAndDiscounts.bonus,
+        perQuarter: projectInfo.rentAndDiscounts.perQuarter
       });
     }.bind(this), 'json');
   },
@@ -45,6 +64,7 @@ window.RentSplitter = React.createClass({
           transfers={member.transfers}
           rents={this.state.rents}
           rentDiscounts={this.state.rentDiscounts}
+          perQuarter={this.state.perQuarter}
         />
       )
     }, this);
@@ -107,6 +127,24 @@ var MemberInfo = React.createClass({
       counter(element, 0, element.dataset['amount'], this.props.order * 1000);
     }, this);
   },
+  quarterMonths: function() {
+    var months = [];
+
+    var now = new Date();
+    var thisMonth = now.getMonth();
+    var quarter = Math.floor((thisMonth / 12) * 4);
+    if ((thisMonth + 1) % 3 == 0) {
+      quarter += 1;
+    }
+    var i = 0;
+    while (i < 3) {
+      var monthIndex = ((quarter) * 3) + i;
+      if (monthIndex > 11) monthIndex -= 12;
+      months.push(monthNames[monthIndex])
+      i++;
+    }
+    return months;
+  },
   render: function() {
     var isMember = this.props.member.isMember;
     var willJoin = new Date(this.props.member.joinedAt) > new Date();
@@ -121,6 +159,7 @@ var MemberInfo = React.createClass({
     var totalAmountToPay = 0;
     // Add rent amount to be paid.
     this.props.rents.forEach(function(rent, i) {
+      console.log(rent);
       if (rent.from >= this.props.member.joinedAt && rent.to <= this.props.member.leftAt) {
         // Member had membership when this rent is due
         totalAmountToPay += parseFloat(rent.sharedAmount || 0);
@@ -177,6 +216,8 @@ var MemberInfo = React.createClass({
         {totalAmountToPay > 0 ?
         <span className="red" style={{background: "#d05959", color: "#FFF"}}>Att betala senast {this.props.dueDay} {this.props.dueMonth}:
           <span className="displayNumbers right counter" data-amount={totalAmountToPay}>{totalAmountToPay}:-</span>
+          {this.props.perQuarter && <span style={{ display: 'block', paddingBottom: '1em' }} className="right">(Rent for {this.quarterMonths().join(', ')})</span>}
+
         </span>
           :
         <span className="green" style={{background: "#499260", color: "#FFF"}}>Till godo:

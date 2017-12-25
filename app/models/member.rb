@@ -34,12 +34,19 @@ class Member < ApplicationRecord
   # Returns Member's invoice identifier
   def invoice_identifier(project)
     short_month_name = "-" + Date::MONTHNAMES[Date.current.next_month.month].slice(0,3).upcase || ""
+    if project.perQuarter
+      quarter = ((Date.current.month / 12.0) * 4.0).floor + 1
+      if quarter == 5
+        quarter = 1
+      end
+      short_month_name = "-Q#{quarter}"
+    end
     "#{initials}#{id}-#{project.id}#{short_month_name}"
   end
 
   # Return project and member from identifier
   def Member.decode_invoice_identifier(identifier)
-    identifier_regex = /^([\D]{2})([0-9]+)\-([0-9]+)\-?([A-Z]{3})?$/
+    identifier_regex = /^([\D]{2})([0-9]+)\-([0-9]+)\-?([A-Z]{3}|Q[1-4]{1})?$/
     matches = identifier_regex.match(identifier)
     if matches
       {

@@ -34,6 +34,7 @@ class Project < ApplicationRecord
     end
 
     result = {
+      perQuarter: perQuarter,
       rents: [],
       discounts: [],
       bonus: @bonus
@@ -95,8 +96,16 @@ class Project < ApplicationRecord
 
   def project_months
     end_month = Date.current.day < 10 ? Date.current.prev_month.end_of_month : Date.current.end_of_month
+    if perQuarter
+      # Rent is to be payed in advance every quarter
+      remainder = Date.current.day < 10 ? Date.prev_month.month % 3 : Date.current.month % 3
+      months_in_advance = 2 - remainder
+      end_month = end_month + months_in_advance.months
+    end
+
     if !end_date.nil? && end_date.past?
       # Project has an end date.
+      puts "Project has an end date: #{end_date}"
       # An end date is the last day of the month when rent
       # should be paid.
       # If the project ends last of August, you will still
@@ -104,6 +113,9 @@ class Project < ApplicationRecord
       end_month = end_date
     end
     (start_date.prev_month..end_month).select do |date|
+      if date.day == date.end_of_month.day
+        puts "Project month #{date.end_of_month}"
+      end
       date.day == date.end_of_month.day
     end
   end
