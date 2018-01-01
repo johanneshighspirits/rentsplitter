@@ -153,6 +153,7 @@ class MemberMailer < ApplicationMailer
     @sender = info[:sender]
     project = info[:project]
     @project_name = project.name
+    @invoice_month = info[:for_month]
     @perQuarter = project.perQuarter
     if @perQuarter
       quarter = ((Date.current.month / 12.0) * 4.0).floor
@@ -166,6 +167,7 @@ class MemberMailer < ApplicationMailer
         "nov, dec, dec"
       ]
       @quarterMonths = quarters[quarter]
+      @invoice_month = @quarterMonths
     end
     @debt = info[:debt].ceil()
     @due_date = info[:due_date]
@@ -201,8 +203,8 @@ class MemberMailer < ApplicationMailer
       }
     }
     headers['X-SMTPAPI'] = smtp_headers.to_json
-    puts "Mailing to #{@member.email}, bcc: #{@admin.email}, subject: #{@project_name} | Rent for #{info[:for_month]}"
-    mail to: @member.email, bcc: @admin.email, subject: @is_reminder ? "REMINDER: #{@project_name} | Rent for #{info[:for_month]}" : "#{@project_name} | Rent for #{info[:for_month]}"
+    puts "Mailing to #{@member.email}, bcc: #{@admin.email}, subject: #{@project_name} | Rent for #{@invoice_month}"
+    mail to: @member.email, bcc: @admin.email, subject: @is_reminder ? "REMINDER: #{@project_name} | Rent for #{@invoice_month}" : "#{@project_name} | Rent for #{@invoice_month}"
   end
 
 

@@ -98,7 +98,7 @@ class Project < ApplicationRecord
     end_month = Date.current.day < 10 ? Date.current.prev_month.end_of_month : Date.current.end_of_month
     if perQuarter
       # Rent is to be payed in advance every quarter
-      remainder = Date.current.day < 10 ? Date.prev_month.month % 3 : Date.current.month % 3
+      remainder = Date.current.day < 10 ? Date.current.prev_month.month % 3 : Date.current.month % 3
       months_in_advance = 2 - remainder
       end_month = end_month + months_in_advance.months
     end

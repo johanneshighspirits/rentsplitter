@@ -27,7 +27,6 @@ window.RentSplitter = React.createClass({
   },
   componentDidMount: function() {
     $.get('/projects/' + this.props.project.id + '/transfers.json', function(projectInfo){
-      console.log(projectInfo);
       this.setState({
         rents: projectInfo.rentAndDiscounts.rents,
         rentDiscounts: projectInfo.rentAndDiscounts.discounts,
@@ -113,7 +112,9 @@ function counter(element, startNr, endNr, delay) {
   for (var i = 0; i <= endNr; i++) {
     (function(s) {
       setTimeout(function() {
-        element.innerHTML = s + ":-";
+        requestAnimationFrame(function() {
+          element.innerHTML = s + ":-";      
+        })
       }, time);
     })(i);
     time = easeInQuad(i, minTime, maxTime, diff);

@@ -59,7 +59,7 @@
             </tr>
             <% if @perQuarter %>
             <tr>
-              <td width="100%" style="padding:30px 30px 10px 30px;text-align:right;">
+              <td width="100%" style="padding:0px 30px 10px 30px;text-align:right;">
                 Rent for (<%= @quarterMonths %>)
               </td>
             </tr>
@@ -86,6 +86,7 @@
     </table>
   </td>
 </tr>
+  <% if @debt > 0 %>
 <tr>
   <td>
     <table style="border-collapse: collapse;background-color:#f7f7f7;" width="560" class="deviceWidth" border="0" cellpadding="0" cellspacing="0" align="center" bgcolor="#f7f7f7">
@@ -106,6 +107,7 @@
     </table>
   </td>
 </tr>
+  <% end %>
 <% end %>
 
 <% unless @content[:additional].nil? %>
